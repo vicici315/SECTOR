@@ -4,7 +4,7 @@ set t=%time:~0,8%
 set timestamp=%d% %t%
  
 set /p comments=please input commit commits:
-echo [%timestamp%] comments: %comments% >> history.txt
+echo [%timestamp%] commit: %comments% >> history.txt
  
 git add .
 git commit -m "[%timestamp%] commit: %comments%"
