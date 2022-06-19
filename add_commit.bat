@@ -7,8 +7,8 @@ set /p comments=please input commit commits:
 echo [%timestamp%] commit: %comments% >> history.txt
  
 git add .
-git commit -m "[%timestamp%] push: %comments%"
-git push
+git commit -m "[%timestamp%] commit: %comments%"
+
 git log --stat -1
 echo "Finished Push!"
 pause
