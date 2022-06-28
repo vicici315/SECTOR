@@ -11,11 +11,11 @@ for /f  %%i in (%filePath%) do (
 
  
 set /p comments=please input commit commits:
-echo [%timestamp%] commit: %comments% %lastline% >> history.txt
+echo [%timestamp%] commit: %comments% v%lastline% >> history.txt
 echo %lastLine% >> ver.txt
  
 git add .
-git commit -m "[%timestamp%] commit: %comments%"
+git commit -m "[%timestamp%] commit: %comments% v%lastline%"
 
 git log --stat -1
 echo "Finished Push!"
