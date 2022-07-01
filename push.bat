@@ -1,14 +1,10 @@
 @echo off
-set d=%date:~0,10%
-set t=%time:~0,8%
-set timestamp=%d% %t%
- 
-set /p comments=please input commit commits:
-echo [%timestamp%] commit: %comments% >> history.txt
- 
-git add .
-git commit -m "[%timestamp%] push: %comments%"
-git push
+
+git status
+set/p a=确定执行推送到远程吗？(y/n)
+if %a% == y git push
+
 git log --stat -1
+echo [%timestamp%] comments: %comments% >> history.txt
 echo "Finished Push!"
 pause

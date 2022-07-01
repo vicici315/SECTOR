@@ -18,5 +18,5 @@ git add .
 git commit -m "[%timestamp%] commit: %comments% v%lastline%"
 
 git log --stat -1
-echo "Finished Push!"
+echo "Finished Add!"
 pause
