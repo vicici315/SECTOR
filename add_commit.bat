@@ -9,14 +9,16 @@ for /f  %%i in (%filePath%) do (
 	set /a lastline=lastline+1
 )
 
- 
-set /p comments=please input commit commits:
-echo [%timestamp%] commit: %comments% v%lastline% >> history.txt
+echo 类型参考：^<New:新增、Edit:修改、Dev:用户文件、Revert:回滚^>
+echo 书写格式参考：New:说明内容
+echo.
+set /p comments= 本地提交说明: 
+echo [%timestamp%] commit: %comments% (%COMPUTERNAME%) v%lastline% >> history.txt
 echo %lastLine% >> ver.txt
- 
-git add .
-git commit -m "[%timestamp%] commit: %comments% v%lastline%"
 
+git add -u
+git commit -m "[%timestamp%] commit: %comments% (%COMPUTERNAME%) v%lastline%"
 git log --stat -1
+
 echo "Finished Add!"
 pause
