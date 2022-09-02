@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>JavaScript第一课</title>
+	<link href="Ionicons4.5.4.css" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="css/STYLE3.css"/>
+	<script defer type="text/javascript" src="scriptcolor.js"></script>
+	<script type="text/javascript" src="jsHtml.js"></script>	<!--调用js脚本；注意type=不是路径，必须这样写，js脚本来源src=同目录下的js脚本名-->
+
+	<link rel="stylesheet" type="text/css" href="style.css">
+<script type="text/javascript">
+/*打开侧栏，修改侧栏宽度，主体左跨度、背景透明度*/
+    function openNav() {
+        document.getElementById("mySidenav").style.width = "250px";
+	document.getElementById("main").style.marginLeft = "250px";
+    	document.body.style.backgroundColor = "rgba(0,0,0,0.4)";
+    }
+    /*关闭侧栏，恢复原始侧栏宽度，主体左跨度、背景透明度*/
+    function closeNav() {
+	document.getElementById("mySidenav").style.width = "0";
+	document.getElementById("main").style.marginLeft= "0";
+	document.body.style.backgroundColor = "white";
+    }
+</script>
+</head>
+
+<body>
+	<!--侧栏界面设计-->
+<div id="mySidenav" class="sidenav">
+  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+  <a href="jsHtml.html" onclick="closeNav()">About</a>
+  <a href="#">Services</a>
+  <a href="#">Clients</a>
+  <a href="#">Contact</a>
+</div>
+
+<div id="main">
+  <span style="font-size:30px;cursor:pointer" onclick="openNav()">&#9776; Menu</span>
+	  <h2>侧边栏实例 - 页面主体向右移动。</h2>
+	  <p>点击以下菜单图标打开侧边栏，主体内容向右偏移。主体内容添加黑色透明背景</p>
+</div>
+
+	<h1>1. onclick函数调用</h1>
+	<img id="myimage" onclick="changeImage()" src="pic_bulboff.gif" width="139" height="147">
+	<p style="color:red">点击图片切换</p>
+	<p></p>
+	<h1>2. JavaScript的输出</h1>
+	<button type="button" onclick="winAlert()">window.alert("弹窗内容："+(5+6));</button>
+	<p id="demo">innerHtml demo</p>
+	<button type="button" onclick="innerHtml()">inner Html写入段落</button>
+	<button type="button" onclick="writeHtml()">write Html</button>
+	<p></p>		<!--换行效果-->
+	<button type="button" onclick="writeToConsole()">write to Console</button>
+	<p style="color:red">打开控制台快捷键：Ctrl+Shift+I（Opera）</p>
+	<h1>3. 变量</h1>
+	<p>3.1 变量区分大小写</p>
+	<p>3.2 变量以字母开头</p>
+	<button type="button" name="button" onclick="printVar()">显示变量示例</button>
+	<p id="var1"></p>
+	<button type="button" name="button2" onclick="printStringVar()">显示字符串变量示例</button>
+	<p id="var2"></p>
+	<h2>3.3 局部变量、全局变量（js脚本中）</h2>
+	<pre class="js">
+	var y = 7; //函数外面的即使加了var声明也属于全局变量
+	function welcomeFun(name,job){
+		var x = 5; //函数中加声明为局部变量，只有该函数中可以调用
+		x = 5; //如果没有加声明为全局变量，则外部其它函数中也可以调用
+		alert("Welcome "+name+", the "+job);
+	}
+	</pre>
+	<hr> <!--全页横线分隔-->
+	<h1>4. 数据类型</h1>
+	<h3>4.1 基本数据类型：字符串，数字，布尔（true/false），空（Null），未定义（Undefined），独一无二的值（Symbol）</h3>
+	<h3>4.2 引用类型：对象，数组，函数</h3>
+	<p>var x;</p>
+	<p>var cars = newArray();</p>
+	<p>cars[0] = "Bens"</p>
+	<p>cars[1] = "BMW"</p>
+	<h3>或者如下两种初始化数组方式</h3>
+	var cars = newArray("Bens","BMW");
+	<p>var cars = ["Bens","BMW"];</p>
+	<h3>数组对象是有属性和方法的数据</h3>
+	<p>var person = {"name":"Name1","age":26};</p>
+	<p>调用：person.name 或 person["name"]</p>
+	<h1>5. 函数</h1>
+	<button type="button" onclick="welcomeFun('Vicici','CEO')">函数传参</button> welcomeFun('Vicici','CEO')
+
+</body>
+</html>

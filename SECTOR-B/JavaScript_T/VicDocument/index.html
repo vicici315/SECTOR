@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>VicDocumentMenu</title>
+	<link href="Ionicons4.5.4.css" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="css/STYLE3.css"/>
+	<script defer type="text/javascript" src="scriptcolor.js"></script>
+	<script type="text/javascript" src="jsHtml.js"></script>	<!--调用js脚本；注意type=不是路径，必须这样写，js脚本来源src=同目录下的js脚本名-->
+
+	<link rel="stylesheet" type="text/css" href="style.css">
+<script type="text/javascript">
+//打开侧栏，修改侧栏宽度，主体左跨度、背景透明度
+    function openNav() {
+        document.getElementById("mySidenav").style.width = "250px";
+        document.getElementById("main").style.marginLeft = "250px";
+    	document.body.style.backgroundColor = "rgba(0,0,0,0.4)";
+    }
+    //关闭侧栏，恢复原始侧栏宽度，主体左跨度、背景透明度
+    function closeNav() {
+        document.getElementById("mySidenav").style.width = "0";
+        document.getElementById("main").style.marginLeft= "0";
+        document.body.style.backgroundColor = "white";
+    }
+</script>
+</head>
+
+<body>
+	<!--侧栏界面设计-->
+<div id="mySidenav" class="sidenav">
+  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+  <a href="c++.html" onclick="closeNav()">C++</a>
+  <a href="#">JavaScript</a>
+</div>
+
+<div id="main">
+  <span style="font-size:30px;cursor:pointer" onclick="openNav()">&#9776; Menu</span>
+
+</div>
+<h4><a href="c++.html">C++</a></h4>
+	<h1>1. onclick函数调用</h1>
+
+	<pre class="js">
+	var y = 7; //函数外面的即使加了var声明也属于全局变量
+	function welcomeFun(name,job){
+		var x = 5; //函数中加声明为局部变量，只有该函数中可以调用
+		x = 5; //如果没有加声明为全局变量，则外部其它函数中也可以调用
+		alert("Welcome "+name+", the "+job);
+	}
+	</pre>
+	<hr> <!--全页横线分隔-->
+
+</body>
+</html>

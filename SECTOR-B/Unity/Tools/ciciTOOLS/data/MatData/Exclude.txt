@@ -1,0 +1,1 @@
+_BumpMap,_DetailNormalMap,_ParallaxMap,_OcclusionMap,_EmissionMap,_DetailMask,_DetailAlbedoMap,_MetallicGlossMap,_texNormal_R,_texIBL,_Bump,_MRO,_texMSA,_2,_3

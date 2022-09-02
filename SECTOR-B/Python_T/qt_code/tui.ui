@@ -1,0 +1,2193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>597</width>
+    <height>982</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>455</width>
+    <height>335</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="toolTip">
+   <string/>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <property name="styleSheet">
+    <string notr="true">color: rgba(255, 255, 255, 0);</string>
+   </property>
+   <widget class="QFrame" name="frame">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>30</y>
+      <width>491</width>
+      <height>305</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+     </font>
+    </property>
+    <property name="mouseTracking">
+     <bool>false</bool>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::LeftToRight</enum>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame#frame{
+	border-radius:28px;
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0.85 rgb(87, 85, 147), stop:0.852 rgb(48, 39, 78));
+}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QLabel" name="title">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>0</y>
+       <width>137</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Candara</family>
+       <pointsize>12</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color:none;
+</string>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#aaaaff;&quot;&gt;VICICI Tools &lt;/span&gt;&lt;span style=&quot; color:#7d080e;&quot;&gt;1.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="textInteractionFlags">
+      <set>Qt::LinksAccessibleByMouse</set>
+     </property>
+    </widget>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="geometry">
+      <rect>
+       <x>61</x>
+       <y>24</y>
+       <width>421</width>
+       <height>231</height>
+      </rect>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::DefaultContextMenu</enum>
+     </property>
+     <property name="whatsThis">
+      <string/>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QTabWidget{
+	border:None;
+}
+QWidget{color: rgb(227,225, 227);background-color: rgba(27, 25, 47, 0);}</string>
+     </property>
+     <property name="tabShape">
+      <enum>QTabWidget::Triangular</enum>
+     </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <property name="usesScrollButtons">
+      <bool>true</bool>
+     </property>
+     <property name="tabsClosable">
+      <bool>false</bool>
+     </property>
+     <property name="movable">
+      <bool>false</bool>
+     </property>
+     <property name="tabBarAutoHide">
+      <bool>false</bool>
+     </property>
+     <widget class="QWidget" name="tab_rename">
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(67, 65, 127);
+</string>
+      </property>
+      <attribute name="title">
+       <string>批量命名</string>
+      </attribute>
+      <widget class="QLineEdit" name="lineEdit">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>9</y>
+         <width>382</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QLineEdit{background-color: rgba(0, 0, 0, 0);}</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>300</x>
+         <y>8</y>
+         <width>81</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(100, 100, 100);</string>
+       </property>
+       <property name="text">
+        <string>WORK PATH</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="lineEdit_ext">
+       <property name="geometry">
+        <rect>
+         <x>166</x>
+         <y>37</y>
+         <width>149</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QLineEdit{background-color: rgba(0, 0, 0, 0);}</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="ext_lbl">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>204</x>
+         <y>36</y>
+         <width>100</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(100, 100, 100);</string>
+       </property>
+       <property name="text">
+        <string>类型过滤: .*;.*</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="separator_cb">
+       <property name="geometry">
+        <rect>
+         <x>394</x>
+         <y>65</y>
+         <width>17</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#594275;&quot;&gt;分隔符&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(67, 65, 127);</string>
+       </property>
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+       <property name="currentText">
+        <string>-</string>
+       </property>
+       <property name="frame">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="sep_le">
+       <property name="geometry">
+        <rect>
+         <x>353</x>
+         <y>64</y>
+         <width>39</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">border:none;background-color: rgba(0, 0, 0, 50);border-radius:8px;</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="newName_lbl">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>122</x>
+         <y>63</y>
+         <width>99</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(100, 100, 100);
+background-color:none;</string>
+       </property>
+       <property name="text">
+        <string>新 命 名</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="newName_le">
+       <property name="geometry">
+        <rect>
+         <x>117</x>
+         <y>64</y>
+         <width>108</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QLineEdit{border:none;background-color: rgba(0, 0, 0, 60);border-radius:8px;}</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="prefix_lbl">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>12</x>
+         <y>63</y>
+         <width>55</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(100, 100, 100);
+background-color:none;</string>
+       </property>
+       <property name="text">
+        <string>前 缀</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="prefix_le">
+       <property name="geometry">
+        <rect>
+         <x>9</x>
+         <y>64</y>
+         <width>59</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QLineEdit{border:none;background-color: rgba(0, 0, 0, 60);border-radius:8px;}</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="suffix_lbl">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>236</x>
+         <y>63</y>
+         <width>55</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(100, 100, 100);
+background-color:none;</string>
+       </property>
+       <property name="text">
+        <string>后 缀</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="suffix_le">
+       <property name="geometry">
+        <rect>
+         <x>234</x>
+         <y>64</y>
+         <width>59</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QLineEdit{border:none;background-color: rgba(0, 0, 0, 60);border-radius:8px;}</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="folderName_chk">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>74</x>
+         <y>66</y>
+         <width>40</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#594275;&quot;&gt;使用父目录名&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="toolTipDuration">
+        <number>-1</number>
+       </property>
+       <property name="statusTip">
+        <string/>
+       </property>
+       <property name="accessibleName">
+        <string/>
+       </property>
+       <property name="accessibleDescription">
+        <string/>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>folderName.png</normaloff>folderName.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>18</width>
+         <height>18</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="autoRepeat">
+        <bool>true</bool>
+       </property>
+       <property name="tristate">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="QSpinBox" name="spinBox">
+       <property name="geometry">
+        <rect>
+         <x>302</x>
+         <y>64</y>
+         <width>42</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgba(0, 0, 0, 60);border-radius:8px;</string>
+       </property>
+       <property name="frame">
+        <bool>false</bool>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="buttonSymbols">
+        <enum>QAbstractSpinBox::UpDownArrows</enum>
+       </property>
+       <property name="correctionMode">
+        <enum>QAbstractSpinBox::CorrectToPreviousValue</enum>
+       </property>
+       <property name="maximum">
+        <number>12</number>
+       </property>
+       <property name="displayIntegerBase">
+        <number>10</number>
+       </property>
+      </widget>
+      <widget class="QLabel" name="floderN_lbl">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>66</x>
+         <y>50</y>
+         <width>55</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(90,90,90);
+background-color:none;</string>
+       </property>
+       <property name="text">
+        <string>文件夹名</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="finalNameSample">
+       <property name="geometry">
+        <rect>
+         <x>32</x>
+         <y>90</y>
+         <width>377</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Monaco</family>
+         <pointsize>9</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(255, 255, 127);
+background-color:none;</string>
+       </property>
+       <property name="text">
+        <string>原名</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="picExt_btn">
+       <property name="geometry">
+        <rect>
+         <x>125</x>
+         <y>38</y>
+         <width>35</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#594275;&quot;&gt;所有图片文件&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{border-radius:8px;
+	color: rgb(35, 189, 255);
+background-color: rgba(20,10,125,220);}
+QPushButton:hover{background-color: rgba(40, 50, 195, 220);}</string>
+       </property>
+       <property name="text">
+        <string>Pic</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="comp_Yes">
+       <property name="geometry">
+        <rect>
+         <x>372</x>
+         <y>174</y>
+         <width>35</width>
+         <height>35</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{
+	background-color: rgba(255, 255, 255, 0);
+}</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>compYes.png</normaloff>compYes.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>35</width>
+         <height>35</height>
+        </size>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="comp_No">
+       <property name="geometry">
+        <rect>
+         <x>320</x>
+         <y>174</y>
+         <width>35</width>
+         <height>35</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{
+	background-color: rgba(255, 255, 255, 0);
+}</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>compNo.png</normaloff>compNo.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>35</width>
+         <height>35</height>
+        </size>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="ExtWold_btn">
+       <property name="geometry">
+        <rect>
+         <x>82</x>
+         <y>38</y>
+         <width>35</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#594275;&quot;&gt;所有文档&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{border-radius:8px;
+	color: rgb(35, 189, 255);
+background-color: rgba(20,10,125,220);}
+QPushButton:hover{background-color: rgba(40, 50, 195, 220);}</string>
+       </property>
+       <property name="text">
+        <string>Wold</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="deltext_le">
+       <property name="geometry">
+        <rect>
+         <x>11</x>
+         <y>122</y>
+         <width>59</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QLineEdit{border:none;background-color: rgba(0, 0, 0, 60);border-radius:8px;}</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="deltext_btn">
+       <property name="geometry">
+        <rect>
+         <x>74</x>
+         <y>122</y>
+         <width>81</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string/>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{border-radius:8px;
+	color: rgb(35, 209, 185);
+background-color: rgb(18, 44, 127);}
+QPushButton:hover{background-color: rgba(180, 10, 35, 220);color: rgb(240, 205, 165);}</string>
+       </property>
+       <property name="text">
+        <string>删除关键字</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="delFB_btn">
+       <property name="geometry">
+        <rect>
+         <x>214</x>
+         <y>122</y>
+         <width>58</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#594275;&quot;&gt;分别剔除前后N个字符名字&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{border-radius:8px;
+	color: rgb(35, 209, 185);
+background-color: rgb(18, 44, 127);}
+QPushButton:hover{background-color: rgba(180, 10, 35, 220);color: rgb(240, 205, 165);}</string>
+       </property>
+       <property name="text">
+        <string>前后剔除</string>
+       </property>
+      </widget>
+      <widget class="QSpinBox" name="delF_spn">
+       <property name="geometry">
+        <rect>
+         <x>166</x>
+         <y>122</y>
+         <width>42</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgba(0, 0, 0, 60);border-radius:8px;</string>
+       </property>
+       <property name="frame">
+        <bool>false</bool>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="buttonSymbols">
+        <enum>QAbstractSpinBox::UpDownArrows</enum>
+       </property>
+       <property name="correctionMode">
+        <enum>QAbstractSpinBox::CorrectToPreviousValue</enum>
+       </property>
+       <property name="maximum">
+        <number>27</number>
+       </property>
+       <property name="displayIntegerBase">
+        <number>10</number>
+       </property>
+      </widget>
+      <widget class="QSpinBox" name="delB_spn">
+       <property name="geometry">
+        <rect>
+         <x>278</x>
+         <y>122</y>
+         <width>42</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgba(0, 0, 0, 60);border-radius:8px;</string>
+       </property>
+       <property name="frame">
+        <bool>false</bool>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="buttonSymbols">
+        <enum>QAbstractSpinBox::UpDownArrows</enum>
+       </property>
+       <property name="correctionMode">
+        <enum>QAbstractSpinBox::CorrectToPreviousValue</enum>
+       </property>
+       <property name="maximum">
+        <number>27</number>
+       </property>
+       <property name="displayIntegerBase">
+        <number>10</number>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="comp_Yes_2">
+       <property name="geometry">
+        <rect>
+         <x>118</x>
+         <y>150</y>
+         <width>35</width>
+         <height>35</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{
+	background-color: rgba(255, 255, 255, 0);
+}</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>compYes.png</normaloff>compYes.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>35</width>
+         <height>35</height>
+        </size>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="comp_No_2">
+       <property name="geometry">
+        <rect>
+         <x>66</x>
+         <y>150</y>
+         <width>35</width>
+         <height>35</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{
+	background-color: rgba(255, 255, 255, 0);
+}</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>compNo.png</normaloff>compNo.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>35</width>
+         <height>35</height>
+        </size>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="comp_Yes_3">
+       <property name="geometry">
+        <rect>
+         <x>270</x>
+         <y>150</y>
+         <width>35</width>
+         <height>35</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{
+	background-color: rgba(255, 255, 255, 0);
+}</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>compYes.png</normaloff>compYes.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>35</width>
+         <height>35</height>
+        </size>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="comp_No_3">
+       <property name="geometry">
+        <rect>
+         <x>218</x>
+         <y>150</y>
+         <width>35</width>
+         <height>35</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{
+	background-color: rgba(255, 255, 255, 0);
+}</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>compNo.png</normaloff>compNo.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>35</width>
+         <height>35</height>
+        </size>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="mp3info_chk">
+       <property name="geometry">
+        <rect>
+         <x>340</x>
+         <y>123</y>
+         <width>71</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Candara</family>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#594275;&quot;&gt;修改MP3标题信息&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string>MP3Info</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="lineEdit_filter">
+       <property name="geometry">
+        <rect>
+         <x>320</x>
+         <y>37</y>
+         <width>91</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QLineEdit{background-color: rgba(0, 0, 0, 0);}</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="filterext_lbl">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>327</x>
+         <y>36</y>
+         <width>77</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(100, 100, 100);
+background-color:none;</string>
+       </property>
+       <property name="text">
+        <string>包含过滤</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="Line" name="line">
+       <property name="geometry">
+        <rect>
+         <x>6</x>
+         <y>112</y>
+         <width>405</width>
+         <height>2</height>
+        </rect>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">
+background-color: rgba(230, 55, 23,120);</string>
+       </property>
+       <property name="midLineWidth">
+        <number>1</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_3">
+       <property name="geometry">
+        <rect>
+         <x>6</x>
+         <y>86</y>
+         <width>24</width>
+         <height>24</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#2d823a;&quot;&gt;还原命名规则&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>default.png</normaloff>default.png</iconset>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="ExtMp3_btn">
+       <property name="geometry">
+        <rect>
+         <x>38</x>
+         <y>38</y>
+         <width>35</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#594275;&quot;&gt;所有文档&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{border-radius:8px;
+	color: rgb(35, 189, 255);
+background-color: rgba(20,10,125,220);}
+QPushButton:hover{background-color: rgba(40, 50, 195, 220);}</string>
+       </property>
+       <property name="text">
+        <string>MP3</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="pathhist1_cb">
+       <property name="geometry">
+        <rect>
+         <x>398</x>
+         <y>8</y>
+         <width>122</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#594275;&quot;&gt;路径历史记录&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QComboBox{ background-color: rgb(67, 65, 127);}</string>
+       </property>
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+       <property name="currentText">
+        <string>-</string>
+       </property>
+       <property name="frame">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <zorder>filterext_lbl</zorder>
+      <zorder>ext_lbl</zorder>
+      <zorder>label</zorder>
+      <zorder>lineEdit</zorder>
+      <zorder>lineEdit_ext</zorder>
+      <zorder>separator_cb</zorder>
+      <zorder>sep_le</zorder>
+      <zorder>newName_lbl</zorder>
+      <zorder>newName_le</zorder>
+      <zorder>prefix_lbl</zorder>
+      <zorder>prefix_le</zorder>
+      <zorder>suffix_lbl</zorder>
+      <zorder>suffix_le</zorder>
+      <zorder>folderName_chk</zorder>
+      <zorder>spinBox</zorder>
+      <zorder>floderN_lbl</zorder>
+      <zorder>finalNameSample</zorder>
+      <zorder>picExt_btn</zorder>
+      <zorder>comp_Yes</zorder>
+      <zorder>comp_No</zorder>
+      <zorder>ExtWold_btn</zorder>
+      <zorder>deltext_le</zorder>
+      <zorder>deltext_btn</zorder>
+      <zorder>delFB_btn</zorder>
+      <zorder>delF_spn</zorder>
+      <zorder>delB_spn</zorder>
+      <zorder>comp_Yes_2</zorder>
+      <zorder>comp_No_2</zorder>
+      <zorder>comp_Yes_3</zorder>
+      <zorder>comp_No_3</zorder>
+      <zorder>mp3info_chk</zorder>
+      <zorder>lineEdit_filter</zorder>
+      <zorder>line</zorder>
+      <zorder>pushButton_3</zorder>
+      <zorder>ExtMp3_btn</zorder>
+      <zorder>pathhist1_cb</zorder>
+     </widget>
+     <widget class="QWidget" name="tab_2">
+      <property name="acceptDrops">
+       <bool>false</bool>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(47, 75, 107);</string>
+      </property>
+      <attribute name="title">
+       <string>复制文件名</string>
+      </attribute>
+      <widget class="QLineEdit" name="lineEdit_2">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>382</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">gridline-color: rgb(38, 55, 80);
+background-color: rgba(0, 0, 0, 0);</string>
+       </property>
+       <property name="frame">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_2">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>300</x>
+         <y>10</y>
+         <width>81</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(100, 100, 100);</string>
+       </property>
+       <property name="text">
+        <string>WORK PATH</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="copy_suffix_le">
+       <property name="geometry">
+        <rect>
+         <x>216</x>
+         <y>99</y>
+         <width>88</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QLineEdit{border:none;background-color: rgba(0, 0, 0, 60);border-radius:8px;}</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="copy_prefix_le">
+       <property name="geometry">
+        <rect>
+         <x>38</x>
+         <y>99</y>
+         <width>88</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QLineEdit{border:none;background-color: rgba(0, 0, 0, 60);border-radius:8px;}</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="copy_extName_chk">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>138</x>
+         <y>101</y>
+         <width>73</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string/>
+       </property>
+       <property name="toolTipDuration">
+        <number>-1</number>
+       </property>
+       <property name="statusTip">
+        <string/>
+       </property>
+       <property name="accessibleName">
+        <string/>
+       </property>
+       <property name="accessibleDescription">
+        <string/>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>扩展名</string>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>18</width>
+         <height>18</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="autoRepeat">
+        <bool>true</bool>
+       </property>
+       <property name="tristate">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="copy_parentName_chk">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>38</x>
+         <y>70</y>
+         <width>105</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string/>
+       </property>
+       <property name="toolTipDuration">
+        <number>-1</number>
+       </property>
+       <property name="statusTip">
+        <string/>
+       </property>
+       <property name="accessibleName">
+        <string/>
+       </property>
+       <property name="accessibleDescription">
+        <string/>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>打印父目录</string>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>18</width>
+         <height>18</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="autoRepeat">
+        <bool>true</bool>
+       </property>
+       <property name="tristate">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="QLabel" name="prefix_lbl_2">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>56</x>
+         <y>100</y>
+         <width>55</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(100, 100, 100);
+background-color:none;</string>
+       </property>
+       <property name="text">
+        <string>前 缀</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="suffix_lbl_2">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>232</x>
+         <y>100</y>
+         <width>55</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(100, 100, 100);
+background-color:none;</string>
+       </property>
+       <property name="text">
+        <string>后 缀</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="copy_size_chk">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>316</x>
+         <y>101</y>
+         <width>87</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string/>
+       </property>
+       <property name="toolTipDuration">
+        <number>-1</number>
+       </property>
+       <property name="statusTip">
+        <string/>
+       </property>
+       <property name="accessibleName">
+        <string/>
+       </property>
+       <property name="accessibleDescription">
+        <string/>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>文件大小</string>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>18</width>
+         <height>18</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="autoRepeat">
+        <bool>true</bool>
+       </property>
+       <property name="tristate">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="copy_reset_btn">
+       <property name="geometry">
+        <rect>
+         <x>6</x>
+         <y>97</y>
+         <width>24</width>
+         <height>24</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#2d823a;&quot;&gt;清除前后缀&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>default.png</normaloff>default.png</iconset>
+       </property>
+      </widget>
+      <widget class="QLabel" name="copy_Example_le">
+       <property name="geometry">
+        <rect>
+         <x>29</x>
+         <y>135</y>
+         <width>377</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Monaco</family>
+         <pointsize>9</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(95, 155, 255);
+background-color:none;</string>
+       </property>
+       <property name="text">
+        <string>原名</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="copy_ext_lbl">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>196</x>
+         <y>38</y>
+         <width>100</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(100, 100, 100);</string>
+       </property>
+       <property name="text">
+        <string>类型过滤: .*;.*</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="copy_ext_le">
+       <property name="geometry">
+        <rect>
+         <x>161</x>
+         <y>39</y>
+         <width>149</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QLineEdit{background-color: rgba(0, 0, 0, 0);}</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="copy_filterext_lbl">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>326</x>
+         <y>38</y>
+         <width>77</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(100, 100, 100);
+background-color:none;</string>
+       </property>
+       <property name="text">
+        <string>包含过滤</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="copy_filter_le">
+       <property name="geometry">
+        <rect>
+         <x>319</x>
+         <y>39</y>
+         <width>91</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QLineEdit{background-color: rgba(0, 0, 0, 0);}</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="copy_ExtWold_btn">
+       <property name="geometry">
+        <rect>
+         <x>72</x>
+         <y>40</y>
+         <width>35</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#594275;&quot;&gt;所有文档&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{border-radius:8px;
+	color: rgb(35, 189, 255);
+background-color: rgba(20,60,65,220);}
+QPushButton:hover{background-color: rgba(20, 40, 25, 220);}</string>
+       </property>
+       <property name="text">
+        <string>Wold</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="copy_ExtPic_btn">
+       <property name="geometry">
+        <rect>
+         <x>115</x>
+         <y>40</y>
+         <width>35</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#594275;&quot;&gt;所有图片文件&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{border-radius:8px;
+	color: rgb(35, 189, 255);
+background-color: rgba(20,60,65,220);}
+QPushButton:hover{background-color: rgba(20, 40, 25, 220);}</string>
+       </property>
+       <property name="text">
+        <string>Pic</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="copy_ExtMp3_btn">
+       <property name="geometry">
+        <rect>
+         <x>28</x>
+         <y>40</y>
+         <width>35</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#594275;&quot;&gt;所有文档&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{border-radius:8px;
+	color: rgb(35, 189, 255);
+background-color: rgba(20,60,65,220);}
+QPushButton:hover{background-color: rgba(20, 40, 25, 220);}</string>
+       </property>
+       <property name="text">
+        <string>MP3</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="pathhist2_cb">
+       <property name="geometry">
+        <rect>
+         <x>398</x>
+         <y>8</y>
+         <width>122</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#594275;&quot;&gt;路径历史记录&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(47, 75, 107);</string>
+       </property>
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+       <property name="currentText">
+        <string>-</string>
+       </property>
+       <property name="frame">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <zorder>prefix_lbl_2</zorder>
+      <zorder>suffix_lbl_2</zorder>
+      <zorder>label_2</zorder>
+      <zorder>lineEdit_2</zorder>
+      <zorder>copy_suffix_le</zorder>
+      <zorder>copy_prefix_le</zorder>
+      <zorder>copy_extName_chk</zorder>
+      <zorder>copy_parentName_chk</zorder>
+      <zorder>copy_size_chk</zorder>
+      <zorder>copy_reset_btn</zorder>
+      <zorder>copy_Example_le</zorder>
+      <zorder>copy_ext_lbl</zorder>
+      <zorder>copy_ext_le</zorder>
+      <zorder>copy_filterext_lbl</zorder>
+      <zorder>copy_filter_le</zorder>
+      <zorder>copy_ExtWold_btn</zorder>
+      <zorder>copy_ExtPic_btn</zorder>
+      <zorder>copy_ExtMp3_btn</zorder>
+      <zorder>pathhist2_cb</zorder>
+     </widget>
+     <widget class="QWidget" name="tab_3">
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(180, 59, 52);</string>
+      </property>
+      <attribute name="title">
+       <string>未开发</string>
+      </attribute>
+      <widget class="QLabel" name="label_3">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>15</y>
+         <width>366</width>
+         <height>128</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>汉仪长美黑繁</family>
+         <pointsize>28</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>新功能区...</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_4">
+       <property name="geometry">
+        <rect>
+         <x>86</x>
+         <y>136</y>
+         <width>273</width>
+         <height>42</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>汉仪长美黑繁</family>
+         <pointsize>18</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>您有何宝贵建议？</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+    <widget class="QLabel" name="lbl_output">
+     <property name="geometry">
+      <rect>
+       <x>21</x>
+       <y>261</y>
+       <width>428</width>
+       <height>37</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Tahoma</family>
+       <pointsize>9</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color:none;
+color: rgb(55, 205, 55);</string>
+     </property>
+     <property name="text">
+      <string>...
+Readiness.</string>
+     </property>
+     <property name="textInteractionFlags">
+      <set>Qt::LinksAccessibleByMouse</set>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="subDir_chk">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>11</x>
+       <y>49</y>
+       <width>43</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="toolTip">
+      <string extracomment="ccccccccc">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#594275;&quot;&gt;搜索子目录&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="toolTipDuration">
+      <number>-1</number>
+     </property>
+     <property name="accessibleName">
+      <string/>
+     </property>
+     <property name="accessibleDescription">
+      <string/>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>subFolder.png</normaloff>subFolder.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>28</width>
+       <height>18</height>
+      </size>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+     <property name="autoRepeat">
+      <bool>true</bool>
+     </property>
+     <property name="tristate">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lbl_err">
+     <property name="geometry">
+      <rect>
+       <x>143</x>
+       <y>267</y>
+       <width>297</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+      </font>
+     </property>
+     <property name="tabletTracking">
+      <bool>false</bool>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color:none;
+color: rgb(78,75, 95);</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="top_chk">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>11</x>
+       <y>229</y>
+       <width>43</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#594275;&quot;&gt;置顶窗口&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="toolTipDuration">
+      <number>-1</number>
+     </property>
+     <property name="statusTip">
+      <string/>
+     </property>
+     <property name="accessibleName">
+      <string/>
+     </property>
+     <property name="accessibleDescription">
+      <string/>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>topwin.png</normaloff>topwin.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>28</width>
+       <height>18</height>
+      </size>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+     <property name="autoRepeat">
+      <bool>true</bool>
+     </property>
+     <property name="tristate">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QProgressBar" name="progressBar_2">
+     <property name="geometry">
+      <rect>
+       <x>1</x>
+       <y>257</y>
+       <width>472</width>
+       <height>2</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QProgressBar {   border: 0px solid grey;  background-color:rgba(5,6,53,158);text-align: center;}
+
+QProgressBar::chunk { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(255, 20, 20, 255), stop:1 rgba(0, 250, 255, 255));}
+</string>
+     </property>
+     <property name="value">
+      <number>50</number>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="percent_lbl_2">
+     <property name="geometry">
+      <rect>
+       <x>349</x>
+       <y>257</y>
+       <width>105</width>
+       <height>47</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>华文琥珀</family>
+       <pointsize>22</pointsize>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(35, 255, 155);
+background-color:None;</string>
+     </property>
+     <property name="text">
+      <string>100%</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="textEdit_btn">
+     <property name="geometry">
+      <rect>
+       <x>14</x>
+       <y>204</y>
+       <width>39</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#594275;&quot;&gt;文本窗开关&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>textBtn.png</normaloff>textBtn.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>39</width>
+       <height>16</height>
+      </size>
+     </property>
+    </widget>
+    <zorder>lbl_err</zorder>
+    <zorder>title</zorder>
+    <zorder>tabWidget</zorder>
+    <zorder>lbl_output</zorder>
+    <zorder>subDir_chk</zorder>
+    <zorder>top_chk</zorder>
+    <zorder>progressBar_2</zorder>
+    <zorder>percent_lbl_2</zorder>
+    <zorder>textEdit_btn</zorder>
+   </widget>
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>24</x>
+      <y>24</y>
+      <width>20</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#bc0003;&quot;&gt;关闭&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton{
+	background-color: rgba(255, 255, 255, 0);
+}
+QPushButton:hover{icon:url(:/B_exit1_h.png);}</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>B_exit1.png</normaloff>B_exit1.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
+    </property>
+    <property name="checkable">
+     <bool>false</bool>
+    </property>
+    <property name="checked">
+     <bool>false</bool>
+    </property>
+    <property name="autoRepeat">
+     <bool>false</bool>
+    </property>
+    <property name="autoDefault">
+     <bool>false</bool>
+    </property>
+    <property name="default">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_2">
+    <property name="geometry">
+     <rect>
+      <x>484</x>
+      <y>286</y>
+      <width>57</width>
+      <height>57</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton{background-color:rgba(0,0,0,0);}
+QPushButton:hover{icon:url(:/start_zi_h.png);}</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>start_zi.png</normaloff>start_zi.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>57</width>
+      <height>57</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="textEdit">
+    <property name="geometry">
+     <rect>
+      <x>11</x>
+      <y>360</y>
+      <width>531</width>
+      <height>585</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QWidget{
+	color: rgb(186, 186, 186);
+	background-color: rgb(31, 34, 44);
+	selection-color: rgb(187, 24, 19);
+	selection-background-color: rgb(213, 216, 227);
+}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Panel</enum>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_4">
+    <property name="geometry">
+     <rect>
+      <x>484</x>
+      <y>30</y>
+      <width>20</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#bc0003;&quot;&gt;版本信息&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton{
+	background-color: rgba(255, 255, 255, 0);
+}
+QPushButton:hover{icon:url(:/B_ver_h.png);}</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>B_ver.png</normaloff>B_ver.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>18</width>
+      <height>18</height>
+     </size>
+    </property>
+    <property name="checkable">
+     <bool>false</bool>
+    </property>
+    <property name="checked">
+     <bool>false</bool>
+    </property>
+    <property name="autoRepeat">
+     <bool>false</bool>
+    </property>
+    <property name="autoDefault">
+     <bool>false</bool>
+    </property>
+    <property name="default">
+     <bool>false</bool>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

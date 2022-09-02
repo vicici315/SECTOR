@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: 2af48b3ba8c1d9b4db7afcc6dc1d1ee0
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: 2020 Outline Fortune Kei
+  fontNames:
+  - 2020 Outline Fortune Kei
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

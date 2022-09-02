@@ -1,0 +1,17 @@
+<RCC>
+	<qresource prefix="/">
+		<file>B_ver.png</file>
+		<file>B_ver_h.png</file>
+		<file>B_exit1.png</file>
+		<file>B_exit1_h.png</file>
+		<file>compNo.png</file>
+		<file>compYes.png</file>
+		<file>folderName.png</file>
+		<file>start_zi.png</file>
+		<file>start_zi_h.png</file>
+		<file>subFolder.png</file>
+		<file>topwin.png</file>
+		<file>default.png</file>
+		<file>textBtn.png</file>
+	</qresource>
+</RCC>

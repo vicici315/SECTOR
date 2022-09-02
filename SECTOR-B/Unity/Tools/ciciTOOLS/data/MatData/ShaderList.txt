@@ -1,0 +1,13 @@
+Standard,4,_MainTex,_BumpMap,_MetallicGlossMap,_OcclusionMap
+FGame/Test/Cell,3,_MainTex,_texNormal_S,_texMRA
+FGame/PBR_Default,3,_MainTex,_texNormal_S,_texMRA
+FGame/Test/PBR_Default_test,3,_MainTex,_texNormal_S,_texMRA
+Roystan/Toon Complete,3,_MainTex,_texNormal_S,_texMRA
+FGame/Test/PBR+Cell,3,_MainTex,_texNormal_S,_texMRA
+FGame/PBR_Scene,3,_MainTex,_texNormal_S,_texMRA
+FGame/Test/PBR+Cell2,3,_MainTex,_texNormal_S,_texMRA
+Vic/Fur_shader,4,_MainTex,_texNormal_S,_texMRA,_FurTex
+FGame/PBR_Emission,5,_MainTex,_texNormal_S,_texMRA,_texEmission,_texHair
+FGame/PBR_Actor_SSS,3,_MainTex,_texNormal_S,_texMRA
+
+Vic/Cellv3,11,_MainTex,_Tex,_NormalMap,_texNormal_S,_texMRA,_RampTex,_texEmission,_FurTex,_BackTex,_mro,_texHair
