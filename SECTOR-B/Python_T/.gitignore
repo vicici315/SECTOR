@@ -1,3 +1,7 @@
 # Compiled class file
 ~*
 */.idea
+*/__pycache__
+*/*/dist
+*/*/build
+*/dist
