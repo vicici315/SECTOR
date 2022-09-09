@@ -32,3 +32,4 @@ At [2022-07-22 12:06:35] Push.
 =======
 [22-09-09 周五 11:43:19] commit: update Blender script (VICPC) v25 
 >>>>>>> 506b56088e79c036ec624876f74120dc09f39b8f
+[22-09-09 周五 12:14:49] commit: 排除.DS_Store (VICPC) v26 
