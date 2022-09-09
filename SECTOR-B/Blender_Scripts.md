@@ -17,7 +17,7 @@ Blender设置:Interface > ■PythonTooltips (勾选该项python命令会被显�
 pip install --user fake-bpy-module-3.2
 ```
 
-## 导入模块
+## 导入bpy内部模块
 
 ```python
 from bpy.types import AddonPreferences
@@ -41,5 +41,7 @@ bpy.data.objects['Cube.001'].location = (-2,1.5,2)
 ## 获取游标位置
 
 ```python
-
+bpy.context.scene.cursor.location
+#返回:
+Vector((0.0, 0.0, 0.0))
 ```
