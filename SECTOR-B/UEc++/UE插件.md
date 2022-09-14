@@ -469,7 +469,7 @@ bool SSlateMain::WriteTxt(FString savestring, FString filepath)
 }
 ```
 
-### 使用std打开txt文件
+### 使用std打开文件
 
 ```cpp
 using namespace std;
@@ -477,6 +477,16 @@ using namespace std;
 std::string const& test = std::string("start ") + std::string(TCHAR_TO_UTF8(*FileName));
 //调用执行
 system(test.c_str());
+```
+
+### 调用system打开文件
+
+通过 system("start D:\\\filename.txt") 方法打开文件
+
+```cpp
+//获取文件路径FString变量,使用指针
+FString FP = FString::Printf(TEXT("start %s"), *FileName);
+system(TCHAR_TO_UTF8(*FP));    //字符转为UTF8
 ```
 
 ### E-2-2 读取多行文档
@@ -522,7 +532,6 @@ void SSlateMain::Construct(const FArguments& InArgs)
 ## 读取 DataTable
 
 ```cpp
-// 
 // .h
     public:
         FString GetUIName(int Index);
@@ -561,7 +570,7 @@ GetUIName(0);
       ]
 ```
 
-#### 滾動垂直排列（SScrollBox）
+#### 滚动垂直排列（SScrollBox）
 
 ```cpp
 SNew(SScrollBox)
@@ -572,7 +581,7 @@ SNew(SScrollBox)
 ]
 ```
 
-### 擴展區域（SExpandableArea）
+### 下拉扩展区域（SExpandableArea）
 
 <img src="UE插件.assets/Honeycam 2021-07-21 15-27-31.gif" alt="Honeycam 2021-07-21 15-27-31" style="zoom:80%;" />
 
@@ -649,6 +658,7 @@ SNew(STextBlock).Text(LOCTEXT("v12", "层级与对齐：")) //支持中文
                 .Padding(.0f, .0f, 4.0f, .0f)
                 [
                     SAssignNew(texPath, SEditableTextBox).Text(FText::FromString("Default"))
+                    .MinDesiredWidth(30)  //默认文本框宽度设置
                 ]
 ```
 
@@ -658,7 +668,7 @@ SNew(STextBlock).Text(LOCTEXT("v12", "层级与对齐：")) //支持中文
 FString pp = texPath->GetText().ToString();
 ```
 
-### 整數值拖拉框（SSpinBox）
+### 整数值拖拉框（SSpinBox）
 
 獲取值同樣在頭文件中聲明變量insNum
 
@@ -671,11 +681,11 @@ protected:
 SAssignNew(insNum, SSpinBox<int>).MaxValue(20).MinValue(1).Value(8)
 ```
 
-### 下拉選項（SComboBox）
+### 下拉列表选项（SComboBox）
 
 ![image-20210723154106909](UE插件.assets/image-20210723154106909.png)
 
-控件創建
+控件创建
 
 ```cpp
 // MC_Main.h 頭文件聲明
@@ -694,7 +704,7 @@ SAssignNew(MyComBox, SComboBox<TSharedPtr<FString>>)
 ]
 ```
 
-事件函數：
+事件函数：
 
 ```cpp
 //添加成員，可寫在UI起始段上面初始化
@@ -769,7 +779,22 @@ SNew(SUniformGridPanel)
 
 ---
 
-## 其他相關
+## 其他相关
+
+### 编辑器确认对话框
+
+```cpp
+FText const Title = LOCTEXT("title1","贴图批处理");
+FText const DialogText = LOCTEXT("queren","确认批处理重置贴图调整?");
+EAppReturnType::Type const ReturnType = FMessageDialog::Open(EAppMsgType::OkCancel, DialogText, &Title);
+if (ReturnType == EAppReturnType::Type::Ok)
+{
+    GEditor->AddOnScreenDebugMessage(-1, 10.f, FColor::Yellow, TEXT("确认"));
+}else
+{
+    GEditor->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("取消"));
+}
+```
 
 ### 添加Slate控件依赖
 
@@ -833,7 +858,7 @@ AssetPackageExtension: .uasset
 MapPackageExtension: .umap
 ```
 
-#### 獲取引擎與項目各路徑
+#### 获取引擎与項目各路径
 
 ```cpp
 #include "Misc/Paths.h"
@@ -863,7 +888,7 @@ GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::White, *mess);
 GEditor->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("选择两个以上物体"));
 ```
 
-錯誤警告消息打印
+错误警告消息打印
 
 ```cpp
 #include "Logging/LogMacros.h"
@@ -872,7 +897,7 @@ UE_LOG(LogTemp, Error, TEXT("%s"), *AssetData.GetFullName());
 UE_LOG(LogTemp, Log, TEXT("%i"), AssetDatas.Num());
 ```
 
-### 檢查路徑及文件是否存在
+### 检查路径及文件是否存在
 
 ```cpp
 //判断路径是否存在，資源路徑需要加入獲取Content目錄，兩個字符變量組合在括號外加指針解引
@@ -941,7 +966,7 @@ std::string(TCHAR_TO_UTF8(*FileName)
 
 #### ▲ FText
 
-不支持中文，通過讀取DataTable中的中文
+不支持中文，通过读取DataTable中的中文
 
 ```cpp
 FText::FromString("PaperMan/Environment/Textures")
