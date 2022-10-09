@@ -6,8 +6,6 @@
          > □自动透视(Auto Perspective)
 系统(System) > 撤销次数(UndoSteps):100
 
-# 脚本
-
 ## Blender 初始设置
 
 Blender设置:Interface > ■PythonTooltips (勾选该项python命令会被显示)
@@ -44,4 +42,21 @@ bpy.data.objects['Cube.001'].location = (-2,1.5,2)
 bpy.context.scene.cursor.location
 #返回:
 Vector((0.0, 0.0, 0.0))
+```
+
+## 导入math用于获取旋转值
+
+在blender中的旋转值需要通过math换算
+
+```python
+from math import radians
+radians(90)    #获取旋转90度值
+```
+
+## 循环选择的物体
+
+```py
+for obj in bpy.context.selected_objects:
+    obj.name = "Geo_sphere"
+    obj.data.name = "Geo_sphere"
 ```

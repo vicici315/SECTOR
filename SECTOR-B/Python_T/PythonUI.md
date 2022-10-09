@@ -293,6 +293,46 @@ def sepCB(self,i):    # ComboBox选择事件槽函数
 
 ![image-20210608195030680](PythonUI.assets/image-20210608195030680.png)
 
+```python
+#读取记录添加列表内容
+try:
+    CL = int(conf.get('TAB3','plhiscount')) #获取成员数量
+except:
+    conf.set('TAB3','plhiscount','0')
+    CL = 0
+if CL > 0:
+    for i in range(CL):
+        pp = conf.get('compPL',str(i)) #保存成员在compPL段里
+        if os.path.exists(pp):
+            self.ui.comboBox_cL.addItem(pp)
+    try:
+        self.ui.comboBox_cL.setCurrentIndex(int(conf.get('TAB3','plsel'))) #获取选择的编号数记录
+    except:
+        conf.set('TAB3', 'plsel', '0')
+
+#链接变更选项事件函数
+self.ui.comboBox_cL.currentIndexChanged.connect(self.compLChange)
+#选择内容事件函数
+def compLChange(self):
+    text=self.ui.comboBox_cL.currentText()
+    if os.path.exists(text):
+        PL=int(conf.get('TAB3','plhiscount'))
+        same=True
+        if PL>0:
+            for i in range(PL):
+                his=conf.get('compPL',str(i))
+                if text==his: same=False
+            if same:
+                conf.set('compPL',str(PL),text)
+                PL+=1
+            conf.set('TAB3','plhiscount',str(PL))
+        else:
+            conf.set('TAB3','plhiscount','1')
+            conf.set('compPL','0',text)
+        conf.set('TAB3','plsel',str(self.ui.comboBox_cL.currentIndex()))
+        conf.write(open(setPath, 'w+', encoding="utf-8"))
+```
+
 #### SpinBox 数字调制框
 
 ```python

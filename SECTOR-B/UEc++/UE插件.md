@@ -329,7 +329,7 @@ SlateMain = SNew(SSlateMain);
      #undef LOCTEXT_NAMESPACE
      ```
 
-### E3 按鈕放入擴展欄
+### E3 按扭放入扩展栏
 
 SExpandableArea
 
@@ -356,8 +356,7 @@ SExpandableArea
                 [
                     SNew(STextBlock).Text(FText::FromString(*vers))
                 ]
-            ]
-            .BodyContent()[    //擴展欄裡的SHorizontalBox水平空間，下面放置控件
+            ].BodyContent()[    //扩展栏裡的SHorizontalBox水平空間，下面放置控件
                 SNew(SHorizontalBox)
                 +SHorizontalBox::Slot()
                 .HAlign(HAlign_Center)
@@ -373,13 +372,13 @@ SExpandableArea
         ]
 ```
 
-## E-1 批量處理貼圖資源
+## E-1 批量处理贴图資源
 
 批量修改UE引擎中指定目錄的法線圖壓縮方式（CompressionSettings）
 
-### E-1-1 獲取目錄資源，修改參數
+### E-1-1 获取目录资源，修改参数
 
-獲取指定類型文件，搜索子文件夾
+获取指定类型文件，搜索子文件夾
 
 http://www.myredstone.top/2020/08/15/ue4%E8%8E%B7%E5%8F%96%E7%9B%AE%E5%BD%95%E4%B8%8B%E7%9A%84%E6%89%80%E6%9C%89%E8%B5%84%E6%BA%90/
 
@@ -431,7 +430,7 @@ FReply SSlateMain::OnGoButtonClicked() {
 
 ![image-20210722105006397](UE插件.assets/image-20210722105006397.png)
 
-### E-1-2 加載資源 StaticMesh
+### E-1-2 加载资源 StaticMesh
 
 ```cpp
 UStaticMesh* mesh = LoadObject<UStaticMesh>(nullptr,TEXT("/Game/StarterContent/Props/SM_Chair.SM_Chair"));
