@@ -28,7 +28,7 @@ for i in 1 to 100 do sphere prefix:"baz"
 --creates 100 spheres, giving each a unique name
 --beginning with "baz", such as $baz01, $baz02, $baz03, etc.
 
---刷新显示模型贴图
+--刷新材质显示模型贴图
 	showTextureMap o.material off
 	showTextureMap o.material on
 --取模（每6执行一次）
@@ -86,6 +86,8 @@ dotNetControl f1 "System.Windows.Forms.ListBox"height:180
 createDialog autoRollout 200 200 
 --列出ListBox组件的属性
 showProperties autoRollout.f1
+	--根据参数层级查看每一级参数
+showProperties meditMaterials[1][#Maps][#Diffuse_Color__Gradient____Gradient].coords
 --获取成员数
 autoRollout.f1.items.count
 --添加成员项
@@ -1892,6 +1894,9 @@ setSysCur #select
 #squash
 #select
 #arrow
+--编辑物体轴心位置（pivot）
+$.objectoffsetpos = [100,0,0]	--轴心保持原位物体偏移
+$.pivot = [100,0,0]	--轴心偏移物体保持原位
 --获取设置变换轴心
 getCoordCenter()
 setCoordCenter #system
