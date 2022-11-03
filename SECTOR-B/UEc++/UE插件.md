@@ -634,6 +634,7 @@ SNew(SHorizontalBox)
 ```cpp
 SNew(STextBlock).Text(FText::FromString("Align:"))
 SNew(STextBlock).Text(LOCTEXT("v12", "层级与对齐：")) //支持中文
+SNew(STextBlock).Text(FText::FromString(TEXT("层级与对齐："))) //支持中文
 ```
 
 ### 可编辑文本框（SEditableTextBox）
@@ -651,14 +652,14 @@ SNew(STextBlock).Text(LOCTEXT("v12", "层级与对齐：")) //支持中文
 .cpp 創建控件
 
 ```cpp
-            SNew(SHorizontalBox)
-                + SHorizontalBox::Slot()
-                .HAlign(HAlign_Left)
-                .Padding(.0f, .0f, 4.0f, .0f)
-                [
-                    SAssignNew(texPath, SEditableTextBox).Text(FText::FromString("Default"))
-                    .MinDesiredWidth(30)  //默认文本框宽度设置
-                ]
+    SNew(SHorizontalBox)
+        + SHorizontalBox::Slot()
+        .HAlign(HAlign_Left)
+        .Padding(.0f, .0f, 4.0f, .0f)
+        [
+            SAssignNew(texPath, SEditableTextBox).Text(FText::FromString("Default"))
+            .MinDesiredWidth(30)  //默认文本框宽度设置
+        ]
 ```
 
 訪問值
@@ -843,7 +844,7 @@ return 0;
 }
 ```
 
-輸出
+輸出：
 
 ```cpp
 ObjectPath: /Engine/EngineDamageTypes/DmgTypeBP_Environmental.DmgTypeBP_Environmental
@@ -1026,6 +1027,7 @@ MyString.ParseIntoArray(StringArray, TEXT(","), false);
 ### 字符串比較
 
 ```cpp
+//后面使用TEXT封装可以使用中文
 FString StringA = FString(TEXT("This is my test FString.n"));
 FString StringB = FString(TEXT("This is my test FString.n"));
 // 直接使用 == 运算符

@@ -1,10 +1,19 @@
-# C语言
+# C/C++语言
 
+## 结构体
+c语言结构体中不能放函数, 而c++可以
+```c
+struct FHello{
+	char Array{3, 2};
+	char *P;
+	int U;
+}
+```
 ## 引用
 
 ```c
-#include ".h" //引用头文件
-#include <stdio.h> //引用系统文件
+#include "head.h" //引用自定义头文件用双引号,速度较慢
+#include <stdio.h> //引用系统文件用尖括号,较快
 ```
 
 ```c
@@ -56,7 +65,7 @@ static int a = 0;	//静态区分DATA段和BSS段
 
 ### 整数
 
-```c
+```cpp
 //整数常量
 int D = 0001;//二进制
 int A = 67;  //十进制
@@ -70,7 +79,7 @@ unsigned long int TestC = 100uL;  //无强转消耗
 unsigned long int TestC = (unsigned long int)100;
 ```
 
-```c++
+```cpp
 int U = 100;	//范围：-21474836488 ~ 2147483648
 printf("%i \n", sizeof(int));	//查看整数占用大小，4字节
 long L = 100;	//取值范围与int一样
@@ -459,10 +468,8 @@ int a[] = {1,2,3,4,5};
 
 ## 程序调试
 
-### 转到汇编
-
+**转到汇编**
 在函数上右键菜单：Go To Disassembly（Ctrl + K,G）
 
-### 进入函数
-
+**进入函数**
 （F11）
