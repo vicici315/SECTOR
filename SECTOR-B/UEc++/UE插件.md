@@ -550,9 +550,9 @@ GetUIName(0);
 
 ### Slate架構
 
-#### 覆蓋控件(SOverlay)
+#### 覆盖控件(SOverlay)
 
-用於覆蓋上級控件排列屬性，以Overlay為重
+用于覆盖上級控件排列屬性，以Overlay為重
 
 ```cpp
         SNew(SOverlay)
@@ -582,7 +582,7 @@ SNew(SScrollBox)
 
 ### 下拉扩展区域（SExpandableArea）
 
-<img src="UE插件.assets/Honeycam 2021-07-21 15-27-31.gif" alt="Honeycam 2021-07-21 15-27-31" style="zoom:80%;" />
+<img src="UE插件.assets/Honeycam 2021-07-21 15-27-31.gif" alt="Honeycam 2021-07-21 15-27-31"/>
 
 ```cpp
 SNew(SExpandableArea)    //可折疊面板
@@ -627,8 +627,9 @@ SNew(SHorizontalBox)
 //控件放在里面可以拖拽
 ```
 
-<img src="UE插件.assets/image-20210818140926743.png" alt="image-20210818140926743" style="zoom:80%;" />
+<img src="UE插件.assets/image-20210818140926743.png" alt="image-20210818140926743" />
 
+---
 ### 文本控件（STextBlock）
 
 ```cpp
@@ -636,7 +637,7 @@ SNew(STextBlock).Text(FText::FromString("Align:"))
 SNew(STextBlock).Text(LOCTEXT("v12", "层级与对齐：")) //支持中文
 SNew(STextBlock).Text(FText::FromString(TEXT("层级与对齐："))) //支持中文
 ```
-
+---
 ### 可编辑文本框（SEditableTextBox）
 
 .h 頭文件中聲明
@@ -667,7 +668,7 @@ SNew(STextBlock).Text(FText::FromString(TEXT("层级与对齐："))) //支持中
 ```cpp
 FString pp = texPath->GetText().ToString();
 ```
-
+---
 ### 整数值拖拉框（SSpinBox）
 
 獲取值同樣在頭文件中聲明變量insNum
@@ -677,60 +678,62 @@ FString pp = texPath->GetText().ToString();
 #include "Widgets/Input/SSpinBox.h"    //在头文件包含
 protected:
     TSharedPtr<SSpinBox<int>> insNum;
+
 //創建 .cpp
 SAssignNew(insNum, SSpinBox<int>).MaxValue(20).MinValue(1).Value(8)
 ```
-
+---
 ### 下拉列表选项（SComboBox）
 
 ![image-20210723154106909](UE插件.assets/image-20210723154106909.png)
 
-控件创建
-
+#### .cpp控件主体,控件创建
+在控件主体前添加固定列表成员
 ```cpp
-// MC_Main.h 頭文件聲明
-private:
-    TArray<TSharedPtr<FString>> Opations;//存放成員數組，通過 Opations.Add() 添加成員
-    TSharedPtr<SComboBox<TSharedPtr<FString>>> MyComBox;
-    TSharedPtr<SBox> MyComBoxCont;
-
-// MC_Main.cpp 創建控件(line:68)
-SAssignNew(MyComBox, SComboBox<TSharedPtr<FString>>)
-.OptionsSource(&Opations)
-.OnGenerateWidget(this, &SMC_Main::GenerateSourceComboItem)
-.OnSelectionChanged(this, &SMC_Main::HandleSourceComboChanged)
-.IsFocusable(true)[
-    SAssignNew(MyComBoxCont, SBox)
+compOpations.Add(MakeShareable(new FString("Default")));
+compOpations.Add(MakeShareable(new FString("NormalMap")));
+```
+compSettingComBox字段为承接返回值变量
+```cpp
++ SHorizontalBox::Slot().Padding(3.0f)
+                        .HAlign(HAlign_Left).VAlign(VAlign_Center).AutoWidth()
+[
+   SAssignNew(compSettingComBox, SComboBox<TSharedPtr<FString>>)  //用于成员添加即时刷新列表,如果是固定成员无需传递变量,用SNew即可
+   .OptionsSource(&compOpations)  //存放下拉列表成員
+   .OnGenerateWidget(this, &SSlateMain::comp_ComboItem)    //用于显示下拉菜单内容
+   .OnSelectionChanged(this, &SSlateMain::comp_ComboChanged)
+   .IsFocusable(true)[
+    ◎ SAssignNew(compComBoxCont, SBox)  //如果需要每个成员传递变量,用于获取成员信息,使用SAssignNew指定变量
+    ● SNew(SBox)  //如果不需要获取成员信息只要用SNew()
+   ]
 ]
 ```
-
-事件函数：
-
+用于显示下拉菜单内容,所有SComboBox的.OnGenerateWidget(...)共用该函数
 ```cpp
-//添加成員，可寫在UI起始段上面初始化
-for (auto FileName : FileNames)    //循環讀取 FileNames 裡的字符串數組
+TSharedRef<class SWidget> SSlateMain::comp_ComboItem(TSharedPtr<FString> InItem)
 {
-    FString Left;
-    FileName.Split(".", &Left, nullptr);
-    Opations.Add(MakeShareable(new FString(*Left)));//添加成員
-}
-
-//創建成員函數
-TSharedRef<class SWidget> SMC_Main::GenerateSourceComboItem(TSharedPtr<FString> InItem)
-{
-    return SNew(STextBlock).Text(FText::FromString(*InItem));
-}
-//當選項選擇操作時激發事件
-void SMC_Main::HandleSourceComboChanged(TSharedPtr<FString> Item, ESelectInfo::Type SelectInfo)
-{
-    MyComBoxCont->SetContent(SNew(STextBlock).Text(FText::FromString("")));
-    FString te = *Item;
-    matFile->SetText(FText::FromString(*te));
-    MyVerticalBox->ClearChildren();
-    LoadMatNamesList();
+   return SNew(STextBlock).Text(FText::FromString(*InItem));
 }
 ```
+SComboBox控件相关运用
+```cpp
+SAssignNew(phComBox, SComboBox<TSharedPtr<FString>>)
 
+FString aa = LexToString(*phComBox->GetSelectedItem()); //返回成员名
+GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, aa);   //打印到3D视窗
+
+phComBox->RefreshOptions(); //刷新下拉列表
+```
+#### .h定义变量及事件函数
+```cpp
+#include "Widgets/Input/SComboBox.h"
+
+protected: 
+   TSharedPtr<SComboBox<TSharedPtr<FString>>> compSettingComBox;  //下拉列表,调用->RefreshOptions()可用于刷新列表
+   TArray<TSharedPtr<FString>> compOpations;  //ComBox存放下拉列表成員数组类型
+   TSharedPtr<SBox> compComBoxCont;  //传递SBox成员变量
+```
+---
 ### 格子排列控件（SUniformGridPanel）
 
 ![image-20210727180118161](UE插件.assets/image-20210727180118161.png)
@@ -1271,6 +1274,7 @@ Actor->SetActorRotation(FRotator(0.f, 45.f, 0.f));
 
 #### 阵列取模
 
+D:\Works\UE4\PluginWork\PluginProject\Plugins\MCwindow\Source\MCwindow\Private\MC_InputButtom.cpp
 ```cpp
 //静态Mesh创建
 FReply SMC_Main::CreateRamp()
@@ -1290,9 +1294,10 @@ FReply SMC_Main::CreateRamp()
         }
         cN++;
         FVector pos; pos.Set(-xd * 310, yd*310.0, 0);
-        AStaticMeshActor* MyActor = World->SpawnActor<AStaticMeshActor>(bpClass, pos, FRotator::ZeroRotator);//通过World->SpawnActor创建对象，bpClass在头文件中声明
-        MyActor->SetActorLabel("MatPreview" + FString::FromInt(cN));
-        MyActor->SetFolderPath("PerviewMats");
+        //通过World->SpawnActor创建对象，bpClass在头文件中声明
+        AStaticMeshActor* MyActor = World->SpawnActor<AStaticMeshActor>(bpClass, pos, FRotator::ZeroRotator);
+        MyActor->SetActorLabel("MatPreview" + FString::FromInt(cN));  //设置场景对象名称
+        MyActor->SetFolderPath("PerviewMats");  //设置物体放入场景文件夹
 
     float MNum = 0.0f;
     float RNum = 0.0f;
@@ -1317,8 +1322,10 @@ FReply SMC_Main::CreateRamp()
     }
     return FReply::Handled();
 }
-
+```
+```cpp
 // .h
 private:
+    UBlueprint* bp = Cast<UBlueprint>(StaticLoadObject(UObject::StaticClass(), nullptr, TEXT("Blueprint'/Game/Developers/Vic/bp_Box.bp_Box'")));
     TSubclassOf<class UObject> bpClass = (bp)->GeneratedClass;
 ```

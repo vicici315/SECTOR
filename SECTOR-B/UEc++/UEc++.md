@@ -1,8 +1,68 @@
-# 变量类型
-## 基本数据类型
+# 1>变量类型
+## 1-1>文本类型运用
+### 1-1-1>实例:修改TextRender组件文字
+<img src="UEc++.assets\Snipaste_2022-11-04_11-19-11.png">
+<img src="UEc++.assets\TR.png">
+
+```cpp
+float D_M;
+float D_R;
+FString BtName = "name";
+
+TArray<UActorComponent*> comps; //定义组件数组
+MyActor->GetComponents(comps);  //获取Actor中的所有组件放入该数组中
+UTextRenderComponent* texComp = Cast<UTextRenderComponent>(comps[1]);   //获取第二个组件即文字渲染组件
+FString MRV = FString::Printf(TEXT("R: %g\nM: %.g\n%s"), D_R, D_M, *BtName);    //获取数值类型放入字符串变量
+texComp->SetText(FText::FromString(MRV));
+texComp->bHiddenInGame = true;
+```
+
+## 1-2> 各类型转换
+### 1-2-1> Lex -> FString (LexToString)
+
+```cpp
+FString aa = LexToString(*phComBox->GetSelectedItem());
+```
+
+### 1-2-2> int <-> string
+```cpp
+//★C++11  （推荐，如果支持的话）
+#include <string>
+std::string s = std::to_string(42);
+
+//★int -> string
+FString::FromInt(27)
+
+//★string -> int
+//这里调用控件传入的SEditableTextBox文本变量，注意：Atoi调用变量前面要加*指针（SlateMain.cpp）
+MatObj->MaxTextureSize = FCString::Atoi(*SizeValue->GetText().ToString());
+//★string -> int std方法
+FString a= "2";
+std::stoi(*a);
+```
+
+### 1-2-3> string -> FText
+可编辑文本控件需要的格式
+```cpp
+SEditableTextBox->SetText(FText::FromString(*Item));
+
+//中文需用TEXT()封装
+FText::FromString(TEXT("中文"))
+```
+### 1-2-4> float -> int
+```cpp
+
+int (FF);
+```
+
+
+## 1-3> 基本数据类型
+
 <img src="UEc++.assets\b0809de17a1bbfd5d3092d0e4c70846f.png">
 
-## TCHAR：UE4通过对char和wchar_t的封装
+## 1-4> 字符串类型
+原文链接：https://blog.csdn.net/m0_51819222/article/details/119783477
+### 1-4-1> TCHAR：UE4通过对char和wchar_t的封装
 
 TCHAR就是UE4通过对char和wchar_t的封装
 char ANSI编码
@@ -27,17 +87,313 @@ TCHAR* TCharString = TEXT("Hello, World!");
 	TCHAR* TCharString2 = UTF8_TO_TCHAR(WCharString);
 	TCHAR* TCharString3 = WCHAR_TO_TCHAR(WCharString);
 ```
-## FNames：常用作标识符等不变的字符串
+### 1-4-2> 1.FString
+与 FName 和 FText 不同，FString 可以与搜索、修改并且与其他字符串比较。不过，这些操作会导致 FString 的开销比不可变字符串类更大。这是因为 FString 对象保存自己的字符数组，而 FName 和 FText 对象保存共享字符数组的指针，并且可以完全根据索引值建立相等性。
+类似 std::string 。使用宏 TEXT() 可以新建一个。
+```cpp
+//初始化
+FString test = TEXT("hello world");
+```
+### 1-4-3> 2.FText
+FText 类是文本本地化的主要类。如果想提供多语言支持，面向用户的所有文本都应使用此类。
+和 FString 类似，使用宏 NSLOCTEXT() 可以新建一个。
+```cpp
+//参数分别是默认语言的: 命名空间，键，值。
+FText test = NSLOCTEXT("Notification","PickMessage","you pick something.")。
+```
+### 1-4-4> 3.FNames：常用作标识符等不变的字符串
 常用作标识符等不变的字符串（如：资源路径/资源文件类型/骨骼名称/表格行名等）
 比较字符串操作非常快
 即使多个相同的字符串，也只在内存存储一份副本，避免了冗余的内存分配操作
 不区分大小写
-使用
-初始化
 
-# 插件ChildSlot操作界面
+```cpp
+//初始化
+FName test=FName(TEXT("hello world"));
+```
 
-## 垂直排列中创建多个平行排列
+## 1-5> 主要容器
+### 1-5-1> 1.TArray
+虚幻引擎4（UE4）中最简单的容器类是 TArray。TArray 负责同类型对象（称为"元素"）序列的所有权和组织。由于 TArray 是一个序列，其元素的排序定义明确，其函数用于确定性地操纵此类对象及其顺序。
+其所有元素均完全为相同类型，不能存储不同类型的元素。
+TArray 被销毁时其中的元素也将被销毁，TArray的复制是值复制。
+是对 std::vector 的增强。
+### 1-5-2> 2.TMap
+继 TArray 之后，虚幻引擎4（UE4）中最常用的容器是 TMap。TMap 与 TSet 类似，它们的结构均基于对键进行散列运算。但与 TSet 不同的是，此容器将数据存储为键值对（TPair<KeyType, ValueType>），只将键用于存储和获取。
+和 TArray 一样，TMap 也是同质容器，就是说它所有元素的类型都应完全相同。TMap 也是值类型，支持通常的复制、赋值和析构函数运算，以及它的元素的强所有权。在映射被销毁时，它的元素都会被销毁。键和值也必须为值类型。
+映射有两种类型：TMap 和 TMultiMap。两者之间的不同点是，TMap 中的键是唯一的，而TMultiMap 可存储多个相同的键。在 TMap 中添加新的键值时，若所用的键与原有的对相同，新对将替换原有的对。在 TMultiMap 中，容器可以同时存储新对和原有的对。
+是对 std::map/ std::multimap 的增强。
+### 1-5-3> 3.TSet
+TSet 类似于 TMap 和 TMultiMap，但有一个重要区别：TSet 是通过对元素求值的可覆盖函数，使用数据值本身作为键，而不是将数据值与独立的键相关联。TSet 可以非常快速地添加、查找和删除元素（恒定时间）。默认情况下，TSet 不支持重复的键，但使用模板参数可激活此行为。
+总之是一种快速容器类，用于在排序不重要的情况下存储唯一元素。
+是对 std::set 的增强。
+
+---
+
+# 2> 编辑器中相关操作
+
+## 2-1> 场景编辑相关操作
+### 2-1-1> 遍历场景中的Actor
+```cpp
+TArray<AActor*> ActorsToFind;
+if(UWorld* World = GetWorld())
+{ // GetAllActorsOfClass(World, 类型的::StaticClass(), 定义的存放数组);
+    UGameplayStatics::GetAllActorsOfClass(GetWorld(), AFireEffect::StaticClass(), ActorsToFind);
+}
+for (AActor* inActor: ActorsToFind){
+    ...
+}
+```
+实例: 选中所有名字包含指定字符("STBox")的静态网格物体
+```cpp
+USelection* SelectionSet = GEditor->GetSelectedActors();
+
+UWorld* World = GEditor->GetEditorWorldContext().World();
+
+TArray<AActor*> ActorsToFind;
+if(World)
+{   //指定的类型需要获取静态类::StaticClass()
+    UGameplayStatics::GetAllActorsOfClass(World, AStaticMeshActor::StaticClass(), ActorsToFind);
+}
+SelectionSet->DeselectAll();
+for (AActor* inActor: ActorsToFind){
+    //未找到返回:-1 , 找到返回字符串所在位置ID,起始:0 (不区分大小写)
+    // auto aaa = inActor->GetName().Find("STBox");
+    // GEngine->AddOnScreenDebugMessage(-1, 43.f, FColor::Black, FString::Printf(TEXT("< %i"),aaa));
+    if(inActor->GetName().Find("STBox")>-1)
+        SelectionSet->Select(inActor);
+}
+```
+
+### 2-1-2> 获取场景中选中的物体,并遍历
+```cpp
+USelection* SelectionSet = GEditor->GetSelectedActors();  //先从编辑器获取选择的Actor
+if (SelectionSet->Num() > 1)
+{
+    TArray<AActor*> SelectedActors;  //定义AActor类型数组存放获取的选择物体
+    SelectedActors.Reserve(SelectionSet->Num());  //储备所有选择的物体
+    SelectionSet->GetSelectedObjects(SelectedActors); //将储备的物体提取到选择组
+    AActor* ppp = SelectedActors[SelectedActors.Num() - 1]; //获取最后一个选择的物体
+    for (AActor* Actor : SelectedActors)
+    {
+        if (Actor->GetFName() != ppp->GetFName())
+        {
+            Actor->SetActorScale3D(ppp->GetActorScale3D()); //设置物体缩放值
+            Actor->SetPivotOffset(FVector(0,0,0));      //设置物体轴心偏移
+            GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, Actor->GetFName().ToString());
+        }
+    }
+}
+```
+
+### 2-1-3> 根据名字获取场景物体(FindObject)
+使用**FindObject**来通过名称获取对象
+```cpp
+AActor* obj = FindObject<AActor>(ANY_PACKAGE,TEXT("test_Box"));  //第一个传入当前场景宏,第二传入查找对象名称
+FString sn = "No Obj";
+if (obj) sn = obj->GetActorLocation().ToString();
+```
+示例2:
+函数参数outer应该传入那个actor所在的level。如果不清楚属于哪个level，可以遍历world中的所有level或者传入宏ANY_PACKAGE。
+```cpp
+for (ULevel *level : WorldContextObject->GetWorld()->GetLevels())
+{
+    AActor *actor = FindObject<AActor>(level, *actorName);
+    if (actor != nullptr)
+    return actor;
+}
+```
+
+### 2-1-4> 在场景中放置AStaticMeshActor蓝图
+Cast<>类问题()
+>如何获取蓝图中所有不同类型的组件?
+>使用GetClass获取各组件类型或使用GetName获取组件名称
+
+```cpp
+FReply SSlateMain::TTTButtom()
+{
+	FString boxname;
+	UWorld* World = GEditor->GetEditorWorldContext().World();
+	AStaticMeshActor* MyActor = World->SpawnActor<AStaticMeshActor>(bpZMaitrexClass, FVector(0,200,0), FRotator::ZeroRotator);
+	boxname = "test_Box";
+	MyActor->SetActorLabel(boxname);
+	MyActor->SetFolderPath("STBox_F");
+	TArray<UActorComponent*> comps;
+	MyActor->GetComponents(comps);
+	int cot = 0;
+	GEngine->AddOnScreenDebugMessage(-1, 43.f, FColor::Black, FString::Printf(TEXT("<")));
+	for(auto* comp:comps)
+	{
+		const auto* CCC = comp->GetClass();
+		auto* Cmp = Cast<UChildActorComponent>(comp);
+		GEngine->AddOnScreenDebugMessage(-1, 43.f, FColor::Black, FString::Printf(TEXT("%i : %s : %s"), cot, *CCC->GetName(), *comp->GetName()));
+		cot += 1;
+	}
+	
+	return FReply::Handled();
+}
+```
+### 2-1-5> Component组件类及获取编辑
+注意: 定义控件类型 UTextRenderComponent* 后面要加*号
+```cpp
+#include "Components/TextRenderComponent.h" //<UTextRenderComponent>需要包含该头文件
+
+TArray<UActorComponent*> comps;     //定义组件类数组
+MyActor->GetComponents(comps);      //获取创建的蓝图所有组件放入数组
+UTextRenderComponent* textComp = Cast<UTextRenderComponent>(comps[1]);  //获取1号位置的TextRender组件
+
+//上面的组件类型可以使用auto来定义所有类型,也要注意加*号,如下
+auto* textComp = Cast<UTextRenderComponent>(comps[1]);
+
+textComp->SetText(FText::FromString(boxname));  //设置Text参数修改文字
+textComp->bHiddenInGame = true;     //设置游戏运行状态不可见
+```
+可以通过组件名来获取需要的 组件->GetName()
+获取方法,取自SceneTools插件的SlateMain.cpp,批量创建蓝图对象并设置其组件参数
+```cpp
+FReply SSlateMain::CreateBoxs()
+{
+	FString boxname;
+    	UWorld* World = GEditor->GetEditorWorldContext().World();
+        for (int i = 1; i <= matrixNum->GetValue(); i++)
+        {
+        	AStaticMeshActor* MyActor = World->SpawnActor<AStaticMeshActor>(bpZMaitrexClass, FVector(0,i*200,0), FRotator::ZeroRotator);
+        	boxname = "ST_Box" + FString::FromInt(i);
+        	MyActor->SetActorLabel(boxname);
+        	MyActor->SetFolderPath("STBox_F");
+        	TArray<UActorComponent*> comps; //
+        	MyActor->GetComponents(comps);
+        	auto* textComp = Cast<UTextRenderComponent>(comps[comps.Num()-1]);
+        	auto* boxmesh = Cast<UStaticMeshComponent>(comps[1]);
+        	boxmesh->SetRelativeScale3D(FVector(2,3,1)); //设置物体组件物体缩放值(与设置物体缩放不同)
+        	FString TTT = FString::Printf(TEXT("%s\nPosition: xxx"), *boxname);
+        	textComp->SetText(FText::FromString(TTT));
+        	textComp->bHiddenInGame = true;
+        }
+	return FReply::Handled();
+}
+```
+打印所有的组件类及名称
+```cpp
+FReply SSlateMain::TTTButtom()
+{
+	FString boxname;
+	UWorld* World = GEditor->GetEditorWorldContext().World();
+
+	AStaticMeshActor* MyActor = World->SpawnActor<AStaticMeshActor>(bpZMaitrexClass, FVector::ZeroVector, FRotator::ZeroRotator);
+
+	boxname = "tempBox";
+	MyActor->SetActorLabel(boxname);
+	MyActor->SetFolderPath("STBox_F");
+	TArray<UActorComponent*> comps;
+	MyActor->GetComponents(comps);
+	int cot = 0;
+	for(auto* comp:comps)
+	{
+		const auto CCC = comp->GetClass()->GetName();   //不能加*号
+        //如果直接获取类:GetClass(),全面的类型声明需要加*号
+		const auto* CCC = comp->GetClass();
+		if (FString(comp->GetName())==TEXT("TextRender"))   //根据组件名称判断
+		{
+			UTextRenderComponent* tc = Cast<UTextRenderComponent>(comp);  //需要获取组件才可对其进行以下参数设置
+			tc->SetVisibility(false);   //取消Visible选项使不可见
+		}
+			
+		//auto* Cmp = Cast<UChildActorComponent>(comp);
+		GEngine->AddOnScreenDebugMessage(-1, 43.f, FColor::Black, FString::Printf(TEXT("%i : %s : %s"), cot, *CCC, *comp->GetName()));
+		cot += 1;
+	}
+	GEngine->AddOnScreenDebugMessage(-1, 43.f, FColor::Black, FString::Printf(TEXT("<")));
+	
+	return FReply::Handled();
+}
+```
+### 2-1-6> UEc++选择场景中的物体
+```cpp
+//定义UE的选择对象空间
+USelection* SelectionSet = GEditor->GetSelectedActors();
+
+FVector Cpos = FVector::ZeroVector;     //矢量零值
+FVector Cscl = FVector(1,1,1);
+FRotator Crot = FRotator::ZeroRotator;  //旋转零值
+if (SelectionSet->Num() == 1)
+{
+TArray<AActor*> SelectedActors;
+SelectedActors.Reserve(SelectionSet->Num());
+SelectionSet->GetSelectedObjects(SelectedActors);
+Cpos=SelectedActors[0]->GetActorLocation();
+Crot=SelectedActors[0]->GetActorRotation();
+Cscl=SelectedActors[0]->GetActorScale();
+}
+//场景中放置物体对象
+AStaticMeshActor* MyActor = World->SpawnActor<AStaticMeshActor>(bpZMaitrexClass, (FVector(0,100,0)+Cpos), Crot);
+    boxname = "STBox_" + FString::FromInt(i);
+    MyActor->SetActorLabel(boxname);    //修改物体名
+    MyActor->SetFolderPath("STBox_F");  //修改物体所在Outline文件夹
+    SelectionSet->Select(MyActor);      //选中物体
+    SelectionSet->ToggleSelect(MyActor);//反向选择,反向选择状态
+    SelectionSet->Deselect(MyActor);    //取消物体选择
+    //取消所有物体选择
+    SelectionSet->DeselectAll();
+```
+
+---
+
+# 3> 插件ChildSlot操作界面
+## 3-1> UI控件:Runtime>Slate>Widgets>Input
+### 3-1-1> SSpinBox 数值滑动控件
+UI控件创建,注意数值类型,使用浮点类型只要所有数值指定带小数,函数传入值类型改为float
+.SliderExponent(100)  设置滑动数值的指数,0~10000值参考指数的百分比:100(浮点值一格进1.0049)用于物体位移设置指数20左右适合,顺滑范围2000左右(指数越大顺滑范围越小,每格数值越细).(可以通过 arraySpace->SetSliderExponent(20) 来设置指数值)
+.MinDesiredWidth(25)  设置数值框的最小宽度像素.
+```cpp
++ SUniformGridPanel::Slot(2, 1)
+    .HAlign(HAlign_Fill).VAlign(VAlign_Center)
+[   //浮点类型
+    SAssignNew(arraySpace, SSpinBox<float>).MaxValue(9000.0).MinValue(-9000.0).Value(0.0).SliderExponent(1)
+    .OnValueChanged(this,&SSlateMain::XArray_slide)  //挂载事件函数
+]
+
+    //整数类型
+    SAssignNew(matrixNum, SSpinBox<int>).MaxValue(10000).MinValue(2).Value(s_Matrix)
+    .OnValueChanged(this, &SSlateMain::maixSave)  //挂载事件函数
+```
+拖动数值事件函数
+```cpp
+//浮点类型函数传入值类型
+void SSlateMain::XArray_slide(float val)
+{}
+
+//整数类型函数传入值类型
+void SSlateMain::maixSave(FPlatformTypes::int32 val)
+{   //写入ini
+    CFN.WriteIni(FString("SceneTools"), FString("Matrix"), FString::FromInt(val), IniPath);
+}
+```
+.h 头文件声明承载控件数值的变量
+```cpp
+protected:
+    TSharedPtr<SSpinBox<int>> matrixNum;  //整数
+    TSharedPtr<SSpinBox<float>> arraySpace; //浮点
+```
+### 3-1-1> SEditableTextBox 可编辑文本框
+读取INI函数在 CustomFN.cpp (参考5-1)
+读取记录
+```cpp
+CFN.ReadIniValue(FString("SceneTools"), FString("SelText"), s_seltext, *IniPath);
+```
+控件主体
+```cpp
+SAssignNew(selText, SEditableTextBox).Text(FText::FromString(TEXT("STBox")))
+	.BackgroundColor(FLinearColor(0.97f,0.77f,0.65f,1.0))
+```
+修改文本事件函数,保存文本内容
+```cpp
+void SSlateMain::OnSubfixText(const FText& Text)
+{
+	CFN.WriteIni(FString("SceneTools"), FString("SelText"), Text.ToString(), IniPath);
+}
+```
+## 3-2> 创建面板多行排列
 
 ```cpp
 //主垂直面板
@@ -83,7 +439,7 @@ TCHAR* TCharString = TEXT("Hello, World!");
     ]
 ```
 
-## 路径获取
+## 3-3> FPaths 路径获取
 
 ```cpp
 FPaths::ProjectContentDir()    //可以拿到Content目录的绝对路径
@@ -91,3 +447,248 @@ FPaths::ProjectContentDir()    //可以拿到Content目录的绝对路径
 FPaths::ProjectPluginsDir()    //获取Plugins目录
 FPaths::FileExists(*(FPaths::ProjectPluginsDir() + "SceneTools_W_P/ST.txt"))
 ```
+---
+
+# 4> 基础知识
+
+## 4-1> 打印文本
+打印到3D视窗
+```cpp
+GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, Actor->GetFName().ToString());
+```
+打印到OutputLog窗口
+
+```cpp
+#include "Logging/LogMacros.h"
+
+UE_LOG(LogTemp, Warning, TEXT("共搜索 %i 个贴图文件"), AssetDatas.Num());
+```
+
+## 在C++中打开txt文本文件
+```cpp
+FString FP = FString::Printf(TEXT("start %s"), *FileName);
+system(TCHAR_TO_UTF8(*FP));
+```
+## 场景物体变换参数类型
+用于场景Actor的变换参数类型
+```cpp
+//位移参数:起始零位置
+FVector::ZeroVector
+FVector(X, Y, Z);
+
+//旋转参数:起始零值
+FRotator::ZeroRotator
+```
+## 设置材质参数方法
+参考 MCwindows 插件
+```cpp
+
+```
+
+## 循环
+### for循环数组中的成员
+遍历数组ActorsArray中的成员
+```cpp
+for (AActor* Actor: ActorsArray){...}
+
+//示例:
+FString newP = "";
+TArray<FString> SArr; 
+for (const FString sss : SArr)
+{
+   newP += sss + "/";
+}
+```
+### for循环指定数量
+```cpp
+for (int i = 1; i < 9; i++)
+{...}
+```
+
+### switch(exp){case val:}
+一个switch语句允许测试一个变量等于多个值时的情况。每个值称为一个case，且被测试的变量会对每个 switch case进行检查。
+```cpp
+//语法格式：
+switch(expression){
+    case 常量表达式1:
+        语句1;
+        ...
+        语句n;
+        break;  // 可选
+    case 常量表达式2:
+        语句1;
+        ...
+        语句n;
+        break;  // 可选
+    ...
+    case 常量表达式n:
+        语句1;
+        ...
+        语句n;
+        break;  // 可选
+    default:  // 可选
+        语句1;
+        ...
+        语句n;
+        break;  // 可选
+}
+
+```
+
+---
+
+# 5> 自定义函数集
+## 5-1> 读写INI文件
+
+# Q> 问 题 坑
+
+## Q-1> 整数控件.OnValueChanged()事件不能即时生效
+SceneTools插件arrayRowSp SSpinBox控件事件无法实时生效! **(未找到问题)** 只在cross项目出现,默认UE项目正常
+拖动SpinBox数值实时执行相同事件函数(XArray_slide),只有一个控件生效,其他控件操作不能实时更新
+>设置了最小值为-200.0 又导致无法实时生效(指数值:22)
+修改为最小值-100.0 恢复了左边一个控件实时生效(指数值:26)
+
+```cpp
++ SUniformGridPanel::Slot(0, 1)
+.HAlign(HAlign_Fill).VAlign(VAlign_Center)
+[
+SAssignNew(arraySpace, SSpinBox<int>).MaxValue(900).MinValue(-900).Value(0)
+.OnValueChanged(this,&SSlateMain::XArray_slide)
+]
++ SUniformGridPanel::Slot(1, 1)
+.HAlign(HAlign_Fill).VAlign(VAlign_Center)
+[
+SAssignNew(arrayRow, SSpinBox<int>).MaxValue(10).MinValue(1).Value(s_rowNum)
+.OnValueChanged(this,&SSlateMain::RowNumSave)
+]
++ SUniformGridPanel::Slot(2, 1)
+.HAlign(HAlign_Fill).VAlign(VAlign_Center)
+[
+SAssignNew(arrayRowSp, SSpinBox<int>).MaxValue(900).MinValue(-900).Value(0)
+.OnValueChanged(this,&SSlateMain::XArray_slide)
+]
+```
+XArray_slide函数
+```cpp
+void SSlateMain::XArray_slide(FPlatformTypes::int32 val)
+{
+	USelection* SelectionSet = GEditor->GetSelectedActors();
+    if (SelectionSet->Num() > 1)
+    {
+    	TArray<AActor*> SelectedActors;
+    	SelectedActors.Reserve(SelectionSet->Num());
+    	SelectionSet->GetSelectedObjects(SelectedActors);
+    	AActor* ppp = SelectedActors[SelectedActors.Num() - 1];
+    	FVector pO, pE;
+    	ppp->GetActorBounds(true, pO, pE);
+    	float SpAdd = pO.Y;
+    	float RowSpAdd = 0.f;
+    	float RowSp = pO.X;
+    	int CN = 0;
+    	int Rows = arrayRow->GetValue();
+    	for (AActor* Actor : SelectedActors)
+    	{
+    		if (Actor->GetFName() != ppp->GetFName())
+    		{
+    			FVector Origin, Extent;
+    			Actor->GetActorBounds(true, Origin, Extent);
+    			CN++;
+    			SpAdd += pE.X + Extent.X + float(arrayRowSp->GetValue());
+    			if (CN % Rows == 0)
+    			{
+    				SpAdd = pO.Y;
+    				RowSp += float(arraySpace->GetValue()) + pE.Y * 2;
+    			}
+    			FVector newp = FVector(RowSp, SpAdd, pO.Z - pE.Z);
+    			Actor->SetActorLocation(newp);
+    		}
+    	}
+    }
+}
+```
+---
+## Q-2> 调用资源蓝图类不匹配定义的类型
+在SceneTools插件中,创建与MCwindow相同是批量创建蓝图资源
+定义StaticMeshActor类型,
+```cpp
+AStaticMeshActor* MyActor = World->SpawnActor<AStaticMeshActor>(bpZMaitrexClass, FVector::ZeroVector, FRotator::ZeroRotator);
+```
+bp_Matrix
+```cpp
+private:
+    UBlueprint* bp_Matrix = Cast<UBlueprint>(StaticLoadObject(UObject::StaticClass(), nullptr, 
+        TEXT("Blueprint'/Game/Developers/Vic/bp_Box.bp_Box'")));
+    TSubclassOf<class UObject> bpZMaitrexClass = (bp_Matrix)->GeneratedClass;
+```
+#### 注意要点1
+注意检查蓝图右上角继承的蓝图类型,创建蓝图资源必须设置为定义类型相同的AStaticMesh
+<img src="UEc++.assets\ActorClass.png">
+点击ClassSettings按钮进行设置
+<img src="UEc++.assets\classSetting.png">
+修改为**StaticMeshActor**类型
+<img src="UEc++.assets\classSetting2.png">
+
+#### 注意要点2
+在设置蓝图TextRender组件名字时,TextRender组件的位置(这里是1号位置)
+<img src="UEc++.assets\componentNum.png">
+再添加了一个Cube组件后,编号如下图,TextRender变成2号了,经过测试每加一个组件上面都会增加一个编号
+<img src="UEc++.assets\componentNum2.png">
+
+<img src="UEc++.assets\componentNum3.png">
+
+注意: 定义控件类型 UTextRenderComponent* 后面要加*号  参考2-1-5
+```cpp
+#include "Components/TextRenderComponent.h" //<UTextRenderComponent>需要包含该头文件
+
+TArray<UActorComponent*> comps;     //定义组件类数组
+MyActor->GetComponents(comps);      //获取创建的蓝图所有组件放入数组
+UTextRenderComponent* textComp = Cast<UTextRenderComponent>(comps[1]);  //获取1号位置的TextRender组件
+
+//上面的组件类型可以使用auto来定义所有类型,也要注意加*号,如下
+auto* textComp = Cast<UTextRenderComponent>(comps[1]);
+
+textComp->SetText(FText::FromString(boxname));  //设置Text参数修改文字
+textComp->bHiddenInGame = true;     //设置游戏运行状态不可见
+```
+---
+## Q-3> 自定义ActorComponent
+[参考链接](https://blog.csdn.net/brzzuibang/article/details/107985859)
+在VS里 生成 成功，而在引擎里点击Compile（编译）时直接崩溃。
+```cpp
+UMyActorComponent::UMyActorComponent()
+{
+...
+ThisActor = Cast<AMyActor>(GetOwner());
+FVector ActorLoc = ThisActor->GetActorLocation();//此处不崩溃
+Size = ThisActor->ActorSize; //此处崩溃;Size为头文件已声明的变量
+...
+//函数体
+...
+};
+```
+
+如果改为 int Size = 4000;就没事；
+最后将崩溃的这句写成单独小函数，
+```cpp
+void MyActorComponent::SetSize(){
+    Size = ThisActor->ActorSize;
+}
+```
+在MyActor.cpp中调用
+```cpp
+UMyActorComponent::UMyActorComponent()
+{
+...
+MyComponent = CreateDefalutSubobject<UMyActorComponent>(TEXT("MyComponent"));
+MyComponent->SetSize();
+...
+//函数体
+...
+};
+```
+编译通过不崩溃了，功能实现了。
+继续优化，构造函数将Size初始化为常量100，将SetSize()函数在MyActorComponent.cpp的BeginPlay()中调用进行赋值最好。
+>想来出现这种问题的原因：
+Component的构造是在Actor的构造函数中通过CreateDefalutSubobject函数实现的，所以Component实现构造时Actor构造未完成，所以调用Actor的变量可能会造成意想不到的结果，造成程序的崩溃。
+所以构造函数最好仅仅实现变量的初始简单赋值，调用等其他功能写成小函数，在合适的地方调用。
+---
