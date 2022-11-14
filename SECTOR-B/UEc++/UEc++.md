@@ -16,6 +16,125 @@ FString MRV = FString::Printf(TEXT("R: %g\nM: %.g\n%s"), D_R, D_M, *BtName);    
 texComp->SetText(FText::FromString(MRV));
 texComp->bHiddenInGame = true;
 ```
+### 1-1-2> 分割字符串
+根據指定字符分割字符串，分割的字符串量存入變量，不需要存儲的部分用 nullptr 補全
+
+```cpp
+//左右切割
+FString FileName = "name.ext";
+FString Left;
+FileName.Split(".", &Left, nullptr);    //提取左边的字符,右边不获取用nullptr替
+matFile->SetText(FText::FromString(*Left));
+
+//切割所有字符
+TArray < FString > StringArray;
+MyString.ParseIntoArray(StringArray, TEXT(","), false);
+```
+### 字符串分片
+
+将字符串按下标拆解为我们需要的字符串称之为***分片(Silce)，\***常用分片函数包含如下几个***：\***
+
+- **FString::Mid**[5]
+- **FString::Left**[6]
+- **FString::LeftChop**[7]
+- **FString::Right**[8]
+- **FString::RightChop**[9]
+
+5个函数都接受一个 **Count** 参数，表明要操作的字符串长度，这个长度如果超过字符串本身长度，就会被默认处理为字符串本身长度。其中Left,LeftChop和Right,RightChop可以看做Mid的一种简便写法，具体样例如下：
+
+```cpp
+// 字符串分片
+FString Str = FString(TEXT("ABCDEFGHIJ"));
+// 字符串长度
+int32 StringLength = Str.Len();
+// 通过下标获取字符
+TCHAR Char = Str[0]; // A
+// 从左往右截取指定长度的字符串
+FString LeftStr = Str.Left(4); // ABCD
+// 去除字符串末尾指定的长度字符串
+FString LeftChopStr = Str.LeftChop(4); // ABCDEF
+// 从右往左截取指定长度的字符串
+FString RightStr = Str.Right(4); // GHIJ
+// 去除字符串开头指定长度的字符串
+FString RightChopStr = Str.RightChop(4); // EFGHIJ
+// 从字符串指定位置获取指定长度的字符串
+FString MidStr = Str.Mid(2,6);// CDEFGH
+
+
+//例：獲取最後一個字符，判斷最後一個字符是"/"就去除
+    FString path = "abc/def/"
+    int le = path.Len();
+    FString en = path.Right(1);
+    if (en == "/")
+        path = path.LeftChop(1);
+```
+
+<img src="UE插件.assets/image-20210802115233013.png" alt="image-20210802115233013" style="zoom:80%;" />
+
+```cpp
+// 按指定分割符号进行拆分
+FString SplitStr = FString(TEXT("ABC,DEF,GHI,"));
+// 保存拆分后的字符串数组
+TArray<FString> SplitedStr;
+// 最后一个参数 InCullEmtpy 表示是否剔除空字符串
+SplitStr.ParseIntoArray(SplitedStr, TEXT(","), false); // ABC DEF GHI Empty
+SplitStr.ParseIntoArray(SplitedStr, TEXT(","), true); // ABC DEF GHI
+```
+
+```cpp
+//查找路径是否是反斜杠，如果是切割并替换成正斜杠
+if (pp.Find(TEXT("\\"), ESearchCase::IgnoreCase, ESearchDir::FromStart, INDEX_NONE) != INDEX_NONE)
+{
+    FString newP = "";
+    TArray<FString> SArr;
+    pp.ParseIntoArray(SArr, TEXT("\\"), false);
+    for (const FString sss : SArr)
+    {
+        newP += sss + "/";
+    }
+    pp = newP;
+}
+```
+
+### 常用方法
+
+```cpp
+// 逆序
+FString MyString = FString(TEXT("123456"));
+// 逆序并返回字符串副本
+FString ReverseString = MyString.Reverse(); // 654321
+// 直接逆序原始字符串
+MyString.ReverseString();
+
+// 字符串替换
+FString SrcString = FString(TEXT("Apple Orange"));
+// 返回替换后的字符串副本
+FString ReplaceString = SrcString.Replace(TEXT("Apple"), TEXT("Coffee")); // Coffe Orange
+// 直接替换原始字符串
+SrcString.ReplaceInline(TEXT("Orange"), TEXT("Banana")); // Apple Banana
+
+// 去除无用字符串
+FString QuoteAndSpaceString = FString(TEXT("    "StringWithEmpty"  "));
+// 返回剔除行首行末空白字符的字符串副本
+FString WithoutSpace = QuoteAndSpaceString.TrimStartAndEnd(); // "StringWithEmpty"
+// 直接剔除原始字符串的行首行末的空白字符
+QuoteAndSpaceString.TrimStartAndEndInline(); // "StringWithEmpty"
+// 返回剔除行首行末引号的字符串副本
+FString WithoutQuotesString = QuoteAndSpaceString.TrimQuotes(); //StringWithEmpty
+// 清空字符串
+QuoteAndSpaceString.Empty();
+```
+
+另一分割成數組方法參看上面：讀取多行文檔
+
+### 格式化字符串
+
+```cpp
+TMap<FString, FStringFormatArg> FormatMap;
+FormatMap.Add(TEXT("key1"), FStringFormatArg(1));
+FormatMap.Add(TEXT("key2"), FStringFormatArg(2));
+FString Text1 = FString::Format(TEXT("Text{key1}{key2}{key1}"), FormatMap);
+```
 
 ## 1-2> 各类型转换
 ### 1-2-1> Lex -> FString (LexToString)
@@ -539,6 +658,95 @@ switch(expression){
 
 # 5> 自定义函数集
 ## 5-1> 读写INI文件
+[参考网址](https://blog.csdn.net/weixin_46840974/article/details/126182948)
+
+### .h文件创建新类
+```cpp
+#pragma once
+
+class CustomFN
+{
+public:
+   void ReadIniValue(FString Section, FString inKey, FString& outValue, FString IniFile);
+   bool WriteIni(FString newSection, FString newKey, FString newValue, FString IniFile);
+};
+```
+### .cpp写实现
+```cpp
+#include "CustomFN.h"
+#include "Misc/FileHelper.h"
+//读取INI
+void CustomFN::ReadIniValue(FString Section, FString inKey, FString& outValue, FString IniFile)
+{
+   if (!GConfig)
+      return;
+   GConfig->GetString(*Section, *inKey, outValue, IniFile);
+}
+//写入INI
+bool CustomFN::WriteIni(FString newSection, FString newKey, FString newValue, FString IniFile)
+{
+   if(!GConfig)
+      return false;
+   GConfig->SetString(*newSection, *newKey, *newValue, IniFile);
+   GConfig->Flush(true);  //即时刷新写入文件
+   return true;
+}
+```
+### 其他文件中调用函数
+```cpp
+//ini文件路径可以统一使用全局变量
+FString IniPath = (FPaths::ProjectPluginsDir() + "SceneTools_W_P/settings.ini");
+//创建一个继承自定义类的全局类名CFN来调用里面的函数
+CustomFN CFN;
+//写入ini
+CFN.WriteIni(FString("SceneTools"), FString("Path"), *(texPath->GetText().ToString()), *IniPath);
+//读取ini到变量运用
+FString rval;
+CFN.ReadIniValue(FString("SecneTools"), FString("Path"), rval, *IniPath);
+suffixSeach->SetText(FText::FromString(rval));
+```
+## ★INI记录读写实例:
+```cpp
+//定义全局变量接收读取值,用到UI的初始值设置
+FString s_equal="";
+int s_searchV=1024;
+//定义INI文件变量,读写函数中传入
+FString IniPath☆ = (FPaths::ProjectPluginsDir() + "SceneTools_W_P/settings.ini");
+//记录读取给全局变量赋值,整数类型需要通过FCString::Atoi将整数转换为FString
+if (FPaths::FileExists(*(FPaths::ProjectPluginsDir() + "SceneTools_W_P/settings.ini")))
+{
+ ★CFN.ReadIniValue(FString("SceneTools"), FString("Equal"), s_equal★, *IniPath☆); 
+   FString s_SV;
+ ★CFN.ReadIniValue(FString("SceneTools"), FString("SearchV"), s_SV, *IniPath);
+   s_searchV★ = FCString::Atoi(*s_SV); 
+}
+//Slate控件赋值,字符串变量需要加*指针
+SAssignNew(equalText,SEditableTextBox).Text(FText::FromString(*s_equal★)).MinDesiredWidth(10)
+//整数变量不用加*指针
+SAssignNew(searchSize, SSpinBox<int>).MaxValue(4096).MinValue(32).Value(s_searchV★).ToolTipText(FText::FromString(TEXT("拖动")))
+.OnEndSliderMovement(this,&SSlateMain::SearchSizeValueSet)
+//控件事件函数写入INI
+void SSlateMain::SearchSizeValueSet(FPlatformTypes::int32 val)
+{
+   for (int i=5; i <= 11;i++)
+   {
+      int sss =pow(2,i);
+      if (val >= sss && val < pow(2,(i+1)))
+      {
+         searchSize->SetValue(sss);
+          ★CFN.WriteIni(FString("SceneTools"), FString("SearchV"), FString::FromInt(sss), IniPath☆);
+      }
+   }
+}
+```
+
+# 6> 各种获取
+## 获取当前关卡信息
+```cpp
+
+```
+
+---
 
 # Q> 问 题 坑
 

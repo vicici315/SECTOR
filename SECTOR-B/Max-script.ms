@@ -1,3 +1,25 @@
+--打开模型unwrapUVW编辑窗口,需要添加该修改器
+modPanel.addModToSelection (Unwrap_UVW ()) ui:on
+$.modifiers[#unwrap_uvw].unwrap.edit()
+
+--创建带贴图的材质赋予选择的物体
+if selection.count > 0 do(
+undo on (
+if sceneMaterials["CrossMap_mat"] == undefined do (
+	mm = standard diffusemap:(Bitmaptexture filename:(getdir #Scripts+"\\oxTOOLSfiles\\Icons\\cropMap.png")) name:"CrossMap_mat"  --创建standard材质球并命名
+	mm.ambient = color 0 0 0	--设置环境光颜色
+	mm.Diffuse = color 0 0 0
+	mm.selfIllumAmount = 70		--设置自发光强度
+	mm.diffuseMap.filtering = 2	--设置位图参数的过滤器选项为None(第3项)
+	mm.diffuseMap.coords.U_Tile = false	--关闭贴图U轴连续选项
+	mm.diffuseMap.coords.V_Tile = false
+	mm.diffuseMap.coords.mapChannel = 2	--设置使用2号uv
+	showTextureMap mm on	--显示材质贴图
+	$.material = mm		--赋予选择的物体
+)
+$.material = sceneMaterials["CrossMap_mat"]	--根据材质球名指定材质给模型
+))
+
 --创建Bone骨骼序列，并设置骨骼层级
 pos = 0
 allbo=#()
