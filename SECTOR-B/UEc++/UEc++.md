@@ -30,7 +30,7 @@ matFile->SetText(FText::FromString(*Left));
 TArray < FString > StringArray;
 MyString.ParseIntoArray(StringArray, TEXT(","), false);
 ```
-### 字符串分片
+### 1-1-3> 字符串分片
 
 将字符串按下标拆解为我们需要的字符串称之为***分片(Silce)，\***常用分片函数包含如下几个***：\***
 
@@ -342,8 +342,8 @@ FReply SSlateMain::TTTButtom()
 	int cot = 0;
 	GEngine->AddOnScreenDebugMessage(-1, 43.f, FColor::Black, FString::Printf(TEXT("<")));
 	for(auto* comp:comps)
-	{
-		const auto* CCC = comp->GetClass();
+	{   //打印所有的组件编号,组件类型,组件名
+		const auto* CCC = comp->GetClass(); //获取组件类型
 		auto* Cmp = Cast<UChildActorComponent>(comp);
 		GEngine->AddOnScreenDebugMessage(-1, 43.f, FColor::Black, FString::Printf(TEXT("%i : %s : %s"), cot, *CCC->GetName(), *comp->GetName()));
 		cot += 1;
@@ -583,12 +583,12 @@ GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, Actor->GetFName().ToStr
 UE_LOG(LogTemp, Warning, TEXT("共搜索 %i 个贴图文件"), AssetDatas.Num());
 ```
 
-## 在C++中打开txt文本文件
+## 4-2> 在C++中打开txt文本文件
 ```cpp
 FString FP = FString::Printf(TEXT("start %s"), *FileName);
 system(TCHAR_TO_UTF8(*FP));
 ```
-## 场景物体变换参数类型
+## 4-3> 场景物体变换参数类型
 用于场景Actor的变换参数类型
 ```cpp
 //位移参数:起始零位置
@@ -598,14 +598,14 @@ FVector(X, Y, Z);
 //旋转参数:起始零值
 FRotator::ZeroRotator
 ```
-## 设置材质参数方法
+## 4-4> 设置材质参数方法
 参考 MCwindows 插件
 ```cpp
 
 ```
 
-## 循环
-### for循环数组中的成员
+## 4-5> 循环
+### 4-5-1> for循环数组中的成员
 遍历数组ActorsArray中的成员
 ```cpp
 for (AActor* Actor: ActorsArray){...}
@@ -618,13 +618,13 @@ for (const FString sss : SArr)
    newP += sss + "/";
 }
 ```
-### for循环指定数量
+### 4-5-2> for循环指定数量
 ```cpp
-for (int i = 1; i < 9; i++)
+for (int32 i = 1; i <= 9; i++)
 {...}
 ```
 
-### switch(exp){case val:}
+### 4-5-3> switch(exp){case val:}
 一个switch语句允许测试一个变量等于多个值时的情况。每个值称为一个case，且被测试的变量会对每个 switch case进行检查。
 ```cpp
 //语法格式：
@@ -660,7 +660,7 @@ switch(expression){
 ## 5-1> 读写INI文件
 [参考网址](https://blog.csdn.net/weixin_46840974/article/details/126182948)
 
-### .h文件创建新类
+### 5-1-1> .h文件创建新类
 ```cpp
 #pragma once
 
@@ -671,7 +671,7 @@ public:
    bool WriteIni(FString newSection, FString newKey, FString newValue, FString IniFile);
 };
 ```
-### .cpp写实现
+### 5-1-2> .cpp写实现
 ```cpp
 #include "CustomFN.h"
 #include "Misc/FileHelper.h"
@@ -692,7 +692,7 @@ bool CustomFN::WriteIni(FString newSection, FString newKey, FString newValue, FS
    return true;
 }
 ```
-### 其他文件中调用函数
+### 5-1-3> 其他文件中调用函数
 ```cpp
 //ini文件路径可以统一使用全局变量
 FString IniPath = (FPaths::ProjectPluginsDir() + "SceneTools_W_P/settings.ini");
@@ -705,7 +705,7 @@ FString rval;
 CFN.ReadIniValue(FString("SecneTools"), FString("Path"), rval, *IniPath);
 suffixSeach->SetText(FText::FromString(rval));
 ```
-## ★INI记录读写实例:
+## 5-2> ★INI记录读写实例:
 ```cpp
 //定义全局变量接收读取值,用到UI的初始值设置
 FString s_equal="";
@@ -741,12 +741,36 @@ void SSlateMain::SearchSizeValueSet(FPlatformTypes::int32 val)
 ```
 
 # 6> 各种获取
-## 获取当前关卡信息
+## 6-1> 获取当前关卡信息
 ```cpp
-
+UWorld* World = GEditor->GetEditorWorldContext().World();
+FString lll = World->GetCurrentLevel()->GetName();      //返回一个不是关卡文件名的名字
+FString ppp = World->GetCurrentLevel()->GetPathName();  //返回关卡完整路径名与文件名包括GetName获取的名字
+```
+实例: 获取当前关卡名
+```cpp
+UWorld* World = GEditor->GetEditorWorldContext().World();
+FString levN;
+FString LLL = World->GetCurrentLevel()->GetPathName(); //获取关卡完整路径及名字
+LLL.Split(".",nullptr,&levN);   //先以"."分割
+levN.Split(":", &levN, nullptr); //再以":"分割得到关卡名
 ```
 
 ---
+# 7> 常用资源
+## 7-1> 确认弹窗
+```cpp
+FText const Title = FText::FromString(TEXT("添加前缀命名"));
+FText const DialogText = FText::FromString(TEXT("确认选择的物体添加前缀命名吗?"));
+EAppReturnType::Type const ReturnType = FMessageDialog::Open(EAppMsgType::OkCancel, DialogText, &Title);
+if (ReturnType == EAppReturnType::Type::Ok)
+{
+    doing...
+}else
+{
+    GEditor->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("取消"));
+}
+```
 
 # Q> 问 题 坑
 
