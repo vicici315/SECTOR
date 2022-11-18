@@ -26,7 +26,7 @@ FString Left;
 FileName.Split(".", &Left, nullptr);    //提取左边的字符,右边不获取用nullptr替
 matFile->SetText(FText::FromString(*Left));
 
-//切割所有字符
+//根据指定字符切割字符串
 TArray < FString > StringArray;
 MyString.ParseIntoArray(StringArray, TEXT(","), false);
 ```
@@ -76,7 +76,7 @@ FString MidStr = Str.Mid(2,6);// CDEFGH
 FString SplitStr = FString(TEXT("ABC,DEF,GHI,"));
 // 保存拆分后的字符串数组
 TArray<FString> SplitedStr;
-// 最后一个参数 InCullEmtpy 表示是否剔除空字符串
+// 切割字符串,最后一个参数 InCullEmtpy 表示是否剔除空字符串
 SplitStr.ParseIntoArray(SplitedStr, TEXT(","), false); // ABC DEF GHI Empty
 SplitStr.ParseIntoArray(SplitedStr, TEXT(","), true); // ABC DEF GHI
 ```
@@ -96,7 +96,7 @@ if (pp.Find(TEXT("\\"), ESearchCase::IgnoreCase, ESearchDir::FromStart, INDEX_NO
 }
 ```
 
-### 常用方法
+### 1-1-4> 字符串编辑方法
 
 ```cpp
 // 逆序
@@ -127,7 +127,7 @@ QuoteAndSpaceString.Empty();
 
 另一分割成數組方法參看上面：讀取多行文檔
 
-### 格式化字符串
+### 1-1-5> 格式化字符串
 
 ```cpp
 TMap<FString, FStringFormatArg> FormatMap;
@@ -220,7 +220,7 @@ FText 类是文本本地化的主要类。如果想提供多语言支持，面�
 //参数分别是默认语言的: 命名空间，键，值。
 FText test = NSLOCTEXT("Notification","PickMessage","you pick something.")。
 ```
-### 1-4-4> 3.FNames：常用作标识符等不变的字符串
+### 1-4-4> 3.FNames
 常用作标识符等不变的字符串（如：资源路径/资源文件类型/骨骼名称/表格行名等）
 比较字符串操作非常快
 即使多个相同的字符串，也只在内存存储一份副本，避免了冗余的内存分配操作
@@ -229,6 +229,10 @@ FText test = NSLOCTEXT("Notification","PickMessage","you pick something.")。
 ```cpp
 //初始化
 FName test=FName(TEXT("hello world"));
+```
+### 返回字符串长度.Len()
+```cpp
+String.Len()
 ```
 
 ## 1-5> 主要容器
@@ -246,6 +250,11 @@ TArray 被销毁时其中的元素也将被销毁，TArray的复制是值复制�
 TSet 类似于 TMap 和 TMultiMap，但有一个重要区别：TSet 是通过对元素求值的可覆盖函数，使用数据值本身作为键，而不是将数据值与独立的键相关联。TSet 可以非常快速地添加、查找和删除元素（恒定时间）。默认情况下，TSet 不支持重复的键，但使用模板参数可激活此行为。
 总之是一种快速容器类，用于在排序不重要的情况下存储唯一元素。
 是对 std::set 的增强。
+## 1-6> 整数
+### 1-6-1> 获取整数位数log10(int)
+```cpp
+log10(777); //返回: 3
+```
 
 ---
 
@@ -263,7 +272,7 @@ for (AActor* inActor: ActorsToFind){
     ...
 }
 ```
-实例: 选中所有名字包含指定字符("STBox")的静态网格物体
+实例: 选中场景中所有名字包含指定字符("STBox")的静态网格物体
 ```cpp
 USelection* SelectionSet = GEditor->GetSelectedActors();
 
@@ -271,7 +280,7 @@ UWorld* World = GEditor->GetEditorWorldContext().World();
 
 TArray<AActor*> ActorsToFind;
 if(World)
-{   //指定的类型需要获取静态类::StaticClass()
+{   //获取场景所有指定类型的对象,类型后需要获取静态类::StaticClass()  类型有AActor等
     UGameplayStatics::GetAllActorsOfClass(World, AStaticMeshActor::StaticClass(), ActorsToFind);
 }
 SelectionSet->DeselectAll();
@@ -308,7 +317,7 @@ if (SelectionSet->Num() > 1)
 ### 2-1-3> 根据名字获取场景物体(FindObject)
 使用**FindObject**来通过名称获取对象
 ```cpp
-AActor* obj = FindObject<AActor>(ANY_PACKAGE,TEXT("test_Box"));  //第一个传入当前场景宏,第二传入查找对象名称
+AActor* obj = FindObject<AActor>(ANY_PACKAGE,TEXT("test_Box"));  //第一个参数传入当前场景宏,第二传入查找对象名称
 FString sn = "No Obj";
 if (obj) sn = obj->GetActorLocation().ToString();
 ```
@@ -392,7 +401,15 @@ FReply SSlateMain::CreateBoxs()
 	return FReply::Handled();
 }
 ```
-打印所有的组件类及名称
+打印所有的组件类及名称,参考(Q-2-2> 注意要点2)
+.h 声明定义资源库中的AStaticMesh类蓝图对象
+```cpp
+private:
+//注意:指定bp_Box文件必须存在,否则会出错*(FPaths::ProjectPluginsDir() + "
+	UBlueprint* bp_Matrix = Cast<UBlueprint>(StaticLoadObject(UObject::StaticClass(), nullptr, TEXT("Blueprint'/Game/Developers/Vic/STcontent/bp_Box.bp_Box'")));
+	TSubclassOf<class UObject> bpZMaitrexClass = (bp_Matrix)->GeneratedClass;
+```
+.cpp
 ```cpp
 FReply SSlateMain::TTTButtom()
 {
@@ -427,7 +444,7 @@ FReply SSlateMain::TTTButtom()
 	return FReply::Handled();
 }
 ```
-### 2-1-6> UEc++选择场景中的物体
+### 2-1-6> 选择场景中的物体
 ```cpp
 //定义UE的选择对象空间
 USelection* SelectionSet = GEditor->GetSelectedActors();
@@ -454,6 +471,105 @@ AStaticMeshActor* MyActor = World->SpawnActor<AStaticMeshActor>(bpZMaitrexClass,
     SelectionSet->Deselect(MyActor);    //取消物体选择
     //取消所有物体选择
     SelectionSet->DeselectAll();
+```
+### 2-1-7> 创建对象
+创建资源库中的AStaticMeshActor类型蓝图(参考: 2-1-4)
+#### 2-1-7-1> 创建AActor对象,并添加静态网格组件
+```cpp
+UWorld* World = GEditor->GetEditorWorldContext().World();
+FActorSpawnParameters newcc = FActorSpawnParameters();
+// newcc.Template = ;
+auto* newaa = World->SpawnActor<AStaticMeshActor>(FVector::ZeroVector, FRotator::ZeroRotator, newcc);
+UStaticMeshComponent* NewComp = NewObject<UStaticMeshComponent>(newaa);
+NewComp->RegisterComponent();
+NewComp->SetStaticMesh(meshload);
+newaa->AddInstanceComponent(NewComp);
+```
+#### 2-1-7-2> 克隆场景中选中的对象
+实践Cast\<class>()的使用方法,这里用于获取选择对象的StaticMesh (该实例只能复制AStaticMeshActor类型对象)
+```cpp
+FReply SSlateMain::CloneActor()
+{
+	USelection* SelectionSet = GEditor->GetSelectedActors();
+ 	
+	if (SelectionSet->Num() == 1)
+	{
+		FVector Cscl;
+		UWorld* World = GEditor->GetEditorWorldContext().World();
+		TArray<AActor*> SelectedActors;
+		SelectedActors.Reserve(SelectionSet->Num());
+		SelectionSet->GetSelectedObjects(SelectedActors);
+		AActor* ppp = SelectedActors[0];
+		if (ppp->GetClass()->GetName()=="StaticMeshActor")
+		{
+			FVector Cpos=ppp->GetActorLocation();
+			Cscl=ppp->GetActorScale();
+        //★通过Cast获取选择的对象指定<中>的类型,才能提取StaticMesh
+			AStaticMeshActor* selA = Cast<AStaticMeshActor>(ppp); 
+        //★声明获取StaticMesh变量,从Cast拾取的对象中获取选择对象的StaticMesh
+			UStaticMesh* meshload = selA->GetStaticMeshComponent()->GetStaticMesh();
+     	
+			SelectionSet->DeselectAll();
+			FString boxname;
+			FString levN = ppp->GetName();
+			FString STLevel = "";
+			CFN.ReadIniValue(FString("SceneTools"), levN, STLevel, IniPath);
+			int STcunt;
+			STcunt = FCString::Atoi(*STLevel);
+			if (STcunt > 0)
+			{
+				int CEO=0; //计算同一对象克隆的数量
+				TArray<AActor*> ActorsToFind;
+				if(World)
+				{ // 获取场景中所有的AStaticMeshActor类型对象,进行名称查找计算创建的克隆对象组数
+					UGameplayStatics::GetAllActorsOfClass(World, AStaticMeshActor::StaticClass(), ActorsToFind);
+				}
+				for (int i = 1; i <= STcunt; i++)	//遍历场景中所有的StaticMeshActor物体,查找是否存在矩阵盒子,如果没有将记录归为1
+					{
+					for (AActor* inActor: ActorsToFind){
+						//这里查找名字是否包含用Find,不能用GetName()==".." 否则在第二次创建物体时会误判为找不到名称
+						if(inActor->GetName().Find(FString::Printf(TEXT("%s_%i"), *levN, i))>-1)
+							CEO+=1;
+					}
+					}
+				if (CEO > 0)
+				{
+					STcunt += 1;
+					CFN.WriteIni(FString("SceneTools"), levN, FString::FromInt(STcunt), IniPath);
+				}else
+				{
+					CFN.WriteIni(FString("SceneTools"), levN, "1", IniPath);
+					STcunt = 1;
+				}
+			
+			}else{
+				CFN.WriteIni(FString("SceneTools"), levN, "1", IniPath);
+				STcunt = 1;
+			}
+		//声明对象布置参数变量,用于World->SpawnActor的放置
+			FActorSpawnParameters newcc = FActorSpawnParameters();
+		//批量创建克隆对象
+			for (int i = 1; i <= matrixNum->GetValue(); i++)
+			{//放置对象到场景中
+				AStaticMeshActor* MyActor = World->SpawnActor<AStaticMeshActor>(Cpos+FVector(100,100,0), FRotator::ZeroRotator, newcc);
+            //放置的对象可以直接指定从选中对象获取的StaticMesh
+				MyActor->GetStaticMeshComponent()->SetStaticMesh(meshload);
+				boxname = levN+"_" +FString::FromInt(STcunt)+"_" + FString::FromInt(i);
+				MyActor->SetActorLabel(boxname);
+				MyActor->SetFolderPath("Clone_Folder");
+				MyActor->SetActorScale3D(Cscl);
+				SelectionSet->Select(MyActor);	//选中对象
+				// if (i==1) SelectionSet->ToggleSelect(MyActor);
+			}
+			SSlateMain::XArray_slide(1.0);
+		}else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 26.f, FColor::Blue, FString::Printf(TEXT("该类型是: %s"),*ppp->GetClass()->GetName()));
+			GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Red, TEXT("请选择AActorStaticMesh静态网格模型对象!"));
+		}
+	}
+	return FReply::Handled();
+}
 ```
 
 ---
@@ -558,14 +674,8 @@ void SSlateMain::OnSubfixText(const FText& Text)
     ]
 ```
 
-## 3-3> FPaths 路径获取
 
-```cpp
-FPaths::ProjectContentDir()    //可以拿到Content目录的绝对路径
 
-FPaths::ProjectPluginsDir()    //获取Plugins目录
-FPaths::FileExists(*(FPaths::ProjectPluginsDir() + "SceneTools_W_P/ST.txt"))
-```
 ---
 
 # 4> 基础知识
@@ -601,7 +711,27 @@ FRotator::ZeroRotator
 ## 4-4> 设置材质参数方法
 参考 MCwindows 插件
 ```cpp
-
+UMaterial* MatObj = Cast<UMaterial>(StaticLoadObject(UMaterial::StaticClass(), nullptr, TEXT("Material'/Game/Tools/Mats/BaseMat.BaseMat'")));
+UMaterialInstanceDynamic* MatInstance;
+MatInstance = UMaterialInstanceDynamic::Create(MatObj, NULL);
+MatInstance->SetScalarParameterValue("R", pRow->R); //一维参数名称:"R"
+//读取颜色参数,0~255转换为0~1值
+TArray<FString> SP;
+pRow->BC.ParseIntoArray(SP, TEXT("/"), true);   //以"/"切割字符串
+float RC = 1.f;
+float GC = 1.f;
+float BC = 1.f;
+if (SP.Num() > 0) {
+    RC = FCString::Atof(*SP[0]);
+    GC = FCString::Atof(*SP[1]);
+    BC = FCString::Atof(*SP[2]);
+    if (RC > 1.0) {
+        RC = RC / 255;
+        GC = GC / 255;
+        BC = BC / 255;
+    }
+}
+MatInstance->SetVectorParameterValue("Color", FLinearColor(RC, GC, BC, 1.0));   //矢量参数:"Color"
 ```
 
 ## 4-5> 循环
@@ -653,7 +783,22 @@ switch(expression){
 }
 
 ```
-
+## 4-6> std 相关操作
+### 使用std打开文件
+```cpp
+using namespace std;
+//定义std可执行std字符串变量,转换FString变量加入std字符串
+std::string const& test = std::string("start ") + std::string(TCHAR_TO_UTF8(*FileName));
+//调用执行
+system(test.c_str());
+```
+### 调用system打开文件
+通过 system("start D:\\filename.txt") 方法打开文件
+```cpp
+//获取文件路径FString变量,使用指针
+FString FP = FString::Printf(TEXT("start %s"), *FileName);
+system(TCHAR_TO_UTF8(*FP));    //字符转为UTF8
+```
 ---
 
 # 5> 自定义函数集
@@ -755,6 +900,105 @@ FString LLL = World->GetCurrentLevel()->GetPathName(); //获取关卡完整路�
 LLL.Split(".",nullptr,&levN);   //先以"."分割
 levN.Split(":", &levN, nullptr); //再以":"分割得到关卡名
 ```
+## 6-2> 获取选择对象静态模型网格
+获取选择(AStaticMeshActor)对象静态模型网格(参考实例:2-1-7-2)
+```cpp
+UWorld* World = GEditor->GetEditorWorldContext().World();
+TArray<AActor*> SelectedActors;
+SelectedActors.Reserve(SelectionSet->Num());
+SelectionSet->GetSelectedObjects(SelectedActors);
+AActor* ppp = SelectedActors[0];
+auto* clas = Cast<UClass>(ppp);
+
+if (ppp->GetClass()->GetName()=="StaticMeshActor"){
+	FVector Cpos=ppp->GetActorLocation();
+	Cscl=ppp->GetActorScale();
+
+	auto* selA = Cast<AStaticMeshActor>(ppp);	//★通过Cast获取选择的对象指定<中>的类型,才能提取StaticMesh
+	UStaticMesh* meshload = selA->GetStaticMeshComponent()->GetStaticMesh();  //★获取StaticMesh
+
+	FActorSpawnParameters newcc = FActorSpawnParameters();
+	for (int i = 1; i <= matrixNum->GetValue(); i++)
+	{
+		auto* MyActor = World->SpawnActor<AStaticMeshActor>(Cpos+FVector(0,100,0), ppp->GetActorRotation(), newcc);
+		MyActor->SetFolderPath("Clone_Folder");
+		MyActor->GetStaticMeshComponent()->SetStaticMesh(meshload);  //修改设置静态网格对象的StaticMesh
+	}
+}
+```
+## 6-3> 获取项目路径 FPaths
+
+```cpp
+FPaths::ProjectContentDir()    //可以拿到Content目录的绝对路径
+
+FPaths::ProjectPluginsDir()    //获取Plugins目录
+FPaths::FileExists(*(FPaths::ProjectPluginsDir() + "SceneTools_W_P/ST.txt"))
+```
+
+## 获取资源管理器(Asset)资源
+获取资产管理窗中贴图尺寸 GitImportedSize()
+需要用UTexture2D才能获取到贴图的导入尺寸，包括LOD Bias等参数
+```cpp
+FARFilter Filter;
+//设置资源路径,需要FName類型字符 *FString 前面加星號解引出來使用
+Filter.PackagePaths.Add(*FString::Printf(TEXT("/Game/%s"), *pp)); 
+AssetRegistryModule.Get().GetAssets(Filter, AssetDatas);
+UTexture2D* MatObj = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), nullptr, (TEXT("Texture'%s'"), *AssetData.ObjectPath.ToString())));
+for (const FAssetData& AssetData : AssetDatas)
+{
+	UTexture2D* MatObj = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), nullptr,
+														(TEXT("Texture'%s'"), *AssetData.ObjectPath.ToString())));
+	if (MatObj->GetName().Right(suffixSeach->GetText().ToString().Len()) == suffixSeach->GetText().ToString())
+	{
+		if (absd == TEXT("等于"))
+		{
+			if ( MatObj->GetImportedSize().Y == searchSize->GetValue()) {  //★获取贴图导入原尺寸
+				MatObj->MaxTextureSize = FCString::Atoi(*SizeValue->GetText().ToString());
+				//標記未保存星號
+				MatObj->AddToRoot();
+				MatObj->UpdateResource();
+				MatObj->MarkPackageDirty();
+				cou += 1;
+				//文件路径写入文本
+				FString MatPath = *MatObj->GetPathName();
+				FString MatLeft;
+				MatPath.Split(".", &MatLeft, nullptr);
+				Content += FString::Printf(TEXT("%s\n"), *MatLeft);
+			}
+		}
+	}
+}
+```
+## 获取目录下的所有资源
+### 硬获取
+```cpp
+UObjectLibrary* ObjectLibrary = UObjectLibrary::CreateLibrary(UUserDefinedStruct::StaticClass(), false, GIsEditor);
+
+ObjectLibrary->LoadAssetDataFromPath(TEXT("/Game"));
+TArray<FAssetData> AssetDatas;
+ObjectLibrary->GetAssetDataList(AssetDatas);
+
+for (const FAssetData& AssetData : AssetDatas)
+{
+    UE_LOG(LogTemp, Error, TEXT("%s"), *AssetData.GetFullName());
+}
+```
+### 软获取
+```cpp
+TArray<FAssetData> AssetDatas;
+FAssetRegistryModule& AssetRegistryModule = FModuleManager::GetModuleChecked<FAssetRegistryModule>("AssetRegistry");
+FARFilter Filter;
+Filter.PackagePaths.Add("/Game");
+Filter.ClassNames.Add(UUserDefinedStruct::StaticClass()->GetFName());
+Filter.bRecursivePaths = true;
+Filter.bRecursiveClasses = true;
+AssetRegistryModule.Get().GetAssets(Filter, AssetDatas);
+
+for (const FAssetData& AssetData : AssetDatas)
+{
+    UE_LOG(LogTemp, Error, TEXT("%s"), *AssetData.GetFullName());
+}
+```
 
 ---
 # 7> 常用资源
@@ -771,6 +1015,18 @@ if (ReturnType == EAppReturnType::Type::Ok)
     GEditor->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, TEXT("取消"));
 }
 ```
+## 7-2> 数学函数
+### 随机数 FMath::RandRange(Min:, Max:)
+```cpp
+FMath::RandRange(-int(randomAngle->GetValue()), int(randomAngle->GetValue()))
+```
+### 开次方函数pow()
+```cpp
+//对2进行开方，后面为开方次数
+int vvv = pow(2,setMapSize->GetValue());
+//转换整数为FText字符,运用到滑动数值框SSpinBox中
+SizeValue->SetValue (FText::FromString(FString::FromInt(vvv)));
+```
 
 # Q> 问 题 坑
 
@@ -779,6 +1035,7 @@ SceneTools插件arrayRowSp SSpinBox控件事件无法实时生效! **(未找到�
 拖动SpinBox数值实时执行相同事件函数(XArray_slide),只有一个控件生效,其他控件操作不能实时更新
 >设置了最小值为-200.0 又导致无法实时生效(指数值:22)
 修改为最小值-100.0 恢复了左边一个控件实时生效(指数值:26)
+>> ◎在默认引擎重启插件后就可以修改参数实时生效
 
 ```cpp
 + SUniformGridPanel::Slot(0, 1)
@@ -852,7 +1109,7 @@ private:
         TEXT("Blueprint'/Game/Developers/Vic/bp_Box.bp_Box'")));
     TSubclassOf<class UObject> bpZMaitrexClass = (bp_Matrix)->GeneratedClass;
 ```
-#### 注意要点1
+### Q-2-1> 注意要点1
 注意检查蓝图右上角继承的蓝图类型,创建蓝图资源必须设置为定义类型相同的AStaticMesh
 <img src="UEc++.assets\ActorClass.png">
 点击ClassSettings按钮进行设置
@@ -860,7 +1117,7 @@ private:
 修改为**StaticMeshActor**类型
 <img src="UEc++.assets\classSetting2.png">
 
-#### 注意要点2
+### Q-2-2> 注意要点2
 在设置蓝图TextRender组件名字时,TextRender组件的位置(这里是1号位置)
 <img src="UEc++.assets\componentNum.png">
 再添加了一个Cube组件后,编号如下图,TextRender变成2号了,经过测试每加一个组件上面都会增加一个编号
