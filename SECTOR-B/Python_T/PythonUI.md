@@ -1,3 +1,5 @@
+
+
 # 可视化编程 pyQt5 designer
 
 https://blog.csdn.net/qq_37974048/article/details/104295967
@@ -27,7 +29,7 @@ https://blog.csdn.net/qq_37974048/article/details/104295967
   
   c:\Users\Vicici\AppData\Local\Programs\Python\Python39\Lib\site-packages\qt5_applications\Qt\bin\designer.exe
   
-  ![image-20210416141135008](image-20210416141135008.png)
+  ![image-20210416141135008](PythonUI.assets/image-20210416141135008.png)
   *注意：所有需要转换的文件都需要放工作目录里*
   *工作目录Working directory:也可以填入变量：`$ProjectFileDir$`*
   
@@ -37,13 +39,13 @@ https://blog.csdn.net/qq_37974048/article/details/104295967
 
 * 添加PyUIC（.ui转换为.py工具）(注意：如果执行出错，尝试设置Program:目录c:\Users\Administrator\AppData\Local\Programs\Python\Python39\python.exe\)
   
-  ![image-20210416141413901](image-20210416141413901.png)
+  ![image-20210416141413901](PythonUI.assets/image-20210416141413901.png)
   
   （macOS）需指定Resources目录下的Python.app里的Python
   
   `/Library/Frameworks/Python.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python`
   
-  ![image-20210418152335917](image-20210418152335917.png)
+  ![image-20210418152335917](PythonUI.assets/image-20210418152335917.png)
   
   Arguments则填入如下代码：(前面多加 -x 使生成的.py文件可以直接运行打开窗口，通常不用)
   `-m PyQt5.uic.pyuic -x $FileName$ -o $FileNameWithoutExtension$.py`
@@ -59,27 +61,38 @@ https://blog.csdn.net/qq_37974048/article/details/104295967
   Arguments则填入如下代码：
   
   ` $FileName$ -o $FileNameWithoutExtension$_rc.py `
-
+* QtDesigner中创建新的MainWindow
+  注意要选择 MainWindow 项
+  <img src="PythonUI.assets/qtDesignerNew.png">
 * 创建Win.py文件，添加如下代码运行调出界面
-  
+
+  实例: RenamerMain.py
+
   ```python
-  import sys
-  from PyQt5.QtWidgets import QApplication, QMainWindow
-  from testUI import *    #这里导入通过PyUIC转换完的.py文件名
-  
-  class MyWindow(QMainWindow, Ui_MainWindow):
-      def __init__(self, parent=None):
-          super(MyWindow, self).__init__(parent)
-          self.setupUi(self)
-      #定义槽函数，在testUI.py中调用
-      def hello(self):
-          self.lineEdit.setText("hello world!")
-  
-  if __name__ == '__main__':
-      app = QApplication(sys.argv)
-      myWin = MyWindow()
-      myWin.show()
-      sys.exit(app.exec_())
+    from PyQt5.QtGui import QColor, QMouseEvent, QFont, QIcon, QPixmap
+    from PyQt5.QtWidgets import QApplication, QMainWindow, QGraphicsDropShadowEffect, QToolTip,QMessageBox
+    from tui import Ui_MainWindow    #这里导入通过PyUIC转换完的.py文件名，获取里面的类
+
+    class MyWindow(QMainWindow):
+        def __init__(self):
+            super().__init__()
+            # QMainWindow.__init__(self)
+            self.ui = Ui_MainWindow()
+            self.ui.setupUi(self)
+            self.ui.title.setText('VicTools '+ver)
+  # 程序图标======================================
+    icon = QIcon()
+    icon.addPixmap(QPixmap(":/B_exit1_h.png"))
+    self.setWindowIcon(icon)
+  # 退出窗口
+    def exitWin(self):
+        sys.exit(app.exec_())
+
+    if __name__ == '__main__':
+        app = QApplication(sys.argv)
+        myWin = MyWindow()
+        myWin.show()
+        sys.exit(app.exec_())
   ```
 
 也可以直接写在UI.py里面，◆import sys在 \_\_name\_\_ 里导入
@@ -122,11 +135,11 @@ QToolTip.setFont(QFont('Monaco',9))
 
 1. UI.py 文件中添加按钮clicked连接事件调用事件槽函数
 
-![image-20210416140457980](image-20210416140457980.png)
+![image-20210416140457980](PythonUI.assets/image-20210416140457980.png)
 
 2. Win.py文件中添加按钮事件槽函数
 
-![image-20210416140626361](image-20210416140626361.png)
+![image-20210416140626361](PythonUI.assets/image-20210416140626361.png)
 
 ### 相同文件下的按钮事件
 
@@ -140,7 +153,7 @@ def helloButtom():
 
 ## Qt Designer 运用
 
-![image-20210425105254182](image-20210425105254182.png)
+![image-20210425105254182](PythonUI.assets/image-20210425105254182.png)
 
 ### 控件
 
@@ -165,7 +178,7 @@ QPushButton:hover{icon:url(start_zi_h.png);}
 
 设置text右边的按钮可以打开类似Word的编辑字体界面，下方选项卡可以查看源码（Web代码）
 
-![image-20210417153633159](image-20210417153633159.png)
+![image-20210417153633159](PythonUI.assets/image-20210417153633159.png)
 
 #### Button 按钮事件
 
@@ -195,7 +208,7 @@ self.button.setStyleSheet("QPushButton{border-image: url(img/1.png)}")
 
 包含主控件体tabWidget，它的层级下面就是子标签控件
 
-![image-20210418170038376](image-20210418170038376.png)
+![image-20210418170038376](PythonUI.assets/image-20210418170038376.png)
 
 子标签名字在主标签体上修改，属性：currentTabText
 
@@ -233,7 +246,7 @@ note = self.ui.textEdit.toPlainText()
 
 激活三个状况：未勾选、勾选、中立
 
-![image-20210421232450715](image-20210421232450715.png)
+![image-20210421232450715](PythonUI.assets/image-20210421232450715.png)
 
 获取勾选状态返回值
 
@@ -257,11 +270,12 @@ self.ui.subDir_chk.setCheckState(int(conf.get('TAB1','subdir')))
         conf.write(open('setting.ini', 'r+', encoding="utf-8"))
 ```
 
-#### ComboBox 下拉框
+#### QComboBox 下拉框
 
+设置为可编辑,使其可以输入字符
+<img src="PythonUI.assets/qcombox.png">
 取消frame勾选使平面化
-
-![image-20210425143545022](image-20210425143545022.png)
+<img src="PythonUI.assets/image-20210425143545022.png">
 
 ```python
 # Qt样式设置
@@ -289,9 +303,6 @@ def sepCB(self,i):    # ComboBox选择事件槽函数
 | editTextChanged.connect(def)     | 输出框发生修改时调用       |
 | currentIndexChanged.connect(def) | 回车事件，挂载函数        |
 
-设置为可编辑
-
-![image-20210608195030680](PythonUI.assets/image-20210608195030680.png)
 
 ```python
 #读取记录添加列表内容
@@ -407,7 +418,7 @@ QProgressBar { border: 0px solid grey; border-style:none; border-radius:9px; bac
 QProgressBar::chunk {  border-radius:9px;background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(232, 62, 62, 255), stop:1 rgba(37, 95, 255, 255));}
 ```
 
-![image-20210425090407223](image-20210425090407223.png)
+![image-20210425090407223](PythonUI.assets/image-20210425090407223.png)
 
 #### [Easy progress reporting for Python](https://pypi.org/project/progress/)
 
@@ -426,7 +437,19 @@ with Bar('Processing', max=20) as bar:
         bar.next()
 ```
 
-![EasyProgress.gif](EasyProgress.gif)
+![EasyProgress.gif](PythonUI.assets/EasyProgress.gif)
+#### QMenuBar菜单 与 statusBar状态栏
+<img src="PythonUI.assets/QMenuBar.png">
+
+菜单命令对象为 QAction 用于绑定事件,使用triggered.connect(self.openBKpath)
+```python
+    def initUI(self):
+        self.ui.actionaa.triggered.connect(self.openBKpath) #绑定事件函数
+
+    def openBKpath(self):
+        self.statusBar().show() #这里调用statusBar()需要加括号, 而且直接在self里无需self.ui
+        self.statusBar().showMessage("信息: test")  #设置状态栏的文本信息
+```
 
 #### QMessageBox提示窗口
 
@@ -455,6 +478,9 @@ from PyQt5.QtGui import QIcon, QPixmap
 ```
 
 ### 对打包资源需要通过 qrc 文件处理
+此操作使图片按钮能在打包成exe后不会丢失.包括程序标题栏图标ico
+> 注意: 主.py文件文件名来命名qrc和ico文件
+> <img src="PythonUI.assets/qrc.png">
 
 1. 创建qrc文件，写入以下内容：(包含全部图标资源)
    
@@ -481,10 +507,10 @@ from PyQt5.QtGui import QIcon, QPixmap
    pyrcc5 -o /Users/vic/Documents/Project/Git/pyCode_git/vicCode/resource.py /Users/vic/Documents/Project/Git/pyCode_git/vicCode/resource.qrc
    ```
 
-3. 导入模块，设置图标
+3. 导入生成的带_qrc.py文件模块，设置图标
    
    ```python
-   import test
+   import test_qrc.py
    MainWindow.setWindowIcon(QIcon(':/favicon.ico'))
    ```
 
@@ -525,7 +551,7 @@ background-color: rgb(31, 34, 44);
 
 修改右键菜单样式无效，尝试继承其它控件：
 
-![image-20210509164708800](image-20210509164708800.png)
+![image-20210509164708800](PythonUI.assets/image-20210509164708800.png)
 
 ## 相关知识
 
@@ -537,7 +563,7 @@ slot 槽（一个函数或方法）
 
 ### Qt中去除下方的定位栏Status Bar
 
-![image-20210421085952064](image-20210421085952064.png)
+![image-20210421085952064](PythonUI.assets/image-20210421085952064.png)
 
 *如主界面上方阴影有剪切，在Qt制作时把窗口位置往中间移动，然后在Main.py代码中添加self.resize(xx,xx)，重置窗口大小大于阴影范围即可。*
 
@@ -588,7 +614,7 @@ class MyWindow(QMainWindow):
 
 ## 例：无边框拖放窗口
 
-![image-20210418201643564](image-20210418201643564.png)
+![image-20210418201643564](PythonUI.assets/image-20210418201643564.png)
 
 ```python
 from PyQt5.QtWidgets import (QMessageBox,QApplication, QWidget, QToolTip, QPushButton,
@@ -679,7 +705,7 @@ sys.exit(app.exec_())
 
 ### ui控件添加阴影相互剪切问题
 
-![image-20210425111331116](image-20210425111331116.png)
+![image-20210425111331116](PythonUI.assets/image-20210425111331116.png)
 
 如图所示，1号Frame被2号剪切，解决办法是对2号也单独添加阴影，如不想2号有阴影可增加阴影透明度。
 
