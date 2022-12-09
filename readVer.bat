@@ -9,4 +9,5 @@ for /f %%i in (%filePath%) do (
 
 echo %num% >> ver.txt
 
+
 pause
