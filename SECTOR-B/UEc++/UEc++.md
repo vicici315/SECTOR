@@ -999,7 +999,6 @@ for (const FAssetData& AssetData : AssetDatas)
     UE_LOG(LogTemp, Error, TEXT("%s"), *AssetData.GetFullName());
 }
 ```
-## 根据名字获取场景物体(FindObject)参考:2-1-3
 
 ---
 # 7> 常用资源
@@ -1037,7 +1036,6 @@ SceneTools插件arrayRowSp SSpinBox控件事件无法实时生效! **(未找到�
 >设置了最小值为-200.0 又导致无法实时生效(指数值:22)
 修改为最小值-100.0 恢复了左边一个控件实时生效(指数值:26)
 >> ◎在默认引擎重启插件后就可以修改参数实时生效
->>> 关闭工具再打开后即时更新就失效了.
 
 ```cpp
 + SUniformGridPanel::Slot(0, 1)
@@ -1148,13 +1146,13 @@ textComp->bHiddenInGame = true;     //设置游戏运行状态不可见
 ```cpp
 UMyActorComponent::UMyActorComponent()
 {
-	...
-	ThisActor = Cast<AMyActor>(GetOwner());
-	FVector ActorLoc = ThisActor->GetActorLocation();//此处不崩溃
-	Size = ThisActor->ActorSize; //此处崩溃;Size为头文件已声明的变量
-	...
-	//函数体
-	...
+...
+ThisActor = Cast<AMyActor>(GetOwner());
+FVector ActorLoc = ThisActor->GetActorLocation();//此处不崩溃
+Size = ThisActor->ActorSize; //此处崩溃;Size为头文件已声明的变量
+...
+//函数体
+...
 };
 ```
 
@@ -1169,38 +1167,17 @@ void MyActorComponent::SetSize(){
 ```cpp
 UMyActorComponent::UMyActorComponent()
 {
-	...
-	MyComponent = CreateDefalutSubobject<UMyActorComponent>(TEXT("MyComponent"));
-	MyComponent->SetSize();
-	...
-	//函数体
-	...
+...
+MyComponent = CreateDefalutSubobject<UMyActorComponent>(TEXT("MyComponent"));
+MyComponent->SetSize();
+...
+//函数体
+...
 };
 ```
 编译通过不崩溃了，功能实现了。
 继续优化，构造函数将Size初始化为常量100，将SetSize()函数在MyActorComponent.cpp的BeginPlay()中调用进行赋值最好。
->出现这种问题的原因：
+>想来出现这种问题的原因：
 Component的构造是在Actor的构造函数中通过CreateDefalutSubobject函数实现的，所以Component实现构造时Actor构造未完成，所以调用Actor的变量可能会造成意想不到的结果，造成程序的崩溃。
 所以构造函数最好仅仅实现变量的初始简单赋值，调用等其他功能写成小函数，在合适的地方调用。
-
-## 引用其他项目的头文件
-在UE插件引用项目中的头文件,需要在.cs文件中的PrivateDependencyModuleNames加入项目依赖模块
-```cpp
-    PrivateDependencyModuleNames.AddRange(
-    new string[]
-    {
-        "Projects",
-        "InputCore",
-        "UnrealEd",
-        "LevelEditor",
-        "CoreUObject",
-        "Engine",
-        "Slate",
-        "SlateCore",
-        "ToolMenus",
-        "ProjectN", //加入项目
-    }
-    );
-```
-
 ---
