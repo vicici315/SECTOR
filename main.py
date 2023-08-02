@@ -9,10 +9,6 @@ import win32print
 import win32api
 import subprocess
 
-class IconData:
-    def __init__(self, name, data):
-        self.name = name
-        self.data = data
 
 conf = ConfigParser()
 setPath = os.getcwd()+'\\PrinterSetting.ini'
@@ -37,7 +33,6 @@ class MyWindow:
         super().__init__()
         # 使用max的dotnet即将图标文件转成二进制代码：dotNetConverBase64.ms
 
-        icon1 = IconData(name="icon1", data=base64.b64decode(icondata.icons_data['icon1']))
         # 创建临时图标文件
         temp_icon_file = "temp.ico"
         with open(temp_icon_file, "wb") as f:
@@ -66,7 +61,7 @@ class MyWindow:
         root = tk.Tk()
 
         # 窗口标题
-        root.title("MyTools v1.0")
+        root.title("MyTools v1.1")
         # 设置标题图标
         root.iconbitmap(default=temp_icon_file)
         # 删除临时图标文件
@@ -83,7 +78,9 @@ class MyWindow:
             if selected_indexes:
                 selected_items = [lb.get(index) for index in selected_indexes]
                 if len(selected_items) == 1:
-                    filep = combox.get()+selected_items[0]
+                    path = combox.get()
+                    if path[-1] != '\\': path += '\\'
+                    filep = path+selected_items[0]
                     try:
                         # 针对不同操作系统，可以使用不同的命令来打开文档
                         if os.name == "nt":  # Windows
@@ -109,10 +106,10 @@ class MyWindow:
         fff.pack(fill=tk.BOTH, expand=True)
         # lb的滚动条
         scrollbar = tk.Scrollbar(fff)
-        scrollbar.grid(row=0,column=1,sticky='ns')
+        scrollbar.grid(row=0,column=0,sticky='ns')
         # text_out的滚动条
         scrollbar2 = tk.Scrollbar(fff)
-        scrollbar2.grid(row=1,column=1,sticky='ns')
+        scrollbar2.grid(row=1,column=0,sticky='ns')
 
         var = tk.Variable(root) #lb列表信息成员
         var.set([])
@@ -121,18 +118,17 @@ class MyWindow:
         lb.bind("<Double-Button-1>", on_double_click)
         # lb.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(60, 0))
         # lb.pack(side=tk.LEFT,fill=tk.BOTH,expand=True)
-        lb.grid(row=0,column=0,sticky='nswe')
-
+        lb.grid(row=0,column=1,sticky='nswe')
 
         text_out = tk.Text(fff,yscrollcommand=scrollbar2.set,bg='black',foreground='yellow',wrap=tk.WORD)
-        text_out.grid(row=1,column=0,sticky='nsew')
+        text_out.grid(row=1,column=1,sticky='nsew')
 
         scrollbar.config(command=lb.yview)  #滚动条控制控件
         scrollbar2.config(command=text_out.yview)
         # lb.place(x=200, y=10) #属性来设置控件的左上角在父容器（通常是窗口或 Frame）中的绝对位置
-        fff.grid_columnconfigure(0, weight=1)   #控制frame中的控件左右铺满
+        fff.grid_columnconfigure(1, weight=1)   #★控制frame中的第几列控件左右按其宽度铺满（第2列listbox铺满）
         # fff.grid_columnconfigure(1, weight=1)
-        fff.grid_rowconfigure(0, weight=1)
+        fff.grid_rowconfigure(0, weight=1)  #★第1行上下铺满
         fff.grid_rowconfigure(1, weight=1)
 
         # 绑定滚动条的命令，使两个文本窗口的滚动条同步
@@ -148,6 +144,7 @@ class MyWindow:
         def on_comb_sel(event):
             path=combox.get()
             if os.path.exists(path):
+                if path[-1] != '\\': path += '\\'
                 PC=int(conf.get('set','path_count'))
                 same=True
                 if PC>0:
@@ -172,18 +169,12 @@ class MyWindow:
                 pp=conf.get('PATH',str(i))
                 if os.path.exists(pp):
                     current_values.append(pp)
-        combox = ttk.Combobox(root,width=70, values=tuple(current_values))#
+        combox = ttk.Combobox(root,width=70, values=tuple(current_values))  #下拉列表
         combox.place(x=100,y=10)
         combox.bind('<<ComboboxSelected>>',on_comb_sel)
         combox.bind('<Return>',on_comb_sel)
 
-        # if pco>0:
-        #     current_values = combox['values']
-        #     current_values = list(current_values)  # 将元组转换为列表
-        #     for i in range(pco):
-        #         pp=conf.get('PATH',str(i))
-        #         if os.path.exists(pp):
-        #             current_values.append(pp)
+
         combox['values'] = tuple(current_values)
         try:
             combox.set(conf.get('PATH','current'))
@@ -192,6 +183,7 @@ class MyWindow:
         def FindWold():
             path=combox.get()
             if os.path.exists(path):
+                if path[-1] != '\\': path += '\\'
                 lb.delete(0,tk.END) # 清空列表，从索引0到末尾的所有项
                 with os.scandir(path.strip()) as files:
                     for f in files:
@@ -206,8 +198,10 @@ class MyWindow:
                 selected_indexes = lb.curselection()
                 if selected_indexes:
                     selected_items = [lb.get(index) for index in selected_indexes]
+                    path = combox.get()
+                    if path[-1] != '\\': path += '\\'
                     for p in selected_items:
-                        fp = combox.get()+p
+                        fp = path+p
                         print_docx(fp)
                         text_out.insert(tk.END,f'\n{p}(打印操作完成)')
                         text_out.see(tk.END)
