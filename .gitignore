@@ -5,3 +5,4 @@ dist/*.exe
 dist/*.ini
 .idea/
 __pycache__/
+*.zip
