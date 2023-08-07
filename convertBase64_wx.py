@@ -1,8 +1,8 @@
 # 将图标转成二进制代码
 # import threading
 import icondata
+import wx
 # from PIL import Image, ImageTk
-#
 # import tkinter as tk
 # from tkinter import scrolledtext
 # from tkinter import ttk
@@ -11,7 +11,6 @@ import os
 from configparser import ConfigParser
 import base64
 # import subprocess
-
 
 conf = ConfigParser()
 setPath = os.getcwd()+'\\PrinterSetting.ini'
@@ -30,12 +29,7 @@ except:
 conf.write(open(setPath, 'w+', encoding="utf-8"))
 
 
-
-import wx
-
 class MyFrame(wx.Frame):
-
-
 
     def __init__(self, parent, title):
         super(MyFrame, self).__init__(parent, title=title, size=(1000, 900))
@@ -71,9 +65,9 @@ class MyFrame(wx.Frame):
                 pp = conf.get('PATHicon', str(i))
                 if os.path.exists(pp):
                     current_values.append(pp)
-        self.combox = wx.ComboBox(panel, wx.ID_ANY, value='默认文本', choices=current_values, size=(380, -1)) #size设置宽度 -1为默认高度
+        self.combox = wx.ComboBox(panel, wx.ID_ANY, value='默认文本', choices=current_values, size=(480, -1)) #size设置宽度 -1为默认高度
         self.combox.Bind(wx.EVT_COMBOBOX, self.on_comb_return)
-        self.combox.Bind(wx.EVT_COMBOBOX_DROPDOWN, self.on_comb_return) #这里使用打开下拉列表事件替代文本修改，避免函数死循环
+        self.combox.Bind(wx.EVT_COMBOBOX_CLOSEUP, self.on_comb_return) #这里使用打开下拉列表事件替代文本修改，避免函数死循环
         try:
             self.combox.SetValue(conf.get('PATHicon','current'))
         except:
@@ -88,7 +82,7 @@ class MyFrame(wx.Frame):
         self.text_out = wx.TextCtrl(panel, style=wx.TE_MULTILINE|wx.VSCROLL|wx.TE_READONLY|wx.TE_DONTWRAP) #wx.TE_MULTILINE|wx.TE_READONLY（多行只读）
         self.text_out.SetBackgroundColour(wx.Colour(17, 16, 20))
         self.text_out.SetForegroundColour(wx.Colour(113, 216, 130))
-        sizer.Add(self.text_out, proportion=3, flag=wx.EXPAND|wx.ALL, border=6) #proportion比例为整数，该件比上面占面积大2倍
+        sizer.Add(self.text_out, proportion=2, flag=wx.EXPAND|wx.ALL, border=6) #proportion比例为整数，该件比上面占面积大2倍
 
         panel.SetSizer(sizer)
 #初始化时调用：
@@ -150,33 +144,33 @@ class MyFrame(wx.Frame):
                 # 滚动到插入点的位置
                 self.text_out.ShowPosition(self.text_out.GetInsertionPoint())
 
-
     def on_comb_return(self, event):
-        try:
-            oldtext = conf.get('PATHicon', 'current')
-        except:
-            oldtext = ''
+        # try:
+        #     oldtext = conf.get('PATHicon', 'current')
+        # except:
+        #     oldtext = ''
         path = self.combox.GetValue()
-        if oldtext != path:
-            if os.path.exists(path):
-                if path[-1] != '\\': path += '\\'
-                PC = int(conf.get('set2', 'path_count'))
-                same = True
-                if PC > 0:
-                    for i in range(PC):
-                        his = conf.get('PATHicon', str(i))
-                        if path == his: same = False
-                    if same:
-                        conf.set('PATHicon', str(PC), path)
-                        conf.set('set2', 'path_count', str(PC + 1))
-                        self.combox.Append(path)
-                else:
-                    conf.set('set2', 'path_count', '1')
-                    conf.set('PATHicon', '0', path)
-                conf.set('PATHicon', 'current', path)
-                conf.write(open(setPath, 'w+', encoding="utf-8"))
-                self.combox.SetValue(path)
-                self.FindIcon()
+        # if oldtext != path:
+        if os.path.exists(path):
+            if path[-1] != '\\': path += '\\'
+            PC = int(conf.get('set2', 'path_count'))
+            same = True
+            if PC > 0:
+                for i in range(PC):
+                    his = conf.get('PATHicon', str(i))
+                    if path == his: same = False
+                if same:
+                    conf.set('PATHicon', str(PC), path)
+                    conf.set('set2', 'path_count', str(PC + 1))
+                    self.combox.Append(path)
+            else:
+                conf.set('set2', 'path_count', '1')
+                conf.set('PATHicon', '0', path)
+                self.combox.Append(path)
+            conf.set('PATHicon', 'current', path)
+            conf.write(open(setPath, 'w+', encoding="utf-8"))
+            self.combox.SetValue(path)
+            self.FindIcon()
 
 
 app = wx.App(False)
