@@ -2,17 +2,13 @@
 
 # import threading
 import icondata
-# from PIL import Image, ImageTk
-# import tkinter as tk
-# from tkinter import scrolledtext
-# from tkinter import ttk
+# from cryptography.fernet import Fernet
 import redis
 import os
 from configparser import ConfigParser
 import base64
 import wx
 import wx.grid
-# import subprocess
 
 conf = ConfigParser()
 setPath = os.getcwd()+'\\PrinterSetting.ini'
@@ -44,29 +40,38 @@ conf.write(open(setPath, 'w+', encoding="utf-8"))
 
 
 class MySecondaryDialog(wx.Dialog):  #使用Dialog，实现窗口打开时锁定主窗口
-    def __init__(self, parent, title, text, showedit, call_func):
-        super(MySecondaryDialog, self).__init__(parent, title=title, size=(480, 200))  #置顶窗口
+    def __init__(self, parent, title, text, showedit, pas, call_func):
+        super(MySecondaryDialog, self).__init__(parent, title=title, size=(420, 170))  #置顶窗口
         self.callback_func = call_func  #副窗口传入函数
+        self.pas=pas
         # 创建副窗口的内容
         panel = wx.Panel(self)
         label = wx.StaticText(panel, label=text, pos=(10, 10))
-        but = wx.Button(panel,label='确定',pos=(260,120))
+        but = wx.Button(panel,label='确定',pos=(200,90))
         but.Bind(wx.EVT_BUTTON, self.go_fun)
-        close_btn = wx.Button(panel,label='取消',pos=(360,120))
+        close_btn = wx.Button(panel,label='取消',pos=(300,90))
         close_btn.Bind(wx.EVT_BUTTON, self.close_win)
         new = conf.get('set_DS', 'HOST')
-        self.text = wx.TextCtrl(panel, value=new, pos=(80,50), size=(200,22))
+        self.pasw = wx.TextCtrl(panel, style=wx.ALIGN_CENTER, pos=(105,40), size=(200,22))
+        self.text = wx.TextCtrl(panel, value=new, pos=(105,40), size=(200,22))
+        self.pasw.Hide()
         self.text.Hide()
         self.Center()   # 将副窗口放置在屏幕中间
         self.IsTopLevel()
         self.Show()
         if showedit:
-            self.text.Show()
+            if self.pas == 'passwer':
+                self.pasw.Show()
+            else:
+                self.text.Show()
     def close_win(self,event):
         self.Close()
 
     def go_fun(self,event):
-        value = self.text.GetValue()
+        if self.pas == 'passwer':
+            value = self.pasw.GetValue()
+        else:
+            value = self.text.GetValue()
         if self.callback_func:
             self.callback_func(value)   #传出副窗口控件值
             self.Close()
@@ -99,7 +104,7 @@ class MyFrame(wx.Frame):
         inputData_btn = wx.Button(panel, wx.ID_ANY, label="导入", size=(80, 28))
         inputData_btn.SetBitmap(icon2)
         inputData_btn.SetToolTip('将选中的文件导入数据库（右键双击刷新数据库）')
-        inputData_btn.Bind(wx.EVT_BUTTON, self.GetTextToData)
+        inputData_btn.Bind(wx.EVT_BUTTON, self.posswer)
         inputData_btn.Bind(wx.EVT_RIGHT_DCLICK, lambda event, value=conf.get('set_DS', 'HOST'): self.get_Data_list(event,value))
         h_sizer.Add(inputData_btn, flag=wx.ALL, border=5)
 #ComboBox可输入下拉列表：combox
@@ -144,13 +149,14 @@ class MyFrame(wx.Frame):
         self.comb_edits = wx.ComboBox(panel, wx.ID_ANY, value='<All>', choices=['<All>','write','create','rename','move','delete','property set'])
         self.comb_edits.SetToolTip('过滤：操作类型')
         self.comb_edits.SetBackgroundColour(wx.Colour(255, 210, 230))
-        self.comb_edits.Bind(wx.EVT_COMBOBOX, self.search_Data_list)
+        self.comb_edits.Bind(wx.EVT_COMBOBOX, self.search_go)
         h_sizer.Add(self.comb_edits,proportion=1, flag=wx.EXPAND|wx.ALL, border=4)
+        self.edits_comb = ['<All>']
 #ComboBox文件、文件夹：comb_types
         self.comb_types = wx.ComboBox(panel, wx.ID_ANY, value='<All>', choices=['<All>','File','Folder'])#, style=wx.CB_READONLY
         self.comb_types.SetToolTip('过滤：文件或文件夹')
         self.comb_types.SetBackgroundColour(wx.Colour(255, 240, 190))
-        self.comb_types.Bind(wx.EVT_COMBOBOX,self.search_Data_list)
+        self.comb_types.Bind(wx.EVT_COMBOBOX,self.search_go)
         h_sizer.Add(self.comb_types,proportion=1, flag=wx.EXPAND|wx.ALL, border=4)
 
     #布局：平行布局放入主布局最顶部
@@ -191,7 +197,7 @@ class MyFrame(wx.Frame):
         self.grid_out.SetColLabelValue(0, '时间')
         self.grid_out.SetColLabelValue(1, '操作')
         self.grid_out.SetColLabelValue(2, '修改路径')
-        self.grid_out.SetColLabelValue(3, '修改内容')
+        self.grid_out.SetColLabelValue(3, '内容')
         self.grid_out.SetColLabelValue(4, '大小')
         self.grid_out.SetColLabelValue(5, '作者')
         self.grid_out.SetColLabelValue(6, 'IP')
@@ -217,6 +223,7 @@ class MyFrame(wx.Frame):
         self.Move(400,200)
 
 # 初始化时调用：
+        self.data = []
         self.FindTxt()
         self.r = None   #变量预赋予空值，以便在可以正常链接数据库时赋予
         if self.check_redis(s_host, ''):
@@ -228,15 +235,23 @@ class MyFrame(wx.Frame):
             conf.write(open(setPath, 'w+', encoding="utf-8"))
             self.get_Data_list(self,value)
             self.ipshow.SetLabel(value)
-
-        second_frame = MySecondaryDialog(self, '设置服务器IP','输入数据库服务器的IP地址：', True, callback)
+        second_frame = MySecondaryDialog(self, '设置服务器IP','输入数据库服务器的 IP 地址：', True, 'nopas', callback)
+        second_frame.Show() #显示副窗口
+        second_frame.ShowModal()    #锁定主窗口
+    def posswer(self,event):
+        def callback(value):    #输出副窗口控件的值（[确定]按钮实现功能函数）
+            if value == 'paswer':
+                self.GetTextToData(self)
+            else:
+                self.text_label.SetLabel('<密码错误>')
+        second_frame = MySecondaryDialog(self, '导入数据库','输入管理员密码：', True,'passwer', callback)
         second_frame.Show() #显示副窗口
         second_frame.ShowModal()    #锁定主窗口
 
 
-    def on_open_secondary_window(self, title, msg, show, fun): # ("窗口标题", '提示信息')
+    def on_open_secondary_window(self, title, msg, show, pas, fun): # ("窗口标题", '提示信息')
         # 创建副对话框的实例并显示为模态（锁定主窗口直到副窗口关闭）
-        secondary_dialog = MySecondaryDialog(self, title, msg, show, fun)
+        secondary_dialog = MySecondaryDialog(self, title, msg, show, pas, fun)
         secondary_dialog.ShowModal()
         secondary_dialog.Destroy()  # 关闭副对话框
 
@@ -252,33 +267,6 @@ class MyFrame(wx.Frame):
                             siz = self.Sizeofsize(os.path.getsize(f.path))
                             self.list.Append(f'{f.name} → {siz}')
 
-    def GetRedisData(self,event):
-        dbc = self.r.dbsize()
-        if dbc > 0:
-            self.progress_bar.SetValue(0)
-            self.text_label.SetLabel('正在读取数据:')
-
-            gnum = self.grid_out.GetNumberRows()  # 删除所有行↓
-            if gnum > 0:
-                for i in range(gnum):
-                    self.grid_out.DeleteRows(0)  # 根据总行数循环删除第一行↑
-            self.grid_out.AppendRows(dbc)
-            self.progress_bar.SetRange(dbc)
-            for i in range(dbc):
-                datas = eval(self.r.get(f'{i}'))  # 转换字符串为数组（将字符串作为代码执行）
-                # if len(datas) == 6:
-                col = 0
-                for d in datas:
-                    self.grid_out.SetCellValue(i, col, d)
-                    col += 1
-                # else:
-                #     self.grid_out.SetCellValue(i, 1, str(datas))
-                self.progress_bar.SetValue(i + 1)
-            #     for d in range(len(datas)):
-            #         self.grid_out.SetCellValue(i, d, datas[d])
-            self.grid_out.AutoSizeColumns()
-            self.grid_out.Scroll(0, dbc)
-            self.text_label.SetLabel('(数据读取完成)')
 
     def DelSTHis(self,event):
         dlg = wx.MessageDialog(self, "确定要清空搜索历史吗？", "[清空历史]", wx.YES_NO | wx.ICON_QUESTION)
@@ -311,60 +299,7 @@ class MyFrame(wx.Frame):
         # 将 Base64 编码转换为字符串形式
         return icon_base64.decode('utf-8')
 
-    def DoConvert(self, event):
-        dlg = wx.MessageDialog(self, "确定开始搜索自定的路径关键字吗，该操作将会花点时间！", "[搜索]", wx.YES_NO | wx.ICON_QUESTION)
-        result = dlg.ShowModal()    # 冻结主窗口
-        dlg.Destroy()
-        if result == wx.ID_YES:
-            selected_indices = self.list.GetSelections()
-            if selected_indices:
-                selected_items = [self.list.GetString(index) for index in selected_indices]
-                scount = len(selected_items)
-                st = self.combox_S.GetValue()   # 搜索内容
-                if scount > 0 and st != '':
-                    self.progress_bar.SetValue(0)
-                    path = self.combox.GetValue()
-                    if path[-1] != '\\': path += '\\'
-                    self.text_label.SetLabel('正在搜索:')
-                    ssc = 0
-                    self.r.flushdb()    #清空数据库
-                    for p in selected_items:
-                        pp = str(p).split(' → ')
-                        fp = path + pp[0]
-                        ffc = self.get_line_count(fp)   # 获取文本总行数
-                        proc = 0
-                        self.progress_bar.SetRange(ffc)
-                        with open(fp, 'r', encoding='utf-8') as file:
-                            for l in file:
-                                if 'Event: read' not in l and 'Thumbs.db' not in l:
-                                    if st in l:
-                                        # try:
-                                        data = l.split('\t')[6].split(', ')
-                                        da_sub=[]
-                                        ds = len(data)
-                                        if ds == 6:
-                                            for d in data:
-                                                if ': ' in d:
-                                                    da_sub.append(d.split(': ', 1)[1])
-                                                else:
-                                                    da_sub.append(d)
-                                        elif ds > 6:
-                                            da_sub.append(data[0].split(': ', 1)[1])
-                                            # 合并第2个与后4个中间的成员
-                                            da_sub.append(str(data[1:-4]).split(': ', 1)[1].replace('\'','')[:-1])   # replace删除字符：'，删除最后一个字符：]
-                                            for item in data[-4:]:  # 循环添加最后4个成员
-                                                da_sub.append(item.split(': ', 1)[1])
 
-                                        self.r.set(f'{ssc}', str(da_sub))
-                                        # except:
-                                        #     self.r.set(f'{ssc}',f'[数据有误, {l}]')
-                                        ssc += 1
-                                    proc+=1
-                                    self.progress_bar.SetValue(proc)
-                    self.text_label.SetLabel('(搜索完成)')
-                    # self.grid_out.AutoSizeColumns()
-                    # # 滚动到插入点的位置
-                    # self.grid_out.Scroll(ssc,0)
     def GetTextToData(self,event):  #导入数据
         if self.check_redis(s_host, ''):
             st = self.combox_S.GetValue()
@@ -521,7 +456,6 @@ class MyFrame(wx.Frame):
                     self.list_2.Clear()
                     for F in getAF: # F从0开始
                         F = F.decode('utf-8')
-                        # print(F)
                         if self.r.exists(F):
                             st = self.r.get(f'{F}>ST')
                             if st is not None:  #注意：在对返回的值进行转换为 UTF-8 字符串之前，你需要检查是否为 None。
@@ -532,7 +466,39 @@ class MyFrame(wx.Frame):
         else:
             self.list_2.Clear()
 
-#搜索数据库到输出列表
+    def search_go(self,event):
+        self.filter_search()
+
+    def filter_search(self):
+        if len(self.data) > 0:
+            gnum = self.grid_out.GetNumberRows()  # 删除所有行↓
+            if gnum > 0:
+                for i in range(gnum):
+                    self.grid_out.DeleteRows(0)  # 根据总行数循环删除第一行↑
+            row = 0
+            for m in self.data:
+                datas = eval(str(m))
+                if self.comb_edits.GetValue() == '<All>' or self.comb_edits.GetValue() == datas[1]:
+                    if self.comb_types.GetValue() == '<All>' or self.comb_types.GetValue() == datas[3]:
+                        col = 0
+                        self.grid_out.AppendRows()  # 表格逐一添加新行
+                        for d in datas:
+                            self.grid_out.SetCellValue(row, col, d)
+                            self.grid_out.SetCellBackgroundColour(row, 1, wx.Colour(255, 210, 230))
+                            self.grid_out.SetCellBackgroundColour(row, 3, wx.Colour(255, 240, 190))
+                            col += 1
+                        row += 1
+            self.grid_out.AutoSizeColumns()
+            self.grid_out.Scroll(0, row)
+            screen_width = wx.Display(0).GetGeometry().GetWidth()  # 获取主显示器宽度
+            w = sum(self.grid_out.GetColSize(col) for col in range(self.grid_out.GetNumberCols())) + 130  # 获取Grid总宽度
+            if w > screen_width:
+                w = screen_width
+            if w < 1000: w = 1000
+            self.SetSize(wx.Size(w, self.GetSize()[1]))  # 设置主窗口大小
+            self.sizer.Layout()
+
+#搜索数据库到输出到列表
     def search_Data_list(self,event):
         selected_indices = self.list_2.GetSelections()
         if selected_indices:
@@ -545,26 +511,38 @@ class MyFrame(wx.Frame):
                     for i in range(gnum):
                         self.grid_out.DeleteRows(0)  # 根据总行数循环删除第一行↑
                 row = 0 #注意：这个行ID需要在多个数据文件循环外，后面的搜索内容才不会将前面的替换
+                pr = 0
+                self.data=[]
                 for p in selected_items:
                     pp = str(p).split(' → ')[0]
-                    getAE = self.r.smembers(pp)
-                    for m in getAE:
+                    getAE = self.r.smembers(pp) #获取所有的member成员
+                    self.progress_bar.SetRange(len(getAE))
+                    for m in getAE: #遍历set数据类型中的member成员
                         m = m.decode('utf-8')
                         if st in m:
                             datas = eval(m)  # 转换字符串为数组（将字符串作为代码执行）
-                            if self.comb_edits.GetValue() == '<All>' or self.comb_edits.GetValue() == datas[1]:
-                                if self.comb_types.GetValue() == '<All>' or self.comb_types.GetValue() == datas[3]:
-                                    col = 0
-                                    self.grid_out.AppendRows(1)
-                                    for d in datas:
-                                        self.grid_out.SetCellValue(row, col, d)
-                                        self.grid_out.SetCellBackgroundColour(row, 1, wx.Colour(255, 210, 230))
-                                        self.grid_out.SetCellBackgroundColour(row, 3, wx.Colour(255, 240, 190))
-                                        col += 1
-                                    row+=1
+                            self.data.append(datas)
+
+                            col = 0
+                            self.grid_out.AppendRows() #表格逐一添加新行
+                            if datas[1] not in self.edits_comb:
+                                self.edits_comb.append(datas[1])
+                            for d in datas:
+                                self.grid_out.SetCellValue(row, col, d)
+                                self.grid_out.SetCellBackgroundColour(row, 1, wx.Colour(255, 210, 230))
+                                self.grid_out.SetCellBackgroundColour(row, 3, wx.Colour(255, 240, 190))
+                                col += 1
+                            row+=1
+                        pr+=1
+                        self.progress_bar.SetValue(pr)
                 self.grid_out.AutoSizeColumns()
                 self.grid_out.Scroll(0, row)
                 self.text_label.SetLabel('(搜索完成)')
+
+                self.comb_edits.Clear()
+                self.comb_edits.SetItems(self.edits_comb)
+                self.comb_edits.SetValue('<All>')
+
                 screen_width = wx.Display(0).GetGeometry().GetWidth()   #获取主显示器宽度
                 w = sum(self.grid_out.GetColSize(col) for col in range(self.grid_out.GetNumberCols()))+130  #获取Grid总宽度
                 if w > screen_width:
@@ -586,6 +564,6 @@ class MyFrame(wx.Frame):
             return False
 
 app = wx.App(False)
-frame = MyFrame(None, "DataSearcher v1.0")
+frame = MyFrame(None, "DataSearcher v1.1")
 frame.Show()
 app.MainLoop()
