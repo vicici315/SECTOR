@@ -120,7 +120,7 @@ class MyFrame(wx.Frame):
         self.search_fol_chk = wx.CheckBox(self.panel)
         self.search_fol_chk.SetToolTip('勾选对当前路径进行数据预处理')
         self.search_fol_chk.Bind(wx.EVT_CHECKBOX, self.check_extfilter)
-        h_sizer.Add(self.search_fol_chk, flag=wx.LEFT | wx.RIGHT | wx.ALIGN_CENTER, border=3)
+        h_sizer.Add(self.search_fol_chk, flag=wx.ALIGN_CENTER, border=2)
 #ComboBox路径下拉列表：path_combox
         pco=0
         try:
@@ -165,20 +165,20 @@ class MyFrame(wx.Frame):
         self.comb_edits = wx.ComboBox(self.panel, wx.ID_ANY, value='<All>', choices=['<All>','write','create','rename','move','delete','property set'])
         self.comb_edits.SetToolTip('过滤：操作类型')
         self.comb_edits.SetBackgroundColour(wx.Colour(255, 210, 230))
-        self.comb_edits.Bind(wx.EVT_COMBOBOX, self.search_go)
+        self.comb_edits.Bind(wx.EVT_COMBOBOX, self.filter_search)
         h_sizer.Add(self.comb_edits,proportion=1, flag=wx.EXPAND|wx.TOP|wx.RIGHT|wx.BOTTOM, border=4)
         self.edits_comb = ['<All>']
 #ComboBox文件、文件夹：comb_types
         self.comb_types = wx.ComboBox(self.panel, wx.ID_ANY, value='<All>', choices=['<All>','File','Folder'])#, style=wx.CB_READONLY
         self.comb_types.SetToolTip('过滤：文件或文件夹')
         self.comb_types.SetBackgroundColour(wx.Colour(255, 240, 190))
-        self.comb_types.Bind(wx.EVT_COMBOBOX,self.search_go)
+        self.comb_types.Bind(wx.EVT_COMBOBOX,self.filter_search)
         h_sizer.Add(self.comb_types,proportion=1, flag=wx.EXPAND|wx.TOP|wx.RIGHT|wx.BOTTOM, border=4)
 #ComboBox修改方式选择：comb_edits
         self.comb_users = wx.ComboBox(self.panel, wx.ID_ANY, value='<All>', choices=['<All>'])
         self.comb_users.SetToolTip('过滤：作者')
         self.comb_users.SetBackgroundColour(wx.Colour(225, 250, 240))
-        self.comb_users.Bind(wx.EVT_COMBOBOX, self.search_go)
+        self.comb_users.Bind(wx.EVT_COMBOBOX, self.filter_search)
         h_sizer.Add(self.comb_users,proportion=1, flag=wx.EXPAND|wx.TOP|wx.RIGHT|wx.BOTTOM, border=4)
         self.users_comb = ['<All>']
 
@@ -208,28 +208,35 @@ class MyFrame(wx.Frame):
     # 侧边按垂直布局
         self.btn_sizer = wx.BoxSizer(wx.VERTICAL)
     # 获取所有文件类型
-        self.ext_getall_btn = wx.Button(self.panel, id=wx.ID_ANY, label='全', size=(40, 28))
+        self.ext_getall_btn = wx.Button(self.panel, id=wx.ID_ANY, label='获', size=(30, 28))
         self.ext_getall_btn.SetBackgroundColour(wx.Colour(250,110,90))
         self.ext_getall_btn.Bind(wx.EVT_BUTTON,self.get_allext)
         self.ext_getall_btn.SetToolTip('获取所有文件类型')
-        self.btn_sizer.Add(self.ext_getall_btn,0,wx.CENTER,0)
+        self.btn_sizer.Add(self.ext_getall_btn,0,wx.TOP,0)
         self.ext_getall_btn.Hide()
     # 保存排除类型按钮
-        self.ext_saveext_btn=wx.Button(self.panel, id=wx.ID_ANY, label='存', size=(40, 28))
+        self.ext_saveext_btn=wx.Button(self.panel, id=wx.ID_ANY, label='存', size=(30, 28))
         self.ext_saveext_btn.SetBackgroundColour(wx.Colour(230,210,90))
-        self.ext_saveext_btn.Bind(wx.EVT_BUTTON,self.on_extfilter_changer)
+        self.ext_saveext_btn.Bind(wx.EVT_BUTTON, self.on_extfilter_saver)
         self.ext_saveext_btn.SetToolTip('保存当前过滤文件类型 (Enter)')
-        self.btn_sizer.Add(self.ext_saveext_btn,0,wx.TOP,5)
+        self.btn_sizer.Add(self.ext_saveext_btn,0,wx.TOP,3)
         self.ext_saveext_btn.Hide()
     # 读取远程设置
-        self.ext_read_btn = wx.Button(self.panel, id=wx.ID_ANY, label='读', size=(40, 28))
+        self.ext_read_btn = wx.Button(self.panel, id=wx.ID_ANY, label='读', size=(30, 28))
         self.ext_read_btn.SetBackgroundColour(wx.Colour(130,250,190))
         self.ext_read_btn.Bind(wx.EVT_BUTTON,self.get_server_set)
-        self.ext_read_btn.SetToolTip('读取远程设置')
-        self.btn_sizer.Add(self.ext_read_btn,0,wx.TOP,5)
+        self.ext_read_btn.SetToolTip('读取保存设置')
+        self.btn_sizer.Add(self.ext_read_btn,0,wx.TOP,3)
         self.ext_read_btn.Hide()
+    # 读取全部文件类型
+        self.ext_readall_btn = wx.Button(self.panel, id=wx.ID_ANY, label='全', size=(30, 28))
+        self.ext_readall_btn.SetBackgroundColour(wx.Colour(110,240,160))
+        self.ext_readall_btn.Bind(wx.EVT_BUTTON,self.get_server_set_all)
+        self.ext_readall_btn.SetToolTip('读取全部文件类型')
+        self.btn_sizer.Add(self.ext_readall_btn,0,wx.TOP,3)
+        self.ext_readall_btn.Hide()
 
-        self.ext_sizer.Add(self.btn_sizer,0,wx.LEFT,1)
+        self.ext_sizer.Add(self.btn_sizer,0,wx.CENTER,1)
     # TextCtrl检索路径文件过滤：ext_filter
         extstring = ''
         pp = self.getNoSlashPath(self.path_combox.GetValue())
@@ -241,9 +248,21 @@ class MyFrame(wx.Frame):
         self.ext_filter.SetForegroundColour(wx.Colour(137, 146, 80))
         font = wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
         self.ext_filter.SetFont(font)
-        self.ext_filter.Bind(wx.EVT_TEXT_ENTER, self.on_extfilter_changer)
+        self.ext_filter.Bind(wx.EVT_TEXT_ENTER, self.on_extfilter_saver)
         self.ext_sizer.Add(self.ext_filter,1,wx.EXPAND,1)
         self.ext_filter.Hide()
+    # 目录排除文本
+        folstring = ''
+        if conf.has_option('set_DS', f'FOLFILTER_{pp}_{username}'):
+            folstring = conf.get('set_DS', f'FOLFILTER_{pp}_{username}')
+        self.fol_filter = wx.TextCtrl(self.panel, value=folstring, style=wx.TE_PROCESS_ENTER|wx.TE_MULTILINE)
+        self.fol_filter.SetToolTip('输入排除文件夹，用;(分号)隔开')
+        self.fol_filter.SetBackgroundColour(wx.Colour(242, 240, 230))
+        self.fol_filter.SetForegroundColour(wx.Colour(157, 126, 80))
+        self.fol_filter.SetFont(font)
+        self.fol_filter.Bind(wx.EVT_TEXT_ENTER, self.on_folfilter_saver)
+        self.ext_sizer.Add(self.fol_filter,1,wx.EXPAND,1)
+        self.fol_filter.Hide()
 #ListBox多选列表：list
         self.list = wx.ListBox(self.panel, style=wx.VSCROLL|wx.LB_EXTENDED)
         self.v_sizer.Add(self.list, proportion=1, flag=wx.EXPAND, border=4)
@@ -298,14 +317,47 @@ class MyFrame(wx.Frame):
             self.get_Data_list(self,s_host)
             self.get_server_set(self)
 
-
-    def get_server_set(self,event):
+    def save_extfilter_all(self):
+        global username
         pp = self.getNoSlashPath(self.path_combox.GetValue())
-        if self.r.hexists('SETTINGS', f'EXTFILTER_{pp}_{username}'):
-            extstring = self.r.hget('SETTINGS', f'EXTFILTER_{pp}_{username}')
+        conf.set('set_DS', f'All_EXTFILTER_{pp}_{username}', self.ext_filter.GetValue())
+        conf.write(open(setPath, 'w+', encoding="utf-8"))
+        self.ext_readall_btn.Show()
+        self.panel.Layout() #显示按钮后需要刷新布局
+        if self.check_redis(s_host, ''):
+            self.r.hset('SETTINGS', f'All_EXTFILTER_{pp}_{username}', self.ext_filter.GetValue())
+    def get_server_set_all(self,event):
+        global username
+        pp = self.getNoSlashPath(self.path_combox.GetValue())
+        extstring = ''
+        if conf.has_option('set_DS', f'All_EXTFILTER_{pp}_{username}'):
+            extstring = conf.get('set_DS', f'All_EXTFILTER_{pp}_{username}')
+        if self.check_redis(s_host,''):
+            if self.r.hexists('SETTINGS', f'All_EXTFILTER_{pp}_{username}'):
+                extstring = self.r.hget('SETTINGS', f'All_EXTFILTER_{pp}_{username}')
+        if extstring != '':
             self.ext_filter.SetValue(extstring)
 
-    def count_files_in_folder(self,folder_path):
+    def get_server_set(self,event):
+        global username
+        pp = self.getNoSlashPath(self.path_combox.GetValue())
+        extstring = ''
+        conf.set('set_DS', f'EXTFILTER_{pp}_{username}', self.ext_filter.GetValue())
+        conf.write(open(setPath, 'w+', encoding="utf-8"))
+        if self.check_redis(s_host, ''):
+            if self.r.hexists('SETTINGS', f'EXTFILTER_{pp}_{username}'):
+                extstring = self.r.hget('SETTINGS', f'EXTFILTER_{pp}_{username}')
+        if extstring != '':
+            self.ext_filter.SetValue(extstring)
+
+    def get_allFolders(self,path):  #获取目录数
+        folder_c = 0
+        for dirpath, dirnames, filenames in os.walk(path):
+            for dirname in dirnames:
+                folder_c+=1
+        return folder_c
+
+    def count_files_in_folder(self,folder_path):    #获取文件数
         file_count = 0
         for root, dirs, files in os.walk(folder_path):
             file_count += len(files)
@@ -316,10 +368,10 @@ class MyFrame(wx.Frame):
             extensions = set()
             for entry in os.scandir(root_dir):
                 if entry.is_file():
-                    self.CCC += 1
-                    self.progress_bar.SetValue(self.CCC)
                     filename, file_extension = os.path.splitext(entry.name)
                     extensions.add(str(file_extension[1:]).lower())
+                    self.CCC += 1
+                    self.text_label.SetLabel(str(self.CCC))
                 elif entry.is_dir():
                     extensions.update(self.get_all_file_extensions(entry.path))
             return extensions
@@ -338,35 +390,52 @@ class MyFrame(wx.Frame):
         else:
             doit = True
         if doit:
-            all = self.count_files_in_folder(path)
-            self.progress_bar.SetRange(all)
+            self.text_label.SetLabel('正在查找文件:')
             self.CCC = 0
             ext = '; '.join(self.get_all_file_extensions(self.path_combox.GetValue()))
             self.ext_filter.SetValue(ext)
+            # self.on_extfilter_saver(self)
+            self.save_extfilter_all()
 
-        self.on_extfilter_changer(self)
-
-    def on_extfilter_changer(self,event):
+    def on_extfilter_saver(self, event):
         global username
         pp = self.getNoSlashPath(self.path_combox.GetValue())
         conf.set('set_DS', f'EXTFILTER_{pp}_{username}', self.ext_filter.GetValue())
         conf.write(open(setPath, 'w+', encoding="utf-8"))
         if self.check_redis(s_host, ''):
             self.r.hset('SETTINGS', f'EXTFILTER_{pp}_{username}', self.ext_filter.GetValue())
+    def on_folfilter_saver(self, event):
+        global username
+        pp = self.getNoSlashPath(self.path_combox.GetValue())
+        conf.set('set_DS', f'FOLFILTER_{pp}_{username}', self.fol_filter.GetValue())
+        conf.write(open(setPath, 'w+', encoding="utf-8"))
+        if self.check_redis(s_host, ''):
+            self.r.hset('SETTINGS', f'FOLFILTER_{pp}_{username}', self.fol_filter.GetValue())
 
     def check_extfilter(self,event):
+        global username
         if self.search_fol_chk.GetValue():
             self.ext_filter.Show()
+            self.fol_filter.Show()
             self.ext_getall_btn.Show()
             self.ext_saveext_btn.Show()
             self.ext_read_btn.Show()
+            # self.ext_readall_btn.Show()
+            pp = self.getNoSlashPath(self.path_combox.GetValue())
+            extstring = ''
+            if conf.has_option('set_DS', f'All_EXTFILTER_{pp}_{username}'):
+                extstring = conf.get('set_DS', f'All_EXTFILTER_{pp}_{username}')
+            if extstring != '':
+                self.ext_readall_btn.Show()
             self.v_sizer.Add(self.ext_sizer, proportion=3, flag=wx.EXPAND|wx.TOP, border=4)
         else:
             self.v_sizer.Detach(self.ext_sizer)
             self.ext_filter.Hide()
+            self.fol_filter.Hide()
             self.ext_getall_btn.Hide()
             self.ext_saveext_btn.Hide()
             self.ext_read_btn.Hide()
+            self.ext_readall_btn.Hide()
         self.v_sizer.Layout()
         self.panel.Layout()
             
@@ -467,7 +536,13 @@ class MyFrame(wx.Frame):
                 if PPP == ('.'+i.upper()) or PPP == ('.'+i.lower()):
                     return True
 
-    def GetTextToData(self,event):  #导入数据
+    def ignoreFolder(self,PPP=''):
+        if self.ui.compFloderIgnore.currentText() != '':
+            IgnoreFo = self.ui.compFloderIgnore.currentText().split(';')
+            for i in IgnoreFo:
+                if PPP.split('\\')[0]==i:
+                    return True #排除文件夹输出True执行continue
+    def GetTextToData(self,event):  #导入txt数据 与 文件夹
         if self.check_redis(s_host, ''):
             global username
             if self.search_fol_chk.GetValue():
@@ -477,7 +552,6 @@ class MyFrame(wx.Frame):
                 dlg.Destroy()
                 if result == wx.ID_YES:
                     path = self.path_combox.GetValue()
-                    self.progress_bar.SetRange(self.count_files_in_folder(path))
                     cc = 0
                     if os.path.exists(path):
                         self.r.delete(f'{username}_{path}')
@@ -485,6 +559,8 @@ class MyFrame(wx.Frame):
                         for root, dirs, files in os.walk(path):
                             for file_name in files:
                                 file_path = os.path.join(root, file_name)
+                                f_subPath = file_path[len(path):]
+                                if self.ignoreFolder(f_subPath): continue  # 目录排除
                                 fl, ex = os.path.splitext(file_name)
                                 if self.ignoreFile(self.ext_filter.GetValue(),ex): continue #类型排除
                                 mtime = self.convet_time(os.path.getmtime(file_path))
@@ -493,7 +569,7 @@ class MyFrame(wx.Frame):
                                 a = [mtime, '', file_path, FF, size, '','']
                                 self.r.sadd(f'{username}_{path}', str(a))   #写入数据库
                                 cc += 1
-                                self.progress_bar.SetValue(cc)
+                                self.text_label.SetLabel(str(cc))
                         self.get_Data_list(self, conf.get('set_DS', 'HOST'))
                     else:
                         dlg = wx.MessageDialog(self, "您输入的目录不存在，请输入有效路径", "[预处理文件夹]", wx.ICON_QUESTION)
@@ -563,12 +639,16 @@ class MyFrame(wx.Frame):
                                                     self.r.set(f'{keyN}>ST',str(st))
 
                                                     proc += 1
+                                                    self.text_label.SetLabel(str(proc))
                                                     self.progress_bar.SetValue(proc)
                         # 写入数据文本(F:文件名)→包含数据数量
                         #             self.r.set(f'F:{keyN}', str(proc))
                         # 记录总导入文件数（用于循环读取）
                         #         self.r.set('FC', str(scount))
-                                self.text_label.SetLabel('(导入完成)')
+                        #         self.text_label.SetLabel('(导入完成)')
+                                dlg = wx.MessageDialog(self, "导入工作完成。", "[完成]", wx.OK|wx.ICON_INFORMATION)
+                                dlg.ShowModal()
+                                dlg.Destroy()
                                 self.get_Data_list(self,conf.get('set_DS', 'HOST'))
                 else:
                     dlg = wx.MessageDialog(self, "未设置搜索关键字，输入要检查路径关键字，避免导入无用数据。", "[设置搜索关键字]", wx.ICON_QUESTION)
@@ -610,14 +690,17 @@ class MyFrame(wx.Frame):
         return fist+outs[1:]
 
     def on_comb_return(self, event):
+        global username
         path = self.path_combox.GetValue()
         if os.path.exists(path):
+            pp = self.getNoSlashPath(self.path_combox.GetValue())
             if self.search_fol_chk.GetValue():
-                pp = self.getNoSlashPath(self.path_combox.GetValue())
                 try:
                     self.ext_filter.SetValue(conf.get('set_DS', f'EXTFILTER_{pp}_{username}'))
+                    self.fol_filter.SetValue(conf.get('set_DS', f'FOLFILTER_{pp}_{username}'))
                 except:
                     self.ext_filter.SetValue('')
+                    self.fol_filter.SetValue('')
 
             if path[-1] != '\\': path += '\\'
             if conf.has_option('set_DS', 'path_count'):
@@ -643,7 +726,16 @@ class MyFrame(wx.Frame):
             conf.write(open(setPath, 'w+', encoding="utf-8"))
             self.path_combox.SetValue(path)
             self.FindTxt()
-
+            # self.check_extfilter(self)
+            extstring = ''
+            if conf.has_option('set_DS', f'All_EXTFILTER_{pp}_{username}'):
+                extstring = conf.get('set_DS', f'All_EXTFILTER_{pp}_{username}')
+            if extstring != '':
+                self.ext_readall_btn.Show()
+            else:
+                self.ext_readall_btn.Hide()
+            self.panel.Layout()
+    #
     def get_line_count(self,file_path):
         line_count = 0
         if os.path.exists(file_path):
@@ -654,7 +746,7 @@ class MyFrame(wx.Frame):
                             line_count+=1
         return line_count
 
-    #获取数据库内容到列表2
+#获取数据库内容到列表2
     def get_Data_list(self,event,value):
         if self.check_redis(value, ''):
             dbc = self.r.dbsize()   #获取当前库数据数量
@@ -670,20 +762,23 @@ class MyFrame(wx.Frame):
                                 st = st.decode('utf-8')
                             fnn = self.r.scard(F)
                             self.list_2.Append(f'{F} → 数量:{fnn} <{st}>')
+                        else:
+                            self.r.srem('FS',F) #删除FS中的数据成员
                     self.text_label.SetLabel('(数据库刷新)')
         else:
             self.list_2.Clear()
 
-    def search_go(self,event):
-        self.filter_search()
 
-    def filter_search(self):
-        if len(self.data) > 0:
+    def filter_search(self,event):
+        alldata = len(self.data)
+        if alldata > 0:
             gnum = self.grid_out.GetNumberRows()  # 删除所有行↓
             if gnum > 0:
                 for i in range(gnum):
                     self.grid_out.DeleteRows(0)  # 根据总行数循环删除第一行↑
             row = 0
+            self.progress_bar.SetValue(0)
+            self.progress_bar.SetRange(alldata)
             for m in self.data:
                 datas = eval(str(m))
                 if self.comb_edits.GetValue() == '<All>' or self.comb_edits.GetValue() == datas[1]:
@@ -700,6 +795,7 @@ class MyFrame(wx.Frame):
                                 self.grid_out.SetCellBackgroundColour(row, 5, wx.Colour(225, 250, 240))
                                 col += 1
                             row += 1
+                            self.progress_bar.SetValue(row)
             self.grid_out.AutoSizeColumns()
             self.grid_out.Scroll(0, row)
             screen_width = wx.Display(0).GetGeometry().GetWidth()  # 获取主显示器宽度
@@ -710,7 +806,7 @@ class MyFrame(wx.Frame):
             self.SetSize(wx.Size(w, self.GetSize()[1]))  # 设置主窗口大小
             self.sizer.Layout()
 
-#搜索数据库到输出到列表
+#搜索数据库到输出到列表Grid
     def search_Data_list(self,event):
         selected_indices = self.list_2.GetSelections()
         if selected_indices:
@@ -792,7 +888,7 @@ class MyFrame(wx.Frame):
                 dlg.Destroy()
 
     def check_redis(self, host, password):  #检查服务器链接
-        self.text_label.SetLabel('(正在链接数据库)')
+        self.text_label.SetLabel('正在链接数据库:')
         try:
             t = redis.Redis(host=host, port=6379, password=password, decode_responses=True)
             t.ping()  # 发送一个 ping 命令来检查连接
@@ -804,6 +900,6 @@ class MyFrame(wx.Frame):
             return False
 
 app = wx.App(False)
-frame = MyFrame(None, "DataSearcher v1.3")
+frame = MyFrame(None, "DataSearcher v1.4")
 frame.Show()
 app.MainLoop()

@@ -51,12 +51,12 @@ class MyFrame(wx.Frame):
         icon = wx.Bitmap(temp_icon_file, wx.BITMAP_TYPE_ICO)    #使用ico类型图标
         os.remove(temp_icon_file)
         # 创建 wx.Button，设置图标和标签
-        button = wx.Button(panel, wx.ID_ANY, label="转换", size=(80, icon.GetHeight()))
+        button = wx.Button(panel, wx.ID_ANY, label="转换", size=(80, 28))
         button.SetBitmap(icon)
         # 绑定按钮事件
         button.Bind(wx.EVT_BUTTON, self.DoConvert)
     #布局：按钮放入顶部平行布局
-        h_sizer.Add(button, 0, wx.ALIGN_LEFT|wx.ALL, 5)
+        h_sizer.Add(button, 0, wx.ALIGN_CENTER|wx.ALL, 2)
 #ComboBox可输入下拉列表：combox
         pco = int(conf.get('set2', 'path_count'))
         current_values = []
@@ -65,24 +65,24 @@ class MyFrame(wx.Frame):
                 pp = conf.get('PATHicon', str(i))
                 if os.path.exists(pp):
                     current_values.append(pp)
-        self.combox = wx.ComboBox(panel, wx.ID_ANY, value='默认文本', choices=current_values, size=(480, -1)) #size设置宽度 -1为默认高度
+        self.combox = wx.ComboBox(panel, wx.ID_ANY, value='默认文本', choices=current_values, size=(480, -1), style=wx.TE_PROCESS_ENTER) #size设置宽度 -1为默认高度
         self.combox.Bind(wx.EVT_COMBOBOX, self.on_comb_return)
-        self.combox.Bind(wx.EVT_COMBOBOX_CLOSEUP, self.on_comb_return) #这里使用打开下拉列表事件替代文本修改，避免函数死循环
+        self.combox.Bind(wx.EVT_TEXT_ENTER, self.on_comb_return) #这里使用打开下拉列表事件替代文本修改，避免函数死循环
         try:
             self.combox.SetValue(conf.get('PATHicon','current'))
         except:
             self.combox.SetValue(os.getcwd())
-        h_sizer.Add(self.combox, 0, wx.ALIGN_CENTER|wx.ALL, 5)
+        h_sizer.Add(self.combox, 0, wx.ALIGN_CENTER|wx.ALL, 2)
     #布局：平行布局放入主布局最顶部
-        sizer.Add(h_sizer, 0, wx.ALIGN_LEFT|wx.ALL, 1)
+        sizer.Add(h_sizer, 0, wx.TOP, 2)
 #ListBox多选列表：list
         self.list = wx.ListBox(panel, style=wx.VSCROLL|wx.LB_EXTENDED)
-        sizer.Add(self.list, proportion=1, flag=wx.EXPAND|wx.ALL, border=6)
+        sizer.Add(self.list, proportion=1, flag=wx.EXPAND|wx.BOTTOM|wx.LEFT|wx.RIGHT, border=3)
 #TextCtrl文本控件：text_out
         self.text_out = wx.TextCtrl(panel, style=wx.TE_MULTILINE|wx.VSCROLL|wx.TE_READONLY|wx.TE_DONTWRAP) #wx.TE_MULTILINE|wx.TE_READONLY（多行只读）
-        self.text_out.SetBackgroundColour(wx.Colour(17, 16, 20))
+        self.text_out.SetBackgroundColour(wx.Colour(37, 66, 40))
         self.text_out.SetForegroundColour(wx.Colour(113, 216, 130))
-        sizer.Add(self.text_out, proportion=2, flag=wx.EXPAND|wx.ALL, border=6) #proportion比例为整数，该件比上面占面积大2倍
+        sizer.Add(self.text_out, proportion=2, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=3) #proportion比例为整数，该件比上面占面积大2倍
 
         panel.SetSizer(sizer)
 #初始化时调用：
