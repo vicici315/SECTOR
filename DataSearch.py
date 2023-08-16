@@ -11,6 +11,7 @@ import base64
 import wx
 import wx.grid
 import time
+import json
 
 conf = ConfigParser()
 setPath = os.getcwd()+'\\PrinterSetting.ini'
@@ -40,7 +41,7 @@ else:
     s_host = '192.168.17.99'
 
 R_Data = dict() #预读取数据
-
+search_count = False
 conf.write(open(setPath, 'w+', encoding="utf-8"))
 
 
@@ -117,12 +118,12 @@ class MyFrame(wx.Frame):
         inputData_btn.SetToolTip('将选中的文件导入数据库（右键双击刷新数据库）')
         inputData_btn.Bind(wx.EVT_BUTTON, self.posswer)
         inputData_btn.Bind(wx.EVT_RIGHT_DCLICK, lambda event, value=conf.get('set_DS', 'HOST'): self.get_Data_list(event,value))
-        h_sizer.Add(inputData_btn, flag=wx.ALL, border=5)
+        h_sizer.Add(inputData_btn, flag=wx.ALL, border=4)
 #CheckBox遍历文件选项：search_fol
         self.search_fol_chk = wx.CheckBox(self.panel)
         self.search_fol_chk.SetToolTip('勾选对当前路径进行数据预处理')
         self.search_fol_chk.Bind(wx.EVT_CHECKBOX, self.check_extfilter)
-        h_sizer.Add(self.search_fol_chk, flag=wx.ALIGN_CENTER, border=2)
+        h_sizer.Add(self.search_fol_chk, flag=wx.ALIGN_CENTER|wx.RIGHT, border=2)
 #ComboBox路径下拉列表：path_combox
         pco=0
         try:
@@ -187,6 +188,36 @@ class MyFrame(wx.Frame):
     #布局：平行布局放入主布局最顶部
         self.sizer.Add(h_sizer, 0, wx.EXPAND|wx.ALL, 1)  # 里面的参数同上（占比，标签，边界），参数名如果不写需要统一都不写
 
+#Button按钮：button_save
+        # 加载图标文件并创建 wx.Bitmap 对象
+        printicon_file = "temp2.png"
+        with open(printicon_file, "wb") as f:
+            f.write(base64.b64decode(icondata.icons_data['icon_save']))
+        iconsave = wx.Bitmap(printicon_file, wx.BITMAP_TYPE_PNG)
+        os.remove(printicon_file)
+        # 创建 wx.Button，设置图标和标签
+        button_save = wx.Button(self.panel, wx.ID_ANY, size=(28, 28))
+        button_save.SetBitmap(iconsave)
+        button_save.SetToolTip('创建本地数据存档')
+        # 绑定按钮事件
+        button_save.Bind(wx.EVT_BUTTON, self.del_SaveData)
+        # button_save.Bind(wx.EVT_RIGHT_DCLICK, self.del_MemData)
+        h_sizer.Add(button_save, flag=wx.ALIGN_CENTER|wx.RIGHT, border=3)
+#Button按钮：button_del
+        # 加载图标文件并创建 wx.Bitmap 对象
+        printicon_file = "temp2.png"
+        with open(printicon_file, "wb") as f:
+            f.write(base64.b64decode(icondata.icons_data['icon_del']))
+        icondel = wx.Bitmap(printicon_file, wx.BITMAP_TYPE_PNG)
+        os.remove(printicon_file)
+        # 创建 wx.Button，设置图标和标签
+        button_del = wx.Button(self.panel, wx.ID_ANY, size=(28, 28))
+        button_del.SetBitmap(icondel)
+        button_del.SetToolTip('清除列表选择的本地存档（双击右键删除缓存）')
+        # 绑定按钮事件
+        button_del.Bind(wx.EVT_BUTTON, self.del_LocalData)
+        button_del.Bind(wx.EVT_RIGHT_DCLICK, self.del_MemData)
+        h_sizer.Add(button_del, flag=wx.ALIGN_CENTER|wx.RIGHT, border=3)
 #Button按钮：button
         # 加载图标文件并创建 wx.Bitmap 对象
         icon = wx.Bitmap(temp_icon_file, wx.BITMAP_TYPE_ICO)    #使用ico类型图标
@@ -199,7 +230,7 @@ class MyFrame(wx.Frame):
         button.Bind(wx.EVT_BUTTON, self.search_Data_list)
         button.Bind(wx.EVT_RIGHT_DCLICK, self.DelSTHis)
     #布局：按钮放入顶部平行布局
-        h_sizer.Add(button, flag=wx.ALL, border=5)
+        h_sizer.Add(button, flag=wx.ALIGN_CENTER|wx.RIGHT, border=3)
 
 #水平布局：放置两个列表
         h_sizer_list = wx.BoxSizer(wx.HORIZONTAL)
@@ -272,6 +303,7 @@ class MyFrame(wx.Frame):
         h_sizer_list.Add(self.v_sizer, proportion=1, flag=wx.EXPAND|wx.LEFT, border=4)
 #ListBox多选列表：list_2
         self.list_2 = wx.ListBox(self.panel, style=wx.VSCROLL|wx.LB_EXTENDED)
+        self.list_2.Bind(wx.EVT_LISTBOX, self.on_list2_sel)
         self.list_2.SetBackgroundColour(wx.Colour(237, 236, 255))
         h_sizer_list.Add(self.list_2, proportion=1, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=4)
 
@@ -304,6 +336,7 @@ class MyFrame(wx.Frame):
         self.sizer.Add(h_sizer_2, 0, wx.EXPAND|wx.ALL, 1)
 #显示查询变量内存占用
         self.member_use = wx.StaticText(self.panel)
+        self.member_use.SetToolTip('[搜索数 : 占用内存]')
         h_sizer_2.Add(self.member_use, proportion=0, flag=wx.RIGHT, border=3)
 #StaticTextIP显示静态文本：ipshow
         self.ipshow = wx.StaticText(self.panel, label=s_host)
@@ -324,6 +357,19 @@ class MyFrame(wx.Frame):
         if self.check_redis(s_host, ''):
             self.get_Data_list(self,s_host)
             self.get_server_set(self)
+
+    def on_list2_sel(self,event):
+        selected_indices = self.list_2.GetSelections()
+        if selected_indices != wx.NOT_FOUND:
+            selected_items = [self.list_2.GetString(index) for index in selected_indices]
+            scount = len(selected_items)
+            if scount > 0:
+                conf.set('set_DS', 'LIST2_SEL', str(selected_indices[0]))
+                conf.write(open(setPath, 'w+', encoding="utf-8"))
+    def resel_list2(self):
+        if conf.has_option('set_DS', 'LIST2_SEL'):
+            sel = int(conf.get('set_DS', 'LIST2_SEL'))
+            self.list_2.SetSelection(sel)
 
     def save_extfilter_all(self):
         global username
@@ -556,7 +602,7 @@ class MyFrame(wx.Frame):
         if self.check_redis(s_host, ''):
             global username
             if self.search_fol_chk.GetValue():
-                dlg = wx.MessageDialog(self, "确定开始导入路径中的文件到数据库？会排除下面用户输入的文件类型", "[导入数据]",
+                dlg = wx.MessageDialog(self, "确定开始导入路径中的文件到数据库？会排除下面用户输入的文件类型\n（注意：原数据将会被替换）", "[导入数据]",
                                        wx.YES_NO | wx.ICON_QUESTION)
                 result = dlg.ShowModal()
                 dlg.Destroy()
@@ -568,18 +614,25 @@ class MyFrame(wx.Frame):
                         self.r.sadd('FS',f'{username}_{path}')
                         for root, dirs, files in os.walk(path):
                             for file_name in files:
-                                file_path = os.path.join(root, file_name)
-                                f_subPath = file_path[len(path):]
-                                if self.ignoreFolder(f_subPath): continue  # 目录排除
-                                fl, ex = os.path.splitext(file_name)
-                                if self.ignoreFile(self.ext_filter.GetValue(),ex): continue #类型排除
-                                mtime = self.convet_time(os.path.getmtime(file_path))
-                                FF = "File" if os.path.isfile(file_path) else "Folder"
-                                size = self.Sizeofsize(os.path.getsize(file_path))
-                                a = [mtime, '', file_path, FF, size, '','']
-                                self.r.sadd(f'{username}_{path}', str(a))   #写入数据库
-                                cc += 1
-                                self.text_label.SetLabel(str(cc))
+                                if self.StartStop:
+                                    file_path = os.path.join(root, file_name)
+                                    f_subPath = file_path[len(path):]
+                                    if self.ignoreFolder(f_subPath): continue  # 目录排除
+                                    fl, ex = os.path.splitext(file_name)
+                                    if self.ignoreFile(self.ext_filter.GetValue(),ex): continue #类型排除
+                                    mtime = self.convet_time(os.path.getmtime(file_path))
+                                    FF = "File" if os.path.isfile(file_path) else "Folder"
+                                    size = self.Sizeofsize(os.path.getsize(file_path))
+                                    a = [mtime, '', file_path, FF, size, '','']
+                                    self.r.sadd(f'{username}_{path}', str(a))   #写入数据库
+                                    cc += 1
+                                    self.text_label.SetLabel(str(cc))
+                                    wx.Yield()
+                                else:
+                                    self.text_label.SetLabel('<搜索停止>')
+                                    self.StartStop = True
+                                    self.get_Data_list(self, conf.get('set_DS', 'HOST'))
+                                    return
                         self.get_Data_list(self, conf.get('set_DS', 'HOST'))
                     else:
                         dlg = wx.MessageDialog(self, "您输入的目录不存在，请输入有效路径", "[预处理文件夹]", wx.ICON_QUESTION)
@@ -618,9 +671,9 @@ class MyFrame(wx.Frame):
                         #添加新导入数据文件名到FS集合
                                         self.r.sadd('FS',keyN)
                                     self.r.delete(keyN) #如果文件存在集里则清空，便于写入新元素
-                                    ffc = self.get_line_count(fp)  # 获取文本总行数
                                     proc = 0
-                                    self.progress_bar.SetRange(ffc)
+                                    # ffc = self.get_line_count(fp)  # 获取文本总行数
+                                    # self.progress_bar.SetRange(ffc)
                         # 记录文件名的键值（用于获取数据文件名）
                         #             self.r.set(f'FC{FC}', keyN)
                                     with open(fp, 'r', encoding='utf-8') as file:
@@ -650,7 +703,8 @@ class MyFrame(wx.Frame):
 
                                                     proc += 1
                                                     self.text_label.SetLabel(str(proc))
-                                                    self.progress_bar.SetValue(proc)
+                                                    wx.Yield()
+                                                    # self.progress_bar.SetValue(proc)
                         # 写入数据文本(F:文件名)→包含数据数量
                         #             self.r.set(f'F:{keyN}', str(proc))
                         # 记录总导入文件数（用于循环读取）
@@ -668,34 +722,36 @@ class MyFrame(wx.Frame):
     def on_comb_sel(self,event):
         conf.set('search_text', 'current', event.GetString())
         conf.write(open(setPath, 'w+', encoding="utf-8"))
-    def on_comb_ds_return(self, event):
-        if conf.has_option('search_text', 'current'):
-            oldt = conf.get('search_text', 'current')
-        else: oldt = ''
-        path = self.combox_S.GetValue().strip()
-        if path != '' and oldt != path:
-            if conf.has_option('set_DS_t', 'path_count'):
-                PC = int(conf.get('set_DS_t', 'path_count'))
-            else:
-                PC = 0
-            same = True
-            if PC > 0:
-                for i in range(PC):
-                    if conf.has_option('search_text', str(i)):
-                        his = conf.get('search_text', str(i))
-                    else: his = ''
-                    if path == his: same = False
-                if same:
-                    conf.set('search_text', str(PC), path)
-                    conf.set('set_DS_t', 'path_count', str(PC + 1))
+    def on_comb_ds_return(self, event): #搜索
+        # global search_count
+        self.search_Data_list(self)
+        if search_count:
+            if conf.has_option('search_text', 'current'):
+                oldt = conf.get('search_text', 'current')
+            else: oldt = ''
+            path = self.combox_S.GetValue().strip()
+            if path != '' and oldt != path:
+                if conf.has_option('set_DS_t', 'path_count'):
+                    PC = int(conf.get('set_DS_t', 'path_count'))
+                else:
+                    PC = 0
+                same = True
+                if PC > 0:
+                    for i in range(PC):
+                        if conf.has_option('search_text', str(i)):
+                            his = conf.get('search_text', str(i))
+                        else: his = ''
+                        if path == his: same = False
+                    if same:
+                        conf.set('search_text', str(PC), path)
+                        conf.set('set_DS_t', 'path_count', str(PC + 1))
+                        self.combox_S.Append(path)
+                else:
+                    conf.set('set_DS_t', 'path_count', '1')
+                    conf.set('search_text', '0', path)
                     self.combox_S.Append(path)
-            else:
-                conf.set('set_DS_t', 'path_count', '1')
-                conf.set('search_text', '0', path)
-                self.combox_S.Append(path)
             conf.set('search_text', 'current', path)
             conf.write(open(setPath, 'w+', encoding="utf-8"))
-        self.search_Data_list(self)
 
     def getNoSlashPath(self, pp):
         outs = pp.replace(':','').replace('\\','')  # 获取项目路径去除冒号与斜杠文本
@@ -739,15 +795,15 @@ class MyFrame(wx.Frame):
             conf.write(open(setPath, 'w+', encoding="utf-8"))
             self.path_combox.SetValue(path)
             self.FindTxt()
-            # self.check_extfilter(self)
-            extstring = ''
-            if conf.has_option('set_DS', f'All_EXTFILTER_{pp}_{username}'):
-                extstring = conf.get('set_DS', f'All_EXTFILTER_{pp}_{username}')
-            if extstring != '':
-                self.ext_readall_btn.Show()
-            else:
-                self.ext_readall_btn.Hide()
-            self.panel.Layout()
+            if self.search_fol_chk.GetValue():
+                extstring = ''
+                if conf.has_option('set_DS', f'All_EXTFILTER_{pp}_{username}'):
+                    extstring = conf.get('set_DS', f'All_EXTFILTER_{pp}_{username}')
+                if extstring != '':
+                    self.ext_readall_btn.Show()
+                else:
+                    self.ext_readall_btn.Hide()
+                self.panel.Layout()
     #
     def get_line_count(self,file_path):
         line_count = 0
@@ -759,7 +815,7 @@ class MyFrame(wx.Frame):
                             line_count+=1
         return line_count
 
-#获取数据库内容到列表2
+#刷新数据库内容到列表2
     def get_Data_list(self,event,value):
         if self.check_redis(value, ''):
             dbc = self.r.dbsize()   #获取当前库数据数量
@@ -769,15 +825,58 @@ class MyFrame(wx.Frame):
                     self.list_2.Clear()
                     for F in getAF: # F从0开始
                         F = F.decode('utf-8')
+                        if '\\' in F:
+                            nf = str(F).replace('\\','!')
+                        else:
+                            nf = F
+                        if os.path.exists(f'{nf}.json'):
+                            jj = '(存档)'
+                        else:
+                            jj = ''
                         if self.r.exists(F):
                             st = self.r.get(f'{F}>ST')
                             if st is not None:  #注意：在对返回的值进行转换为 UTF-8 字符串之前，你需要检查是否为 None。
                                 st = st.decode('utf-8')
                             fnn = self.r.scard(F)
-                            self.list_2.Append(f'{F} → 数量:{fnn} <{st}>')
+                            self.list_2.Append(f'{F} → 数量:{fnn} <{st}>{jj}')
                         else:
                             self.r.srem('FS',F) #删除FS中的数据成员
                     self.text_label.SetLabel('(数据库刷新)')
+                    self.panel.Layout()
+                    self.resel_list2()
+        else:
+            self.list_2.Clear()
+
+    def up_Data_sel(self,event,value):
+        if self.check_redis(value, ''):
+            dbc = self.r.dbsize()   #获取当前库数据数量
+            if dbc > 0:
+                selected_indices = self.list_2.GetSelections()
+                if selected_indices:
+                    selected_items = [self.list_2.GetString(index) for index in selected_indices]
+                    scount = len(selected_items)
+                    if scount > 0:
+
+                        getAF = self.r.smembers('FS')
+                        if self.r.scard('FS') > 0:
+                            global R_Data
+                            temp_Data = {}
+                            self.list_2.Clear()
+                            for F in getAF: # F从0开始
+                                F = F.decode('utf-8')
+                                if self.r.exists(F):
+                                    st = self.r.get(f'{F}>ST')
+                                    if st is not None:  #注意：在对返回的值进行转换为 UTF-8 字符串之前，你需要检查是否为 None。
+                                        st = st.decode('utf-8')
+                                    fnn = self.r.scard(F)
+                                    temp_Data[F] = self.r.smembers(F)
+                                    self.list_2.Append(f'{F} → 数量:{fnn} <{st}>')
+                                else:
+                                    self.r.srem('FS',F) #删除FS中的数据成员
+                            self.text_label.SetLabel('(数据库刷新)')
+                            R_Data.update(temp_Data)    #更新全局变量预读取数据
+                            AEsize = self.Sizeofsize(sys.getsizeof(R_Data))
+                            self.member_use.SetLabel(f'[ : {AEsize}]')
         else:
             self.list_2.Clear()
 
@@ -827,6 +926,67 @@ class MyFrame(wx.Frame):
         if event.GetKeyCode() == wx.WXK_ESCAPE:
             self.StartStop = False
         event.Skip()
+
+    def del_MemData(self,event):
+        R_Data.clear()
+        dlg = wx.MessageDialog(self, "缓存已删除", "[删除缓存]", wx.OK | wx.ICON_INFORMATION)
+        dlg.ShowModal()
+        dlg.Destroy()
+    def del_SaveData(self,event):
+        if self.check_redis(conf.get('set_DS', 'HOST'),''):
+            dlg = wx.MessageDialog(self, "确定保存选择的数据库存档吗？保存本地存档可以加快搜索速度。", "[本地存档]",
+                                   wx.YES_NO | wx.ICON_QUESTION)
+            result = dlg.ShowModal()
+            dlg.Destroy()
+            if result == wx.ID_YES:
+                selected_indices = self.list_2.GetSelections()
+                if selected_indices:
+                    selected_items = [self.list_2.GetString(index) for index in selected_indices]
+                    scount = len(selected_items)
+                    if scount > 0:
+                        self.text_label.SetLabel('正在创建存档:')
+                        for p in selected_items:
+                            self.progress_bar.SetValue(0)
+                            pp = str(p).split(' → ')[0]
+                            if '\\' in pp:
+                                npp = pp.replace('\\', '!')
+                            else:
+                                npp = pp
+                            self.progress_bar.SetRange(self.r.scard(pp))
+                            pr = 0
+                            redis_s = self.r.smembers(pp)
+                            R_Data[pp] = redis_s  # 获取所有的member成员
+                            aaa = []
+                            for i in redis_s:
+                                aaa.append(i.decode("utf-8"))
+                                pr += 1
+                                self.progress_bar.SetValue(pr)
+                                wx.Yield()
+                            with open(f"{npp}.json", "w") as json_file:
+                                json.dump(aaa, json_file)
+                        self.text_label.SetLabel('(创建存档完成)')
+                        self.get_Data_list(self, conf.get('set_DS', 'HOST'))
+    def del_LocalData(self,event):
+        dlg = wx.MessageDialog(self, "确定删除本地数据库存档吗？删除后在下次启动软件点搜索时会下载服务器上最新的数据。", "[删除存档]",
+                               wx.YES_NO | wx.ICON_QUESTION)
+        result = dlg.ShowModal()
+        dlg.Destroy()
+        if result == wx.ID_YES:
+            selected_indices = self.list_2.GetSelections()
+            if selected_indices:
+                selected_items = [self.list_2.GetString(index) for index in selected_indices]
+                scount = len(selected_items)
+                if scount>0:
+                    for p in selected_items:
+                        pp = str(p).split(' → ')[0]
+                        if '\\' in pp:
+                            npp = pp.replace('\\', '!')
+                        else:
+                            npp = pp
+                        if os.path.exists(f'{npp}.json'):
+                            os.remove(f'{npp}.json')
+                    self.get_Data_list(self,conf.get('set_DS', 'HOST'))
+
 #搜索数据库到输出到列表Grid
     def search_Data_list(self,event):
         selected_indices = self.list_2.GetSelections()
@@ -836,39 +996,49 @@ class MyFrame(wx.Frame):
             st = self.combox_S.GetValue()  # 搜索内容
             if st != '':
                 if scount > 0:
+                    global search_count, R_Data
+
                     gnum = self.grid_out.GetNumberRows()  # 删除所有行↓
                     if gnum > 0:
                         for i in range(gnum):
                             self.grid_out.DeleteRows(0)  # 根据总行数循环删除第一行↑
                     row = 0 #注意：这个行ID需要在多个数据文件循环外，后面的搜索内容才不会将前面的替换
+                    search_count=False
                     pr = 0
                     self.data=[]
                     self.edits_comb = []
                     user = []
                     self.text_label.SetLabel('正在搜索:')
-
+                    self.progress_bar.SetValue(0)
                     for p in selected_items:
                         pp = str(p).split(' → ')[0]
-
-        #分批获取数据成员
-                        # 每次获取的数据数量
-                        # batch_size = 10000
-                        # # 数据总量
-                        # total_data = self.r.scard(pp)
-                        # # 存储所有数据的列表
-                        # getAE = []
-                        # # 分批获取数据
-                        # for _ in range(0, total_data, batch_size):
-                        #     data_batch = self.r.srandmember(pp, batch_size) #每次读取数量
-                        #     getAE.extend(data_batch)
-
-                        getAE = self.r.smembers(pp) #获取所有的member成员
+                        if pp not in R_Data:
+                    #读取本地数据
+                            if '\\' in pp:
+                                npp = pp.replace('\\','!')
+                            else:
+                                npp = pp
+                            if os.path.exists(f'{npp}.json'):
+                                with open(f'{npp}.json','r') as j_f:
+                                    tmp_Data = json.load(j_f)
+                                    R_Data[pp] = set(tmp_Data)  #读取json再转换为set字典
+                            else:
+                                redis_s = self.r.smembers(pp)
+                                R_Data[pp] = redis_s #获取所有的member成员
+                                # aaa=[]
+                                # for i in redis_s:
+                                #     aaa.append(i.decode("utf-8"))
+                                # with open(f"{npp}.json", "w") as json_file:
+                                #     json.dump(aaa, json_file)
+                        # self.update_Json(R_Data[pp])
+                        getAE = R_Data.get(pp)
                         AEsize = self.Sizeofsize(sys.getsizeof(getAE))
                         AES = self.r.scard(pp)
                         self.progress_bar.SetRange(AES)
                         for m in getAE: #遍历set数据类型中的member成员
                             if self.StartStop:
-                                m = m.decode('utf-8')
+                                if isinstance(m, bytes):
+                                    m = m.decode('utf-8')
                                 if st in m:
                                     datas = eval(m)  # 转换字符串为数组（将字符串作为代码执行）
 
@@ -890,6 +1060,7 @@ class MyFrame(wx.Frame):
                                         self.grid_out.SetCellBackgroundColour(row, 5, wx.Colour(225, 250, 240))
                                         col += 1
                                     row+=1
+                                    wx.Yield()
                                     # wx.Yield()  #等待界面更新后再继续循环
                                 pr+=1
                                 self.progress_bar.SetValue(pr)
@@ -902,6 +1073,7 @@ class MyFrame(wx.Frame):
                                 self.comb_edits.SetValue('<All>')
 
                                 if row > 0:
+                                    search_count = True
                                     self.comb_users.Clear()
                                     self.comb_users.Append('<All>')
                                     self.comb_users.AppendItems(user)
@@ -933,6 +1105,7 @@ class MyFrame(wx.Frame):
                     self.comb_edits.SetValue('<All>')
 
                     if row > 0:
+                        search_count = True
                         self.comb_users.Clear()
                         self.comb_users.Append('<All>')
                         self.comb_users.AppendItems(user)
@@ -949,6 +1122,7 @@ class MyFrame(wx.Frame):
                     if w < 1052: w = 1052
                     self.SetSize(wx.Size(w,self.GetSize()[1]))  #设置主窗口大小
                     self.sizer.Layout()
+                    self.get_Data_list(self, conf.get('set_DS', 'HOST'))
             else:
                 dlg = wx.MessageDialog(self, "未设置搜索关键字，输入要检查路径关键字，避免数据量过大！",
                                        "[设置搜索关键字]",
@@ -969,6 +1143,6 @@ class MyFrame(wx.Frame):
             return False
 
 app = wx.App(False)
-frame = MyFrame(None, "DataSearcher v1.5")
+frame = MyFrame(None, "DataSearcher v1.6")
 frame.Show()
 app.MainLoop()

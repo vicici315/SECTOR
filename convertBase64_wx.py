@@ -80,7 +80,7 @@ class MyFrame(wx.Frame):
         sizer.Add(self.list, proportion=1, flag=wx.EXPAND|wx.BOTTOM|wx.LEFT|wx.RIGHT, border=3)
 #TextCtrl文本控件：text_out
         self.text_out = wx.TextCtrl(panel, style=wx.TE_MULTILINE|wx.VSCROLL|wx.TE_READONLY|wx.TE_DONTWRAP) #wx.TE_MULTILINE|wx.TE_READONLY（多行只读）
-        self.text_out.SetBackgroundColour(wx.Colour(37, 66, 40))
+        self.text_out.SetBackgroundColour(wx.Colour(37, 46, 40))
         self.text_out.SetForegroundColour(wx.Colour(113, 216, 130))
         sizer.Add(self.text_out, proportion=2, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=3) #proportion比例为整数，该件比上面占面积大2倍
 
