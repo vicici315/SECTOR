@@ -1,4 +1,5 @@
 # 将图标转成二进制代码
+import sys
 
 # import threading
 import icondata
@@ -38,6 +39,7 @@ else:
     conf.set('set_DS', 'HOST', '192.168.17.99')
     s_host = '192.168.17.99'
 
+R_Data = dict() #预读取数据
 
 conf.write(open(setPath, 'w+', encoding="utf-8"))
 
@@ -154,7 +156,7 @@ class MyFrame(wx.Frame):
                     t_currents_values.append(pp)
         self.combox_S = wx.ComboBox(self.panel, wx.ID_ANY, choices=t_currents_values,style=wx.TE_PROCESS_ENTER) #size设置宽度 -1为默认高度
         self.combox_S.SetToolTip('搜索关键字（在导入时也作为过滤导入）')
-        self.combox_S.Bind(wx.EVT_COMBOBOX_DROPDOWN, self.on_comb_ds_return)
+        self.combox_S.Bind(wx.EVT_COMBOBOX, self.on_comb_sel)
         self.combox_S.Bind(wx.EVT_TEXT_ENTER, self.on_comb_ds_return)
         try:
             self.combox_S.SetValue(conf.get('search_text','current'))
@@ -249,7 +251,7 @@ class MyFrame(wx.Frame):
         font = wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
         self.ext_filter.SetFont(font)
         self.ext_filter.Bind(wx.EVT_TEXT_ENTER, self.on_extfilter_saver)
-        self.ext_sizer.Add(self.ext_filter,1,wx.EXPAND,1)
+        self.ext_sizer.Add(self.ext_filter,2,wx.EXPAND,1)
         self.ext_filter.Hide()
     # 目录排除文本
         folstring = ''
@@ -300,12 +302,17 @@ class MyFrame(wx.Frame):
         self.progress_bar = wx.Gauge(self.panel, range=100)
         h_sizer_2.Add(self.progress_bar, proportion=1, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
         self.sizer.Add(h_sizer_2, 0, wx.EXPAND|wx.ALL, 1)
+#显示查询变量内存占用
+        self.member_use = wx.StaticText(self.panel)
+        h_sizer_2.Add(self.member_use, proportion=0, flag=wx.RIGHT, border=3)
 #StaticTextIP显示静态文本：ipshow
         self.ipshow = wx.StaticText(self.panel, label=s_host)
         self.ipshow.Bind(wx.EVT_RIGHT_UP, self.edit_ip)
         h_sizer_2.Add(self.ipshow, proportion=0, flag=wx.RIGHT, border=8)
+
         self.panel.SetSizer(self.sizer)
 
+        self.Bind(wx.EVT_CHAR_HOOK,self.Esc_Stop)   #绑定快捷键ESC
 #移动主窗口位置
         self.Move(400,200)
 
@@ -313,6 +320,7 @@ class MyFrame(wx.Frame):
         self.r = None   #变量预赋予空值，以便在可以正常链接数据库时赋予
         self.data = []
         self.FindTxt()
+        self.StartStop = True
         if self.check_redis(s_host, ''):
             self.get_Data_list(self,s_host)
             self.get_server_set(self)
@@ -537,11 +545,13 @@ class MyFrame(wx.Frame):
                     return True
 
     def ignoreFolder(self,PPP=''):
-        if self.ui.compFloderIgnore.currentText() != '':
-            IgnoreFo = self.ui.compFloderIgnore.currentText().split(';')
+        fol = self.fol_filter.GetValue()
+        if fol != '':
+            IgnoreFo = [f.strip() for f in fol.split(';')]
             for i in IgnoreFo:
                 if PPP.split('\\')[0]==i:
                     return True #排除文件夹输出True执行continue
+
     def GetTextToData(self,event):  #导入txt数据 与 文件夹
         if self.check_redis(s_host, ''):
             global username
@@ -655,41 +665,44 @@ class MyFrame(wx.Frame):
                     dlg.ShowModal()
                     dlg.Destroy()
 
+    def on_comb_sel(self,event):
+        conf.set('search_text', 'current', event.GetString())
+        conf.write(open(setPath, 'w+', encoding="utf-8"))
     def on_comb_ds_return(self, event):
         if conf.has_option('search_text', 'current'):
             oldt = conf.get('search_text', 'current')
         else: oldt = ''
-        path = self.combox_S.GetValue()
-        if path != '':
-            if oldt != path:
-                if conf.has_option('set_DS_t', 'path_count'):
-                    PC = int(conf.get('set_DS_t', 'path_count'))
-                else:
-                    PC = 0
-                same = True
-                if PC > 0:
-                    for i in range(PC):
-                        if conf.has_option('search_text', str(i)):
-                            his = conf.get('search_text', str(i))
-                        else: his = ''
-                        if path == his: same = False
-                    if same:
-                        conf.set('search_text', str(PC), path)
-                        conf.set('set_DS_t', 'path_count', str(PC + 1))
-                        self.combox_S.Append(path)
-                else:
-                    conf.set('set_DS_t', 'path_count', '1')
-                    conf.set('search_text', '0', path)
+        path = self.combox_S.GetValue().strip()
+        if path != '' and oldt != path:
+            if conf.has_option('set_DS_t', 'path_count'):
+                PC = int(conf.get('set_DS_t', 'path_count'))
+            else:
+                PC = 0
+            same = True
+            if PC > 0:
+                for i in range(PC):
+                    if conf.has_option('search_text', str(i)):
+                        his = conf.get('search_text', str(i))
+                    else: his = ''
+                    if path == his: same = False
+                if same:
+                    conf.set('search_text', str(PC), path)
+                    conf.set('set_DS_t', 'path_count', str(PC + 1))
                     self.combox_S.Append(path)
-                conf.set('search_text', 'current', path)
-                conf.write(open(setPath, 'w+', encoding="utf-8"))
+            else:
+                conf.set('set_DS_t', 'path_count', '1')
+                conf.set('search_text', '0', path)
+                self.combox_S.Append(path)
+            conf.set('search_text', 'current', path)
+            conf.write(open(setPath, 'w+', encoding="utf-8"))
+        self.search_Data_list(self)
 
     def getNoSlashPath(self, pp):
         outs = pp.replace(':','').replace('\\','')  # 获取项目路径去除冒号与斜杠文本
         fist = outs[0:1].lower()
         return fist+outs[1:]
 
-    def on_comb_return(self, event):
+    def on_comb_return(self, event):    #路径下来列表事件
         global username
         path = self.path_combox.GetValue()
         if os.path.exists(path):
@@ -752,7 +765,7 @@ class MyFrame(wx.Frame):
             dbc = self.r.dbsize()   #获取当前库数据数量
             if dbc > 0:
                 getAF = self.r.smembers('FS')
-                if len(getAF) > 0:
+                if self.r.scard('FS') > 0:
                     self.list_2.Clear()
                     for F in getAF: # F从0开始
                         F = F.decode('utf-8')
@@ -779,6 +792,7 @@ class MyFrame(wx.Frame):
             row = 0
             self.progress_bar.SetValue(0)
             self.progress_bar.SetRange(alldata)
+            pr = 0
             for m in self.data:
                 datas = eval(str(m))
                 if self.comb_edits.GetValue() == '<All>' or self.comb_edits.GetValue() == datas[1]:
@@ -795,9 +809,12 @@ class MyFrame(wx.Frame):
                                 self.grid_out.SetCellBackgroundColour(row, 5, wx.Colour(225, 250, 240))
                                 col += 1
                             row += 1
-                            self.progress_bar.SetValue(row)
+                            pr+=1
+                            # wx.Yield()
+                pr+=1
+                self.progress_bar.SetValue(pr)
             self.grid_out.AutoSizeColumns()
-            self.grid_out.Scroll(0, row)
+            self.grid_out.Scroll(0, pr)
             screen_width = wx.Display(0).GetGeometry().GetWidth()  # 获取主显示器宽度
             w = sum(self.grid_out.GetColSize(col) for col in range(self.grid_out.GetNumberCols())) + 130  # 获取Grid总宽度
             if w > screen_width:
@@ -806,6 +823,10 @@ class MyFrame(wx.Frame):
             self.SetSize(wx.Size(w, self.GetSize()[1]))  # 设置主窗口大小
             self.sizer.Layout()
 
+    def Esc_Stop(self,event):
+        if event.GetKeyCode() == wx.WXK_ESCAPE:
+            self.StartStop = False
+        event.Skip()
 #搜索数据库到输出到列表Grid
     def search_Data_list(self,event):
         selected_indices = self.list_2.GetSelections()
@@ -822,48 +843,96 @@ class MyFrame(wx.Frame):
                     row = 0 #注意：这个行ID需要在多个数据文件循环外，后面的搜索内容才不会将前面的替换
                     pr = 0
                     self.data=[]
-                    self.edits_comb = ['<All>']
+                    self.edits_comb = []
                     user = []
-
                     self.text_label.SetLabel('正在搜索:')
+
                     for p in selected_items:
                         pp = str(p).split(' → ')[0]
+
+        #分批获取数据成员
+                        # 每次获取的数据数量
+                        # batch_size = 10000
+                        # # 数据总量
+                        # total_data = self.r.scard(pp)
+                        # # 存储所有数据的列表
+                        # getAE = []
+                        # # 分批获取数据
+                        # for _ in range(0, total_data, batch_size):
+                        #     data_batch = self.r.srandmember(pp, batch_size) #每次读取数量
+                        #     getAE.extend(data_batch)
+
                         getAE = self.r.smembers(pp) #获取所有的member成员
-                        self.progress_bar.SetRange(len(getAE))
+                        AEsize = self.Sizeofsize(sys.getsizeof(getAE))
+                        AES = self.r.scard(pp)
+                        self.progress_bar.SetRange(AES)
                         for m in getAE: #遍历set数据类型中的member成员
-                            m = m.decode('utf-8')
-                            if st in m:
-                                datas = eval(m)  # 转换字符串为数组（将字符串作为代码执行）
+                            if self.StartStop:
+                                m = m.decode('utf-8')
+                                if st in m:
+                                    datas = eval(m)  # 转换字符串为数组（将字符串作为代码执行）
 
-                                self.data.append(datas) #暂存搜索数据，用于过滤显示
+                                    self.data.append(datas) #暂存搜索数据，用于过滤显示
 
-                                col = 0
-                                self.grid_out.AppendRows() #表格逐一添加新行
-                                if datas[5] not in user and datas[5] != '':
-                                    user.append(datas[5])
-                                if datas[1] not in self.edits_comb:
-                                    self.edits_comb.append(datas[1])
-                                for d in datas:
-                                    if col == 5 and self.r.hexists('USERS', d):
-                                        d = self.r.hget('USERS', d) #读取作者数据
+                                    col = 0
+                                    self.grid_out.AppendRows() #表格逐一添加新行
+                                    if datas[5] not in user and datas[5] != '':
+                                        user.append(datas[5])
+                                    if datas[1] not in self.edits_comb and datas[1] != '':
+                                        self.edits_comb.append(datas[1])
+                                    for d in datas:
+                                        if col == 5 and self.r.hexists('USERS', d):
+                                            d = self.r.hget('USERS', d) #读取作者数据
 
-                                    self.grid_out.SetCellValue(row, col, d)
-                                    self.grid_out.SetCellBackgroundColour(row, 1, wx.Colour(255, 210, 230))
-                                    self.grid_out.SetCellBackgroundColour(row, 3, wx.Colour(255, 240, 190))
-                                    self.grid_out.SetCellBackgroundColour(row, 5, wx.Colour(225, 250, 240))
-                                    col += 1
-                                row+=1
-                            pr+=1
-                            self.progress_bar.SetValue(pr)
-                    self.grid_out.AutoSizeColumns()
-                    self.grid_out.Scroll(0, row)
+                                        self.grid_out.SetCellValue(row, col, d)
+                                        self.grid_out.SetCellBackgroundColour(row, 1, wx.Colour(255, 210, 230))
+                                        self.grid_out.SetCellBackgroundColour(row, 3, wx.Colour(255, 240, 190))
+                                        self.grid_out.SetCellBackgroundColour(row, 5, wx.Colour(225, 250, 240))
+                                        col += 1
+                                    row+=1
+                                    # wx.Yield()  #等待界面更新后再继续循环
+                                pr+=1
+                                self.progress_bar.SetValue(pr)
+                            else:
+                                self.text_label.SetLabel('<搜索停止>')
+
+                                self.comb_edits.Clear()
+                                self.comb_edits.Append('<All>')
+                                self.comb_edits.AppendItems(self.edits_comb)
+                                self.comb_edits.SetValue('<All>')
+
+                                if row > 0:
+                                    self.comb_users.Clear()
+                                    self.comb_users.Append('<All>')
+                                    self.comb_users.AppendItems(user)
+                                    self.comb_users.SetValue('<All>')
+                                    for u in user:
+                                        if not self.r.hexists('USERS', u):  # 判断Hash数据成员是否存在
+                                            newname = str(u).split('\\')[1]
+                                            self.r.hset('USERS', u, newname)  # 写入Hash数据成员
+
+                                screen_width = wx.Display(0).GetGeometry().GetWidth()  # 获取主显示器宽度
+                                w = sum(self.grid_out.GetColSize(col) for col in
+                                        range(self.grid_out.GetNumberCols())) + 130  # 获取Grid总宽度
+                                if w > screen_width:
+                                    w = screen_width
+                                if w < 1052: w = 1052
+                                self.SetSize(wx.Size(w, self.GetSize()[1]))  # 设置主窗口大小
+                                self.sizer.Layout()
+                                self.StartStop = True
+                                return
+                    self.member_use.SetLabel(f'[{row} : {AEsize}]')
+                    self.panel.Layout()
                     self.text_label.SetLabel('(搜索完成)')
+                    self.grid_out.Scroll(0, pr)
+                    self.grid_out.AutoSizeColumns()
 
                     self.comb_edits.Clear()
-                    self.comb_edits.SetItems(self.edits_comb)
+                    self.comb_edits.Append('<All>')
+                    self.comb_edits.AppendItems(self.edits_comb)
                     self.comb_edits.SetValue('<All>')
 
-                    if len(user) > 0:
+                    if row > 0:
                         self.comb_users.Clear()
                         self.comb_users.Append('<All>')
                         self.comb_users.AppendItems(user)
@@ -900,6 +969,6 @@ class MyFrame(wx.Frame):
             return False
 
 app = wx.App(False)
-frame = MyFrame(None, "DataSearcher v1.4")
+frame = MyFrame(None, "DataSearcher v1.5")
 frame.Show()
 app.MainLoop()
