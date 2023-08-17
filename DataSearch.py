@@ -1,6 +1,6 @@
 # 将图标转成二进制代码
 import sys
-
+import subprocess
 # import threading
 import icondata
 # from cryptography.fernet import Fernet
@@ -200,7 +200,7 @@ class MyFrame(wx.Frame):
         button_save.SetBitmap(iconsave)
         button_save.SetToolTip('创建本地数据存档')
         # 绑定按钮事件
-        button_save.Bind(wx.EVT_BUTTON, self.del_SaveData)
+        button_save.Bind(wx.EVT_BUTTON, self.save_LocalData)
         # button_save.Bind(wx.EVT_RIGHT_DCLICK, self.del_MemData)
         h_sizer.Add(button_save, flag=wx.ALIGN_CENTER|wx.RIGHT, border=3)
 #Button按钮：button_del
@@ -308,6 +308,10 @@ class MyFrame(wx.Frame):
         h_sizer_list.Add(self.list_2, proportion=1, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=4)
 
         self.sizer.Add(h_sizer_list, proportion=1, flag=wx.EXPAND|wx.ALL, border=2)
+#中间信息显示文本：msg_txt
+        self.msg_txt = wx.StaticText(self.panel,label='点击左边行数字选择整行，Ctrl+C 可打开文件目录 并复制文件名，可以在文件搜索直接粘贴定位该文件')
+        self.msg_txt.SetForegroundColour(wx.Colour(197, 96, 120))
+        self.sizer.Add(self.msg_txt, proportion=0, flag=wx.LEFT, border=12)
 #grid_out表格控件：grid.Grid
         # self.text_out = wx.TextCtrl(self.panel, style=wx.TE_MULTILINE|wx.VSCROLL|wx.TE_READONLY|wx.TE_DONTWRAP) #wx.TE_MULTILINE|wx.TE_READONLY（多行只读）
         # self.text_out.SetBackgroundColour(wx.Colour(17, 16, 20))
@@ -324,6 +328,7 @@ class MyFrame(wx.Frame):
         self.grid_out.SetColLabelValue(5, '作者')
         self.grid_out.SetColLabelValue(6, 'IP')
         self.grid_out.AutoSizeColumns()
+        self.grid_out.Bind(wx.EVT_CHAR_HOOK,self.on_char_hook)
         self.sizer.Add(self.grid_out, proportion=3, flag=wx.EXPAND|wx.ALL, border=5) #proportion比例为整数，该件比上面占面积大2倍
     #平行布局2
         h_sizer_2 = wx.BoxSizer(wx.HORIZONTAL)
@@ -336,7 +341,7 @@ class MyFrame(wx.Frame):
         self.sizer.Add(h_sizer_2, 0, wx.EXPAND|wx.ALL, 1)
 #显示查询变量内存占用
         self.member_use = wx.StaticText(self.panel)
-        self.member_use.SetToolTip('[搜索数 : 占用内存]')
+        self.member_use.SetToolTip('[搜索缓存数 : 占用内存]')
         h_sizer_2.Add(self.member_use, proportion=0, flag=wx.RIGHT, border=3)
 #StaticTextIP显示静态文本：ipshow
         self.ipshow = wx.StaticText(self.panel, label=s_host)
@@ -354,9 +359,33 @@ class MyFrame(wx.Frame):
         self.data = []
         self.FindTxt()
         self.StartStop = True
-        if self.check_redis(s_host, ''):
-            self.get_Data_list(self,s_host)
-            self.get_server_set(self)
+
+        self.get_Data_list(self,s_host)
+        self.get_server_set(self)
+
+    def on_char_hook(self, event):
+        keycode = event.GetKeyCode()
+        modifiers = event.GetModifiers()
+        if keycode == ord('C') and modifiers == wx.MOD_CONTROL:
+            selected_rows = self.grid_out.GetSelectedRows()
+            if selected_rows:
+                selected_cells = self.grid_out.GetCellValue(selected_rows[0],2)
+                if selected_cells:
+                    if os.path.exists(selected_cells):
+                        f_p = os.path.dirname(selected_cells)
+                        #程序打包后可以打开目录
+                        subprocess.Popen(["explorer.exe", f_p], shell=True)
+                        f_f = os.path.basename(selected_cells)
+                        #放入剪贴板
+                        clipboard = wx.TextDataObject() #用于存储文本数据，以便将其复制到剪贴板中
+                        clipboard.SetText(f_f)
+                        wx.TheClipboard.Open()  #打开剪贴板
+                        wx.TheClipboard.SetData(clipboard)  #放入剪贴板
+                        wx.TheClipboard.Close() #关闭剪贴板
+
+                        # clipboard_text = clipboard.GetText()
+                        # # self.text_ctrl.SetValue(clipboard_text)
+                        # print("Clipboard content:", clipboard_text)
 
     def on_list2_sel(self,event):
         selected_indices = self.list_2.GetSelections()
@@ -404,18 +433,18 @@ class MyFrame(wx.Frame):
         if extstring != '':
             self.ext_filter.SetValue(extstring)
 
-    def get_allFolders(self,path):  #获取目录数
-        folder_c = 0
-        for dirpath, dirnames, filenames in os.walk(path):
-            for dirname in dirnames:
-                folder_c+=1
-        return folder_c
-
-    def count_files_in_folder(self,folder_path):    #获取文件数
-        file_count = 0
-        for root, dirs, files in os.walk(folder_path):
-            file_count += len(files)
-        return file_count
+    # def get_allFolders(self,path):  #获取目录数
+    #     folder_c = 0
+    #     for dirpath, dirnames, filenames in os.walk(path):
+    #         for dirname in dirnames:
+    #             folder_c+=1
+    #     return folder_c
+    #
+    # def count_files_in_folder(self,folder_path):    #获取文件数
+    #     file_count = 0
+    #     for root, dirs, files in os.walk(folder_path):
+    #         file_count += len(files)
+    #     return file_count
     CCC=0
     def get_all_file_extensions(self,root_dir):
         if os.path.exists(root_dir):
@@ -469,6 +498,7 @@ class MyFrame(wx.Frame):
     def check_extfilter(self,event):
         global username
         if self.search_fol_chk.GetValue():
+            self.list.Hide()
             self.ext_filter.Show()
             self.fol_filter.Show()
             self.ext_getall_btn.Show()
@@ -481,8 +511,9 @@ class MyFrame(wx.Frame):
                 extstring = conf.get('set_DS', f'All_EXTFILTER_{pp}_{username}')
             if extstring != '':
                 self.ext_readall_btn.Show()
-            self.v_sizer.Add(self.ext_sizer, proportion=3, flag=wx.EXPAND|wx.TOP, border=4)
+            self.v_sizer.Add(self.ext_sizer, proportion=3, flag=wx.EXPAND|wx.LEFT, border=1)
         else:
+            self.list.Show()
             self.v_sizer.Detach(self.ext_sizer)
             self.ext_filter.Hide()
             self.fol_filter.Hide()
@@ -826,19 +857,25 @@ class MyFrame(wx.Frame):
                     for F in getAF: # F从0开始
                         F = F.decode('utf-8')
                         if '\\' in F:
-                            nf = str(F).replace('\\','!')
+                            nf = str(F).replace('\\', '!')
                         else:
                             nf = F
+                        if ':' in nf:
+                            nf = nf.replace(':', '=')
                         if os.path.exists(f'{nf}.json'):
                             jj = '(存档)'
                         else:
                             jj = ''
+                        if F in R_Data:
+                            rr = '【缓存】'
+                        else:
+                            rr = ''
                         if self.r.exists(F):
                             st = self.r.get(f'{F}>ST')
                             if st is not None:  #注意：在对返回的值进行转换为 UTF-8 字符串之前，你需要检查是否为 None。
                                 st = st.decode('utf-8')
                             fnn = self.r.scard(F)
-                            self.list_2.Append(f'{F} → 数量:{fnn} <{st}>{jj}')
+                            self.list_2.Append(f'{F} → 数量:{fnn} <{st}>{jj}{rr}')
                         else:
                             self.r.srem('FS',F) #删除FS中的数据成员
                     self.text_label.SetLabel('(数据库刷新)')
@@ -929,10 +966,12 @@ class MyFrame(wx.Frame):
 
     def del_MemData(self,event):
         R_Data.clear()
+        self.member_use.SetLabel(f'[0 : 0]')
+        self.panel.Layout()
         dlg = wx.MessageDialog(self, "缓存已删除", "[删除缓存]", wx.OK | wx.ICON_INFORMATION)
         dlg.ShowModal()
         dlg.Destroy()
-    def del_SaveData(self,event):
+    def save_LocalData(self, event):
         if self.check_redis(conf.get('set_DS', 'HOST'),''):
             dlg = wx.MessageDialog(self, "确定保存选择的数据库存档吗？保存本地存档可以大幅加快搜索速度。", "[本地存档]",
                                    wx.YES_NO | wx.ICON_QUESTION)
@@ -952,6 +991,9 @@ class MyFrame(wx.Frame):
                                 npp = pp.replace('\\', '!')
                             else:
                                 npp = pp
+                            if ':' in npp:
+                                npp = npp.replace(':','=')
+                            print(npp)
                             self.progress_bar.SetRange(self.r.scard(pp))
                             pr = 0
                             redis_s = self.r.smembers(pp)
@@ -961,10 +1003,12 @@ class MyFrame(wx.Frame):
                                 aaa.append(i.decode("utf-8"))
                                 pr += 1
                                 self.progress_bar.SetValue(pr)
-                                wx.Yield()
-                            with open(f"{npp}.json", "w") as json_file:
+                            wx.Yield()
+                            with open(rf"{npp}.json", "w") as json_file:
                                 json.dump(aaa, json_file)
                         self.text_label.SetLabel('(创建存档完成)')
+                        self.member_use.SetLabel(f'[{len(R_Data)} : **]')
+                        self.panel.Layout()
                         self.get_Data_list(self, conf.get('set_DS', 'HOST'))
     def del_LocalData(self,event):
         dlg = wx.MessageDialog(self, "确定删除本地数据库存档吗？删除后在下次启动软件点搜索时会下载服务器上最新的数据。", "[删除存档]",
@@ -983,6 +1027,8 @@ class MyFrame(wx.Frame):
                             npp = pp.replace('\\', '!')
                         else:
                             npp = pp
+                        if ':' in npp:
+                            npp = npp.replace(':', '=')
                         if os.path.exists(f'{npp}.json'):
                             os.remove(f'{npp}.json')
                     self.get_Data_list(self,conf.get('set_DS', 'HOST'))
@@ -1032,7 +1078,6 @@ class MyFrame(wx.Frame):
                                 #     json.dump(aaa, json_file)
                         # self.update_Json(R_Data[pp])
                         getAE = R_Data.get(pp)
-                        AEsize = self.Sizeofsize(sys.getsizeof(getAE))
                         AES = self.r.scard(pp)
                         self.progress_bar.SetRange(AES)
                         for m in getAE: #遍历set数据类型中的member成员
@@ -1092,7 +1137,9 @@ class MyFrame(wx.Frame):
                                 self.sizer.Layout()
                                 self.StartStop = True
                                 return
-                    self.member_use.SetLabel(f'[{row} : {AEsize}]')
+                        wx.Yield()
+                    AEsize = self.Sizeofsize(sys.getsizeof(getAE))
+                    self.member_use.SetLabel(f'[{len(R_Data)} : {AEsize}]')
                     self.panel.Layout()
                     self.text_label.SetLabel('(搜索完成)')
                     self.grid_out.Scroll(0, pr)
@@ -1142,6 +1189,6 @@ class MyFrame(wx.Frame):
             return False
 
 app = wx.App(False)
-frame = MyFrame(None, "DataSearcher v1.6")
+frame = MyFrame(None, "DataSearcher v1.7")
 frame.Show()
 app.MainLoop()

@@ -1,8 +1,13 @@
 echo off
 
 set /p comments= 编译版本: 
-del /q %~n0_%comments%.spec
-RD /Q /S build\%~n0_%comments%\
+
+rem 在输入的版本号减0.1
+for /f %%A in ('powershell -command "[math]::Round(%comments% - 0.1, 2)"') do set "result=%%A"
+
+rem 删除文件和文件夹
+del /q %~n0_%result%.spec
+RD /Q /S build\%~n0_%result%\
 
 call %~dp0venv\Scripts\activate
 
