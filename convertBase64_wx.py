@@ -98,7 +98,7 @@ class MyFrame(wx.Frame):
             with os.scandir(path.strip()) as files:
                 for f in files:
                     if not f.is_dir():
-                        if f.path.endswith('ico') or f.path.endswith('png'):
+                        if f.path.endswith('ico') or f.path.endswith('png') or f.path.endswith('gif') or f.path.endswith('jpg'):
                             siz = self.Sizeofsize(os.path.getsize(f.path))
                             self.list.Append(f'{f.name} → {siz}')
 
@@ -132,14 +132,14 @@ class MyFrame(wx.Frame):
                 pp = str(p).split(' → ')
                 fp = path + pp[0]
                 ss = os.path.getsize(fp)
-                if ss < 124000:
+                if ss < 512000:
                     b = self.convertB(fp)
                     self.text_out.AppendText(f'\n({pp[0]}) 二进制代码：\n')
                     self.text_out.AppendText(f'{b}\n')
                     if scount == 1:
                         wx.Clipboard.Get().SetData(wx.TextDataObject(b))    #在多线程应用程序中使用剪贴板时，可能会发生冲突导致操作失败
                 else:
-                    self.text_out.AppendText(f'\n{p} <图标文件限制 121k 内>\n')
+                    self.text_out.AppendText(f'\n{p} <图标文件限制 500k 内>\n')
                 self.text_out.SetInsertionPointEnd()
                 # 滚动到插入点的位置
                 self.text_out.ShowPosition(self.text_out.GetInsertionPoint())

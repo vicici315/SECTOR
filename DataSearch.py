@@ -934,7 +934,7 @@ class MyFrame(wx.Frame):
         dlg.Destroy()
     def del_SaveData(self,event):
         if self.check_redis(conf.get('set_DS', 'HOST'),''):
-            dlg = wx.MessageDialog(self, "确定保存选择的数据库存档吗？保存本地存档可以加快搜索速度。", "[本地存档]",
+            dlg = wx.MessageDialog(self, "确定保存选择的数据库存档吗？保存本地存档可以大幅加快搜索速度。", "[本地存档]",
                                    wx.YES_NO | wx.ICON_QUESTION)
             result = dlg.ShowModal()
             dlg.Destroy()
@@ -1060,7 +1060,6 @@ class MyFrame(wx.Frame):
                                         self.grid_out.SetCellBackgroundColour(row, 5, wx.Colour(225, 250, 240))
                                         col += 1
                                     row+=1
-                                    wx.Yield()
                                     # wx.Yield()  #等待界面更新后再继续循环
                                 pr+=1
                                 self.progress_bar.SetValue(pr)
@@ -1127,7 +1126,7 @@ class MyFrame(wx.Frame):
                 dlg = wx.MessageDialog(self, "未设置搜索关键字，输入要检查路径关键字，避免数据量过大！",
                                        "[设置搜索关键字]",
                                        wx.ICON_QUESTION)
-                result = dlg.ShowModal()
+                dlg.ShowModal()
                 dlg.Destroy()
 
     def check_redis(self, host, password):  #检查服务器链接
