@@ -155,6 +155,9 @@ def SQL_set_values(Table, val_list):  # 传入：(表名，[值])
         connect.commit()  # 记得提交写入
         connect.close()
         cursor.close()
+        return True
+    else:
+        return False
 
 # 写入序号加字符串值(重复不写入)
 def SQL_set_value(Table, value):  # 传入：(表名，值)
