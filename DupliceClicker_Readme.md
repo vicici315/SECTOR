@@ -36,3 +36,8 @@ PerCopyFiles = dict()
 self.PerCopyFiles[row] = [a,filepath,dup_file]
 self.PerCopyFiles[0][0][1]  #返回文件路径
 ```
+
+## 添加窗口记录
+```python
+self.Bind(wx.EVT_CLOSE,self.OnClose)    #绑定窗口自身的关闭事件
+```
