@@ -1,22 +1,11 @@
+rem 移动dist文件夹中指定版本DupliceClicker.exe文件到当前目录
+
 echo off
 
-set /p comments= 编译版本: 
+set /p comments= 版本: 
 
 rem 在输入的版本号减0.1
 REM for /f %%A in ('powershell -command "[math]::Round(%comments% - 0.1, 2)"') do set "result=%%A"
-set /a "result=comments - 1"
-rem 删除文件和文件夹
-del /q %~n0_%result%.spec
-RD /Q /S build\%~n0_%result%\
-
-call %~dp0venv\Scripts\activate
-
-chcp 65001
-%~dp0venv\Scripts\pyinstaller %~dp0%~n0.py -w -F --icon=%~n0.ico -n=%~n0_%comments%
-
-chcp 936
-echo 是否拷贝到根目录，任意键继续。
-pause
 move /y "dist\DupliceClicker_%comments%.exe" %~d0%~p0DupliceClicker.exe
 pause
 

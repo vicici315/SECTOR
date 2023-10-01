@@ -6,3 +6,4 @@ dist/*.ini
 .idea/
 __pycache__/
 *.zip
+*.json
