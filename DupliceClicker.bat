@@ -15,7 +15,7 @@ chcp 65001
 %~dp0venv\Scripts\pyinstaller %~dp0%~n0.py -w -F --icon=%~n0.ico -n=%~n0_%comments%
 
 chcp 936
-echo 是否拷贝到根目录，任意键继续。
+echo 是否移动到根目录，任意键继续。
 pause
 move /y "dist\DupliceClicker_%comments%.exe" %~d0%~p0DupliceClicker.exe
 pause
