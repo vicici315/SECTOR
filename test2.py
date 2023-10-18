@@ -2,105 +2,106 @@ import wx
 import wx.grid as gridlib
 
 class MyGridTable(gridlib.GridTableBase):
-    def __init__(self, num_rows, num_cols):
+    def __init__(self, data):
         super().__init__()
-        self.num_rows = num_rows
-        self.num_cols = num_cols
-        self.data = [['' for _ in range(num_cols)] for _ in range(num_rows)]
-
-        self.cell_colors = {}  # 用于存储单元格颜色的字典
+        self.data = data
+        self.selected_rows = []  # 用于跟踪选中的行
 
     def GetNumberRows(self):
         return len(self.data)
 
     def GetNumberCols(self):
-        return len(self.data[0]) if self.data else 0
+        return 7
+
+    def IsEmptyCell(self, row, col):
+        return False
 
     def GetValue(self, row, col):
-        return self.data[row][col]
+        return str(self.data[row][col])
 
     def SetValue(self, row, col, value):
         self.data[row][col] = value
 
-    def AppendRows(self, numRows=1):
-        numCols = self.GetNumberCols()
-        for _ in range(numRows):
-            empty_row = [''] * numCols
-            self.data.append(empty_row)
-        return True
+    def IsRowSelected(self, row):
+        return row in self.selected_rows
 
-    def SetCellColor(self, row, col, color):
-        # 设置单元格的颜色
-        self.cell_colors[(row, col)] = color
+    def SelectRow(self, row):
+        if row not in self.selected_rows:
+            self.selected_rows.append(row)
 
-class MyFrame(wx.Frame):
-    def __init__(self):
-        super().__init__(None, wx.ID_ANY, "动态表格示例", size=(800, 600))
-        self.data_table = None
-        self.grid = None
-        self.panel = wx.Panel(self)
-        self.is_virtual = True
-        self.num_rows = 3
-        self.num_cols = 7
-        
-        self.create_table()
+    def DeselectRow(self, row):
+        if row in self.selected_rows:
+            self.selected_rows.remove(row)
 
-        toggle_button = wx.Button(self.panel, label="切换表格类型")
-        toggle_button.Bind(wx.EVT_BUTTON, self.toggle_table)
-        add_row_button = wx.Button(self.panel, label="添加行")
-        add_row_button.Bind(wx.EVT_BUTTON, self.add_row)
-        set_color_button = wx.Button(self.panel, label="设置颜色")
-        set_color_button.Bind(wx.EVT_BUTTON, self.set_color)
+    def SelectAll(self):
+        for row in range(self.GetNumberRows()):
+            self.SelectRow(row)
 
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(self.grid, 1, wx.EXPAND)
-        sizer.Add(toggle_button, 0, wx.ALL, 10)
-        sizer.Add(add_row_button, 0, wx.ALL, 10)
-        sizer.Add(set_color_button, 0, wx.ALL, 10)
-        self.panel.SetSizer(sizer)
+    def DeselectAll(self):
+        self.selected_rows = []
 
-    def create_table(self):
-        if self.is_virtual:
-            self.data_table = MyGridTable(self.num_rows, self.num_cols)
-            self.grid = gridlib.Grid(self.panel)
-            self.grid.CreateGrid(0, 0)
-            self.grid.SetTable(self.data_table, takeOwnership=True)
-        else:
-            self.grid = gridlib.Grid(self.panel)
-            self.grid.CreateGrid(3, 3)
-            for row in range(3):
-                for col in range(3):
-                    self.grid.SetCellValue(row, col, f"Cell ({row}, {col})")
+    def AppendRow(self, row_data):
+        # 添加新的数据行
+        self.data.append(row_data)
+        # 通知表格刷新数据
+        grid = self.GetView()
+        if grid:
+            grid.ProcessTableMessage(
+                gridlib.GridTableMessage(
+                    self, gridlib.GRIDTABLE_NOTIFY_ROWS_APPENDED, 1
+                )
+            )
 
-    def toggle_table(self, event):
-        if hasattr(self, 'grid'):
-            self.grid.Destroy()
+app = wx.App(False)
+frame = wx.Frame(None, wx.ID_ANY, "虚拟表格示例", size=(600, 400))
 
-        self.is_virtual = not self.is_virtual
-        self.create_table()
-        self.Layout()
-        self.panel.Layout()
+panel = wx.Panel(frame)
+sizer = wx.BoxSizer(wx.VERTICAL)
 
-    def add_row(self, event):
-        if self.is_virtual:
-            # 在虚拟表格中，需要调用数据模型的AppendRows方法
-            self.data_table.AppendRows(1)
-            numRows = self.grid.GetNumberRows()
-            self.grid.InsertRows(numRows)
-        else:
-            # 在非虚拟表格中，可以直接使用AppendRows添加行
-            self.grid.AppendRows(1)
-        self.Layout()
-        self.panel.Layout()
+grid = gridlib.Grid(panel)
+grid.CreateGrid(0, 7)
+table = MyGridTable([])  # 使用空数据表初始化
+grid.SetTable(table, True)
 
-    def set_color(self, event):
-        if self.is_virtual:
-            # 设置虚拟表格中的单元格颜色
-            self.data_table.SetCellColor(1, 1, wx.Colour(255, 0, 0))  # 设置第二行第二列的单元格为红色
-            self.grid.ForceRefresh()
+# 设置列标签
+grid.SetColLabelValue(0, '修改时间')
+grid.SetColLabelValue(1, '文  件  路  径')
+grid.SetColLabelValue(2, '详情')
+grid.SetColLabelValue(3, '大小')
+grid.SetColLabelValue(4, 'D')
+grid.SetColLabelValue(5, '状态')
+grid.SetColLabelValue(6, 'MD5')
 
-if __name__ == "__main__":
-    app = wx.App(False)
-    frame = MyFrame()
-    frame.Show()
-    app.MainLoop()
+sizer.Add(grid, 1, wx.EXPAND)
+
+select_all_button = wx.Button(panel, label="全选")
+deselect_all_button = wx.Button(panel, label="取消全选")
+add_row_button = wx.Button(panel, label="添加行")
+
+# 全选按钮的点击事件
+def on_select_all(event):
+    table.SelectAll()
+    grid.Refresh()
+
+# 取消全选按钮的点击事件
+def on_deselect_all(event):
+    table.DeselectAll()
+    grid.Refresh()
+
+# 添加行按钮的点击事件
+def on_add_row(event):
+    new_row_data = ["New", "Row", "Data", "100 KB", "D", "OK", "abcdef1234567890"]
+    table.AppendRow(new_row_data)
+
+select_all_button.Bind(wx.EVT_BUTTON, on_select_all)
+deselect_all_button.Bind(wx.EVT_BUTTON, on_deselect_all)
+add_row_button.Bind(wx.EVT_BUTTON, on_add_row)
+
+sizer.Add(select_all_button, 0, wx.ALIGN_CENTER)
+sizer.Add(deselect_all_button, 0, wx.ALIGN_CENTER)
+sizer.Add(add_row_button, 0, wx.ALIGN_CENTER)
+
+panel.SetSizer(sizer)
+frame.Show()
+
+app.MainLoop()

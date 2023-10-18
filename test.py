@@ -27,6 +27,9 @@ class MyGridTable(gridlib.GridTableBase):
     def SetValue(self, row, col, value):
         self.data[row][col] = value
 
+    def SelectAll(self):
+        for row in range(self.GetNumberRows()):
+            self.SelectRow(row)
 
 class MyFrame(wx.Frame):
     def __init__(self, data):
@@ -34,6 +37,8 @@ class MyFrame(wx.Frame):
 
         panel = wx.Panel(self)
         grid = gridlib.Grid(panel)
+#通常不需要在 grid.CreateGrid() 中指定行数和列数，因为虚拟表格会动态根据数据表类来确定
+# 行数和列数。这样可以更好地管理虚拟表格的数据和性能
         grid.CreateGrid(len(data), len(data[0]))
 
         table = MyGridTable(data)
@@ -43,13 +48,24 @@ class MyFrame(wx.Frame):
         self.grid = grid
 
         refresh_button = wx.Button(panel, label="刷新内容")
-        refresh_button.Bind(wx.EVT_BUTTON, self.OnRefresh)
+        # refresh_button.Bind(wx.EVT_BUTTON, self.OnRefresh)
+        refresh_button.Bind(wx.EVT_BUTTON, lambda event: grid.select_all())
 
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(grid, 1, wx.EXPAND)
         sizer.Add(refresh_button, 0, wx.ALIGN_CENTER | wx.TOP, border=10)
+
+        select_all_button = wx.Button(panel, label="全选")
+        select_all_button.Bind(wx.EVT_BUTTON, lambda event: grid.select_all())
+
         panel.SetSizer(sizer)
 
+    def select_all_rows(grid):
+        table = grid.GetTable()
+        if table:
+            for row in range(table.GetNumberRows()):
+                table.SelectRow(row)
+            grid.Refresh()
     def OnRefresh(self, event):
         # 模拟刷新数据
         new_data = [
