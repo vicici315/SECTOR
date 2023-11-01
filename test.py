@@ -1,35 +1,34 @@
-import wx
-import wx.grid as gridlib
+import os
+from cryptography.fernet import Fernet
+from configparser import ConfigParser
+conf = ConfigParser()
+setPath = os.getcwd()+'\\PrinterSetting.ini'
+pcount = 0
+if os.path.exists(setPath):
+    conf.read_file(open(setPath, encoding='utf-8'))
+if not conf.has_section('SETTINGS'):
+    conf.add_section('SETTINGS')
+
+# 生成随机密钥
+key = Fernet.generate_key()
+
+# 自定义密钥
+key = b'j49uKF1BZJrxFoq6pp-g4_jH8azUwzpN8MZM3O4aATc='
+# key = b'YTEyYXNkZmI='
+cipher_suite = Fernet(key)
 
 
-class MyGridTable(gridlib.GridTableBase):
-    def __init__(self, data):
-        super().__init__()
-        self.data = data
-
-    def GetNumberCols(self):
-        return len(self.data[0])  # 返回列数，假设所有行的列数相同
-
-    def GetNumberRows(self):
-        return len(self.data)  # 返回行数
-
-    def IsEmptyCell(self, row, col):
-        return False  # 告诉表格单元格不是空的
-
-    def GetValue(self, row, col):
-        return self.data[row][col]  # 返回数据值
-
-    def GetColLabelValue(self, col):
-        # 返回列标签值
-        # 假设你有一个列标签的列表，例如 ['Column 1', 'Column 2', ...]
-        return f'Column {col}'
+# 加密整数参数
+dblod = '1'
+encrypted_integer = cipher_suite.encrypt(dblod.encode('utf-8'))
+print(f"Encrypted Integer: {encrypted_integer}")
+conf.set('SETTINGS','dbid2',str(encrypted_integer.decode('utf-8'))) #转换为字符串并保存
+conf.write(open(setPath, 'w+', encoding='utf-8'))
 
 
-app = wx.App(0)
-frame = wx.Frame(None, wx.ID_ANY, "Virtual Grid Example")
-grid = gridlib.Grid(frame, wx.ID_ANY)
-data = [[f"Row {i + 1}, Col {j + 1}" for j in range(5)] for i in range(1000)]  # 生成示例数据
-table = MyGridTable(data)
-grid.SetTable(table, True)
-frame.Show()
-app.MainLoop()
+# 解密整数参数
+# dblod = conf.get('SETTINGS','dbid2')
+# dblod=dblod.encode('utf-8')
+# decrypted_integer = int(cipher_suite.decrypt(dblod))
+# print(f"Decrypted Integer: {decrypted_integer}")
+
