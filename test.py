@@ -1,34 +1,15 @@
-import os
-from cryptography.fernet import Fernet
-from configparser import ConfigParser
-conf = ConfigParser()
-setPath = os.getcwd()+'\\PrinterSetting.ini'
-pcount = 0
-if os.path.exists(setPath):
-    conf.read_file(open(setPath, encoding='utf-8'))
-if not conf.has_section('SETTINGS'):
-    conf.add_section('SETTINGS')
+PerCopyFiles = {1: 'value1', 2: 'value2', 3: 'value3', 4: 'value4'}
 
-# 生成随机密钥
-key = Fernet.generate_key()
+# 假设要删除键为2的成员
+deleted_key = 2
+del PerCopyFiles[deleted_key]
+del PerCopyFiles[3]
 
-# 自定义密钥
-key = b'j49uKF1BZJrxFoq6pp-g4_jH8azUwzpN8MZM3O4aATc='
-# key = b'YTEyYXNkZmI='
-cipher_suite = Fernet(key)
+# 重新编号
+new_PerCopyFiles = {new_index: value for new_index, (old_index, value) in enumerate(PerCopyFiles.items(), start=1)}
 
+# 更新原字典
+PerCopyFiles = new_PerCopyFiles
 
-# 加密整数参数
-dblod = '1'
-encrypted_integer = cipher_suite.encrypt(dblod.encode('utf-8'))
-print(f"Encrypted Integer: {encrypted_integer}")
-conf.set('SETTINGS','dbid2',str(encrypted_integer.decode('utf-8'))) #转换为字符串并保存
-conf.write(open(setPath, 'w+', encoding='utf-8'))
-
-
-# 解密整数参数
-# dblod = conf.get('SETTINGS','dbid2')
-# dblod=dblod.encode('utf-8')
-# decrypted_integer = int(cipher_suite.decrypt(dblod))
-# print(f"Decrypted Integer: {decrypted_integer}")
-
+# 打印结果
+print(PerCopyFiles)
