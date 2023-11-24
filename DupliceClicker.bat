@@ -12,7 +12,8 @@ RD /Q /S build\%~n0_%result%\
 call %~dp0venv\Scripts\activate
 
 chcp 65001
-%~dp0venv\Scripts\pyinstaller %~dp0%~n0.py -w -F --icon=%~n0.ico -n=%~n0_%comments%
+c:\Users\Administrator\AppData\Local\Programs\Python\Python39\Scripts\pyinstaller.exe D:\Gits\MyWinUI\DupliceClicker.py -w -F --icon=%~n0.ico -n=%~n0_%comments%
+pause
 
 chcp 936
 echo 是否移动到根目录，任意键继续。

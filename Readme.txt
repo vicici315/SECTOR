@@ -1,5 +1,7 @@
 说明：查重数据库工具DupliceClicker
 
+★打包前需要在全局安装依赖库：pyinstaller、'redis'、'wxPython'、'cryptography'
+
 本地仓库：http://localhost:3000/viczeng/vic.remote.git
 远程仓库：https://github.com/vicici315/SECTOR.git
 
@@ -36,3 +38,5 @@
 在第二次添加文件时剩余文件顺序错误问题。
 25.06
 修改（Alt+S 排除独件）快捷键，优化快捷代码 elif
+25.07
+修复添加待拷贝后的传统表格刷新列表
