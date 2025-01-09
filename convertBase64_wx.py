@@ -8,6 +8,7 @@ import wx
 # from tkinter import ttk
 
 import os
+import io
 from configparser import ConfigParser
 import base64
 # import subprocess
@@ -73,6 +74,19 @@ class MyFrame(wx.Frame):
         except:
             self.combox.SetValue(os.getcwd())
         h_sizer.Add(self.combox, 0, wx.ALIGN_CENTER|wx.ALL, 2)
+
+        # 刷新文件列表按钮
+        # 加载图标文件并创建 wx.Bitmap 对象
+        image_stream = io.BytesIO(base64.b64decode(icondata.icons_data['icon_ref']))
+        sicon = wx.Bitmap(wx.Image(image_stream, wx.BITMAP_TYPE_PNG))
+        # 创建 wx.Button，设置图标和标签
+        button_ref = wx.Button(panel, wx.ID_ANY, label="", size=(28, 28))
+        button_ref.SetBitmap(sicon)
+        button_ref.SetToolTip("刷新文件列表")
+        # 绑定按钮事件
+        button_ref.Bind(wx.EVT_BUTTON, self.on_comb_return)
+        # 布局：按钮放入顶部平行布局
+        h_sizer.Add(button_ref, 0, wx.ALIGN_CENTER | wx.ALL, 2)
     #布局：平行布局放入主布局最顶部
         sizer.Add(h_sizer, 0, wx.TOP, 2)
 #ListBox多选列表：list
@@ -134,7 +148,7 @@ class MyFrame(wx.Frame):
                 ss = os.path.getsize(fp)
                 if ss < 512000:
                     b = self.convertB(fp)
-                    self.text_out.AppendText(f'\n({pp[0]}) 二进制代码：\n')
+                    self.text_out.AppendText(f'\n({pp[0]}) Base64代码：\n')
                     self.text_out.AppendText(f'{b}\n')
                     if scount == 1:
                         wx.Clipboard.Get().SetData(wx.TextDataObject(b))    #在多线程应用程序中使用剪贴板时，可能会发生冲突导致操作失败
@@ -174,6 +188,6 @@ class MyFrame(wx.Frame):
 
 
 app = wx.App(False)
-frame = MyFrame(None, "Pic to Base64 v1.2")
+frame = MyFrame(None, "Pic to Base64 v1.3")
 frame.Show()
 app.MainLoop()
