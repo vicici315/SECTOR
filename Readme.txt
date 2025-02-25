@@ -1,11 +1,16 @@
 说明：查重数据库工具DupliceClicker
 
 ★打包前需要在全局安装依赖库：pyinstaller、'redis'、'wxPython'、'cryptography'
+# 上传版本到数据库 Ct+Al+Sh+I  密码zyhp
 
 本地仓库：http://localhost:3000/viczeng/vic.remote.git
 远程仓库：https://github.com/vicici315/SECTOR.git
 
 分支：master_dupcheck
+
+29.0
+添加清理已存在数据库文件清理按钮，用于将已上传数据库的文件删除
+【文件】添加【清除空目录】菜单
 
 23.00
 数据库dbid选择使用cryptography模块加密；空关键字搜索提示显示全部；修复list2选中记录bug
