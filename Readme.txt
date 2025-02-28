@@ -1,5 +1,6 @@
 说明：查重数据库工具DupliceClicker
 
+使用打包：DupliceClicker.bat
 ★打包前需要在全局安装依赖库：pyinstaller、'redis'、'wxPython'、'cryptography'
 # 上传版本到数据库 Ct+Al+Sh+I  密码zyhp
 
