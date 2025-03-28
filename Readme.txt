@@ -1,7 +1,11 @@
 说明：查重数据库工具DupliceClicker
 
 使用打包：DupliceClicker.bat
-★打包前需要在全局安装依赖库：pyinstaller、'redis'、'wxPython'、'cryptography'
+★打包前需要在全局安装依赖库：pyinstaller、'redis'、'wxPython'、
+'cryptography'
+需要安装指定版本cryptography-41.0.7（pip3.9 install cryptography==41.0.7）
+或者直接将Readme目录中的文件解压到（删除原来的版本）：c:\Users\%username%\AppData\Local\Programs\Python\Python39\Lib\site-packages\
+
 # 上传版本到数据库 Ct+Al+Sh+I  密码zyhp
 
 本地仓库：http://localhost:3000/viczeng/vic.remote.git
