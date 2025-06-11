@@ -1,4 +1,5 @@
 说明：查重数据库工具DupliceClicker
+DCupdate.bat 用于下载更新
 
 使用打包：DupliceClicker.bat
 ★打包前需要在全局安装依赖库：pyinstaller、'redis'、'wxPython'、
