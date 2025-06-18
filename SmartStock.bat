@@ -14,6 +14,7 @@ call %~dp0venv\Scripts\activate
 
 chcp 65001
 c:\Users\%username%\AppData\Local\Programs\Python\Python39\Scripts\pyinstaller.exe --collect-all cryptography SmartStock.py -w -F --icon=%~n0.ico -n=%~n0_%comments%
+::pyinstaller.exe --collect-all cryptography SmartStock.py -w -F --icon=%~n0.ico -n=%~n0_%comments%
 ::d:\Gits\MyWinUI\venv\Scripts\pyinstaller.exe --collect-all cryptography SmartStock.py -w -F --icon=%~n0.ico -n=%~n0_%comments%
 pause
 
