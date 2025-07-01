@@ -1,15 +1,18 @@
-PerCopyFiles = {1: 'value1', 2: 'value2', 3: 'value3', 4: 'value4'}
+from reportlab.graphics.barcode import code128
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 
-# 假设要删除键为2的成员
-deleted_key = 2
-del PerCopyFiles[deleted_key]
-del PerCopyFiles[3]
+def generate_barcode_pdf(data, filename='barcode.pdf'):
+    """使用reportlab生成PDF格式的标准条形码"""
+    c = canvas.Canvas(filename, pagesize=letter)
+    barcode = code128.Code128(data, barHeight=50, barWidth=1.0)
+    barcode.drawOn(c, 100, 600)
+    c.save()
+    print(f"生成PDF条形码: {filename}")
 
-# 重新编号
-new_PerCopyFiles = {new_index: value for new_index, (old_index, value) in enumerate(PerCopyFiles.items(), start=1)}
+# 使用示例
+generate_barcode_pdf("HELLO123")
 
-# 更新原字典
-PerCopyFiles = new_PerCopyFiles
 
-# 打印结果
-print(PerCopyFiles)
+
+
