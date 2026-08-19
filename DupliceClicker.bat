@@ -1,12 +1,12 @@
 echo off
 
-set /p comments= 编译版本: 
-::删除之前的 build 和 dist 文件夹，然后重新打包
+set /p comments= Enter build version:
+::Delete previous build/dist artifacts, then rebuild
 pyinstaller --clean -y DupliceClicker.py
-rem 在输入的版本号减0.1
+rem Subtract 0.1 from the entered version number
 REM for /f %%A in ('powershell -command "[math]::Round(%comments% - 0.1, 2)"') do set "result=%%A"
 set /a "result=comments - 1"
-rem 删除文件和文件夹
+rem Delete temporary files and folders
 del /q %~n0_%result%.spec
 RD /Q /S build\%~n0_%result%\
 
@@ -18,7 +18,7 @@ c:\Users\%username%\AppData\Local\Programs\Python\Python39\Scripts\pyinstaller.e
 pause
 
 chcp 936
-echo 是否移动到根目录，任意键继续。
+echo Move exe to root directory? Press any key to continue.
 pause
 move /y "dist\DupliceClicker_%comments%.exe" %~d0%~p0DupliceClicker.exe
 pause
