@@ -1,0 +1,26 @@
+{
+    "typeCheckingMode": "off",
+    "diagnosticSeverityOverrides": {
+        "reportOptionalMemberAccess": "none",
+        "reportOptionalOperand": "none",
+        "reportArgumentType": "none",
+        "reportConstantRedefinition": "none",
+        "reportPossiblyUnboundVariable": "none",
+        "reportAttributeAccessIssue": "none",
+        "reportOperatorIssue": "none",
+        "reportGeneralTypeIssues": "none",
+        "reportIncompatibleMethodOverride": "none",
+        "reportCallIssue": "none",
+        "reportUninitializedInstanceVariable": "none",
+        "reportUnknownMemberType": "none",
+        "reportUnknownVariableType": "none",
+        "reportUnknownParameterType": "none",
+        "reportMissingParameterType": "none",
+        "reportMissingTypeStubs": "none",
+        "reportImplicitOverride": "none",
+        "reportUnusedVariable": "none",
+        "reportUnusedParameter": "none",
+        "reportUnannotatedClassAttribute": "none",
+        "reportRedeclaration": "none"
+    }
+}

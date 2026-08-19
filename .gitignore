@@ -7,4 +7,3 @@ dist/
 .idea/
 __pycache__/
 *.zip
-*.json
