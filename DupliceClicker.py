@@ -1,3 +1,18 @@
+# Author: Vic
+# Date: 2025-12-10 15:12:10
+# LastEditTime: 2025-12-10 15:12:10
+# LastEditors: Vic
+# Description: 
+# Copyright (c) 2025
+# DC v30.2 更新：
+#   1. 获取文件类型(get_rallext)支持勾选Sub时递归子目录获取所有文件类型
+#   2. self.list列表(FindTxt)支持勾选Sub时同步显示子目录文件(带相对路径前缀)，并继承root_filter类型/ignoreFolder目录/~$临时文件过滤逻辑
+#   3. search_fol_chk与sub_chk互斥：勾选search_fol_chk时sub_chk自动取消，取消search_fol_chk时sub_chk自动恢复；勾选sub_chk时search_fol_chk自动取消(加载配置时亦强制互斥)
+#   4. sub_chk勾选/取消时即时刷新self.list：勾选含子目录，取消仅根目录
+#   5. 右键"增"按钮(on_addbtn_rightclick)在search_fol_chk为False时按sub_chk状态刷新self.list
+#   6. copy_adddata修复路径拼接：规范化path_combox与数据库路径尾斜杠，sub_chk勾选时可正确处理子目录文件
+#   7. ChaChongToRedis查重数据导入数据库包含重复文件。
+
 # 将图标转成二进制代码
 import sys
 import stat
@@ -77,7 +92,7 @@ DBSET = dblod
 search_count = False
 conf.write(open(setPath, 'w+', encoding="utf-8"))
 vvv = 30
-v2='.1'
+v2='.2'
 FirstUp = False
 Chachong = '点击左边行数字选择整行，Ctrl+F 可打开文件目录 并复制文件名，可以在文件搜索直接 Ctrl+V 粘贴定位该文件  (Ctrl+O 打开文件) (Alt+D 删除选中数据及文件) (Ctrl+Alt+A 选择重复, Alt+S 排除独件, Ctrl+Alt+Shift+A 选择大于指定M的, Ctrl+Alt+Shift+G 选择大于1G, Ctrl+I 反选)'
 NormalTex = '点击左边行数字选择整行，Ctrl+F 可打开文件目录 并复制文件名，可以在文件搜索直接 Ctrl+V 粘贴定位该文件 (Ctrl+O 打开文件) (Alt+D 删除选中数据及文件) (Ctrl+Alt+Shift+A 选择大于指定M的, Ctrl+Alt+Shift+G 选择大于1G, Ctrl+I 反选)'
@@ -213,7 +228,7 @@ class MyFrame(wx.Frame):
         self.file_menu = wx.Menu()
 
         id_chachong = wx.NewIdRef() # 分配自定义ID
-        item_chachong = wx.MenuItem(self.file_menu, id_chachong, "查找重复文件 (将替换现有数据)")  #创建子菜单成员
+        item_chachong = wx.MenuItem(self.file_menu, id_chachong, "查找重复文件 (将替换现有已查重数据库)")  #创建子菜单成员
         sear_icon_file = "temps.png"
         with open(sear_icon_file, "wb") as f:
             f.write(base64.b64decode(icondata.icons_data['icon_search']))
@@ -479,6 +494,8 @@ class MyFrame(wx.Frame):
         self.sub_chk.SetValue(subval)
         self.sub_chk.Bind(wx.EVT_CHECKBOX, self.save_sub_chk)
         self.h_sizer.Add(self.sub_chk, flag=wx.ALIGN_CENTER|wx.LEFT, border=2)
+        if self.search_fol_chk.GetValue() and self.sub_chk.GetValue():
+            self.sub_chk.SetValue(False)  # 互斥：加载配置时保证两个选项不同时勾选
 #ComboBox路径下拉列表：path_combox
         pco=0
         try:
@@ -636,13 +653,7 @@ class MyFrame(wx.Frame):
         self.ext_getall_btn.SetToolTip('获取所有文件类型')
         self.btn_sizer.Add(self.ext_getall_btn,0,wx.TOP,0)
         self.ext_getall_btn.Hide()
-    # 保存排除类型按钮
-        self.ext_saveext_btn=wx.Button(self.panel, id=wx.ID_ANY, label='存', size=(30, 28))
-        self.ext_saveext_btn.SetBackgroundColour(wx.Colour(230,210,90))
-        self.ext_saveext_btn.Bind(wx.EVT_BUTTON, self.on_extfilter_saver)
-        self.ext_saveext_btn.SetToolTip('保存当前过滤文件类型 (Enter)')
-        self.btn_sizer.Add(self.ext_saveext_btn,0,wx.TOP,3)
-        self.ext_saveext_btn.Hide()
+
     # 读取远程设置
         self.ext_read_btn = wx.Button(self.panel, id=wx.ID_ANY, label='读', size=(30, 28))
         self.ext_read_btn.SetBackgroundColour(wx.Colour(130,250,190))
@@ -717,7 +728,7 @@ class MyFrame(wx.Frame):
         self.fol_filter.Hide()
 
         self.h_sizer_list.Add(self.ext_sizer, proportion=1, flag=wx.EXPAND | wx.LEFT, border=1)
-#ListBox多选列表：list
+#ListBox多选列表：list 显示当前路径下所有文件
         self.list = wx.ListBox(self.panel, style=wx.VSCROLL|wx.LB_EXTENDED)
         self.list.Bind(wx.EVT_LEFT_DCLICK, self.on_list_doubleclick)
 
@@ -733,12 +744,12 @@ class MyFrame(wx.Frame):
         self.root_filter.Bind(wx.EVT_TEXT_ENTER, self.on_rextfilter_saver)
 
         self.rext_sizer.Add(self.rbtn_sizer,0,wx.CENTER,1)
-        self.rext_sizer.Add(self.root_filter,1,wx.EXPAND,1)
+        self.rext_sizer.Add(self.root_filter,0,wx.EXPAND,1)
         self.rext_sizer.Add(self.list, proportion=3, flag=wx.EXPAND, border=4)
         # self.root_filter.Hide()
 
         self.h_sizer_list.Add(self.rext_sizer, proportion=1, flag=wx.EXPAND|wx.LEFT, border=1)
-#ListBox多选列表：list_2
+#ListBox多选列表：list_2 数据库列表
         self.list_2 = wx.ListBox(self.panel, style=wx.VSCROLL|wx.LB_EXTENDED)
         self.list_2.Bind(wx.EVT_LISTBOX, self.on_list2_sel)
         self.list_2.SetBackgroundColour(wx.Colour(237, 236, 255))
@@ -1034,18 +1045,31 @@ class MyFrame(wx.Frame):
 
     def fn_delemptyfol(self,event):
         path = self.path_combox.GetValue()
+        if not os.path.exists(path):
+            dlg = wx.MessageDialog(self, f"路径不存在：\n{path}", "[清除空文件夹]", wx.OK | wx.ICON_WARNING)
+            dlg.ShowModal()
+            dlg.Destroy()
+            return
         dlg = wx.MessageDialog(self, f"确定清除目录中的空文件夹？\n{path}", "[清除空文件夹]", wx.YES_NO | wx.ICON_QUESTION)
         result = dlg.ShowModal()
         dlg.Destroy()
         if result == wx.ID_YES:
-            for (root, dirs, files) in os.walk(path):
+            deled = 0
+            for (root, dirs, files) in os.walk(path, topdown=False):  # 自底向上，可一次清除嵌套空目录
                 for i in dirs:
                     emptydir = os.path.join(root, i)
                     try:
                         os.rmdir(emptydir)
                         print(emptydir)
+                        deled += 1
                     except Exception as e:
-                        print('Exception', e)  # 抛出OSError错误
+                        print('Exception', e)  # 非空目录无法删除，跳过
+            if deled > 0:
+                dlg = wx.MessageDialog(self, f"已删除 {deled} 个空文件夹。", "[清除空文件夹]", wx.OK | wx.ICON_INFORMATION)
+            else:
+                dlg = wx.MessageDialog(self, "未找到空文件夹。", "[清除空文件夹]", wx.OK | wx.ICON_INFORMATION)
+            dlg.ShowModal()
+            dlg.Destroy()
 
     def open_TiQu(self,event):
         os.startfile(self.comb_tiqu.GetValue())
@@ -1114,6 +1138,7 @@ class MyFrame(wx.Frame):
                     FistDo=True
                     self.file_hash_dict.clear()
                     self.ChaChong_to_Redis.clear()
+                    self.ChaChong_All = []  # 本次查重结果显示列表（仅重复文件）
                     #进度条 获取处理文件数（在获取所有文件类型时计算并记录）
                     acsn = self.getNoSlashPath(path)
                     ac = 10000
@@ -1254,6 +1279,7 @@ class MyFrame(wx.Frame):
                                         else:
                                             self.grid_out.SetCellBackgroundColour(row, 6, wx.Colour(255, 210, 230))
                                         newd.append(i)  #收集重复文件
+                                        self.ChaChong_All.append([i[1],'',mtime,i[0],'',size,d[0]])  # 收集本次查重显示列表（仅重复文件）
                                         d_data = [mtime,newd,size]  #[时间，[[重复文件，'D']], ...[重复文件，'']], 大小]
                                         # self.r.hset(keyN, d[0], str(d_data))
                                         pipe.hset(keyN, d[0], str(d_data))
@@ -1290,6 +1316,7 @@ class MyFrame(wx.Frame):
                                         # self.r.hset(keyN, d[0], str(d_data))
                                         pipe.hset(keyN, d[0], str(d_data))
                                         v_data.append([i[1],'',mtime,i[0],'',size,d[0]])
+                                        self.ChaChong_All.append([i[1],'',mtime,i[0],'',size,d[0]])  # 收集本次查重显示列表（仅重复文件）
                                         row += 1
                                     if cc % 64 == 0:
                                         if cc > ac:
@@ -1373,6 +1400,7 @@ class MyFrame(wx.Frame):
         # menu_item = self.file_menu.FindItem(event.GetId())
         self.menuSel = self.file_menu.GetLabel(event.GetId())  # 获取点击子菜单的名称
         self.data=[]
+        self.ChaChong_All = self.data  # 导入数据源：与查重结果显示列表同一引用（仅重复文件）
         self.ChaChong_to_Redis = []
         row = 0
         cc = 0
@@ -1506,11 +1534,56 @@ class MyFrame(wx.Frame):
                     else:
                         bs = vv.decode('utf-8')
                         v = eval(bs)
-                        if self.grid_out.IsShown():
-                            for i in v[1]:  # 遍历重复文件数组
+                        if isinstance(v[1], list):  # 查重库格式：[时间, [[路径,标签]...], 大小]
+                            if self.grid_out.IsShown():
+                                for i in v[1]:  # 遍历重复文件数组
+                                    self.grid_out.AppendRows()
+                                    isdel = ''
+                                    if not os.path.exists(i[0]):
+                                        isdel = 'del'
+                                        self.grid_out.SetCellValue(row, 1, 'del')
+                                        self.grid_out.SetCellBackgroundColour(row, 1, wx.Colour(232, 230, 230))
+                                        self.grid_out.SetCellTextColour(row, 2, wx.Colour(192, 160, 167))
+                                        self.grid_out.SetCellTextColour(row, 3, wx.Colour(192, 160, 167))
+                                        self.grid_out.SetCellTextColour(row, 5, wx.Colour(192, 160, 167))
+                                        self.grid_out.SetCellTextColour(row, 6, wx.Colour(192, 160, 167))
+                                    dd = [i[1], isdel, v[0], i[0], '', v[2], k]
+                                    self.data.append(dd)  # 加入缓存
+                                    self.grid_out.SetCellValue(row, 2, v[0])
+                                    self.grid_out.SetCellValue(row, 3, i[0])
+                                    self.grid_out.SetCellValue(row, 5, v[2])
+                                    self.grid_out.SetCellValue(row, 6, k)
+                                    if 'G' in v[2]:
+                                        self.grid_out.SetCellTextColour(row, 5, wx.Colour(182, 0, 7))
+                                    if 'K' in v[2] or 'B' in v[2]:
+                                        self.grid_out.SetCellTextColour(row, 5, wx.Colour(0, 162, 7))
+                                    if i[1] == 'D':
+                                        self.grid_out.SetCellValue(row, 0, 'D')
+                                        self.grid_out.SetCellTextColour(row, 0, wx.Colour(182, 180, 187))
+                                        self.grid_out.SetCellBackgroundColour(row, 1, wx.Colour(225, 225, 225))
+                                        self.grid_out.SetCellBackgroundColour(row, 2, wx.Colour(225, 225, 225))
+                                        self.grid_out.SetCellBackgroundColour(row, 3, wx.Colour(232, 230, 237))
+                                        self.grid_out.SetCellBackgroundColour(row, 5, wx.Colour(232, 230, 237))
+                                        self.grid_out.SetCellBackgroundColour(row, 6, wx.Colour(215, 200, 250))
+                                    else:
+                                        self.ChaChong_to_Redis.append(dd)
+                                        self.grid_out.SetCellBackgroundColour(row, 6, wx.Colour(255, 210, 230))
+                                    row += 1
+                                    if FistDo:
+                                        self.ResetWinSize(row)
+                                        FistDo = False
+                            else:
+                                for i in v[1]:  # 遍历重复文件数组
+                                    isdel = ''
+                                    # if not os.path.exists(i[0]):  #虚拟表格取消文件存在检查
+                                    #     isdel = 'del'
+                                    dd = [i[1], isdel, v[0], i[0], '', v[2], k]
+                                    self.data.append(dd)  # 加入缓存
+                        else:  # 逐文件导入库格式：[标签, 状态, 时间, 路径, 详情, 大小, md5]
+                            if self.grid_out.IsShown():
                                 self.grid_out.AppendRows()
                                 isdel = ''
-                                if not os.path.exists(i[0]):
+                                if not os.path.exists(v[3]):
                                     isdel = 'del'
                                     self.grid_out.SetCellValue(row, 1, 'del')
                                     self.grid_out.SetCellBackgroundColour(row, 1, wx.Colour(232, 230, 230))
@@ -1518,17 +1591,17 @@ class MyFrame(wx.Frame):
                                     self.grid_out.SetCellTextColour(row, 3, wx.Colour(192, 160, 167))
                                     self.grid_out.SetCellTextColour(row, 5, wx.Colour(192, 160, 167))
                                     self.grid_out.SetCellTextColour(row, 6, wx.Colour(192, 160, 167))
-                                dd = [i[1], isdel, v[0], i[0], '', v[2], k]
+                                dd = [v[0], isdel, v[2], v[3], v[4], v[5], v[6]]
                                 self.data.append(dd)  # 加入缓存
-                                self.grid_out.SetCellValue(row, 2, v[0])
-                                self.grid_out.SetCellValue(row, 3, i[0])
-                                self.grid_out.SetCellValue(row, 5, v[2])
-                                self.grid_out.SetCellValue(row, 6, k)
-                                if 'G' in v[2]:
+                                self.grid_out.SetCellValue(row, 2, v[2])
+                                self.grid_out.SetCellValue(row, 3, v[3])
+                                self.grid_out.SetCellValue(row, 5, v[5])
+                                self.grid_out.SetCellValue(row, 6, v[6])
+                                if 'G' in v[5]:
                                     self.grid_out.SetCellTextColour(row, 5, wx.Colour(182, 0, 7))
-                                if 'K' in v[2] or 'B' in v[2]:
+                                if 'K' in v[5] or 'B' in v[5]:
                                     self.grid_out.SetCellTextColour(row, 5, wx.Colour(0, 162, 7))
-                                if i[1] == 'D':
+                                if v[0] == 'D':
                                     self.grid_out.SetCellValue(row, 0, 'D')
                                     self.grid_out.SetCellTextColour(row, 0, wx.Colour(182, 180, 187))
                                     self.grid_out.SetCellBackgroundColour(row, 1, wx.Colour(225, 225, 225))
@@ -1539,17 +1612,13 @@ class MyFrame(wx.Frame):
                                 else:
                                     self.ChaChong_to_Redis.append(dd)
                                     self.grid_out.SetCellBackgroundColour(row, 6, wx.Colour(255, 210, 230))
-
                                 row += 1
                                 if FistDo:
                                     self.ResetWinSize(row)
                                     FistDo = False
-                        else:
-                            for i in v[1]:  # 遍历重复文件数组
+                            else:
                                 isdel = ''
-                                # if not os.path.exists(i[0]):  #虚拟表格取消文件存在检查
-                                #     isdel = 'del'
-                                dd = [i[1], isdel, v[0], i[0], '', v[2], k]
+                                dd = [v[0], isdel, v[2], v[3], v[4], v[5], v[6]]
                                 self.data.append(dd)  # 加入缓存
                     if cc % 10 == 0:
                         self.text_label.SetLabel(f'读取重复> {cc}/{difs}')
@@ -1746,72 +1815,67 @@ class MyFrame(wx.Frame):
 
 #导入查重数据库（保留独一文件）
     def ChaChongToRedis(self,event):
-        if conf.has_option('set_DS','chachong_to_redis'):
-            R = str(self.r.connection_pool.connection_kwargs.get('db'))
-            path = conf.get('set_DS','chachong_to_redis')
-            hkey = f'{username}_{path}'
-            onekey = f'ONE_{path}'  #保存在数据库的所有独份文件
-            if self.r.exists(onekey):
-                onecut = self.r.hlen(onekey)
-            else:
-                onecut = 0
-            ccout = len(self.ChaChong_to_Redis)
-
-            if self.setr.hexists('PAS_N', str(R)):
-                pnam = self.setr.hget('PAS_N', str(R))
-                if isinstance(pnam, bytes):  # 判断是否二进制
-                    pnam = pnam.decode('utf-8')
-            else:
-                pnam = '管理员'
-            second_frame = MySecondaryDialog(self, '选择数据库', f'{hkey}\n确定要将查重导入数据库吗，注意：原有数据将会被替换！\n请输入 ({pnam}) 密码：', True, 'passwer')
-            second_frame.Show()  # 显示副窗口
-            if second_frame.ShowModal() == wx.ID_OK:  # 锁定主窗口
-                value = second_frame.get_input()
-                pas = 'jklasfgdjkls'
-                if self.setr.hexists('PAS', str(R)):
-                    gp = self.setr.hget('PAS', str(R))
-                    if isinstance(gp, bytes):  # 判断是否二进制
-                        pas = gp.decode('utf-8')
-                if value == 'zyhp' or value == pas:
-                    pipe = self.r.pipeline()
-                    pipe.delete(hkey)
-                    cc=0
-                    self.progress_bar.SetRange(ccout+onecut)
-                    if ccout > 0:
-                        for k in self.ChaChong_to_Redis:
-                            cc += 1
-                            self.progress_bar.SetValue(cc)
-                            self.text_label.SetLabel(f'正在导入数据> {cc}/{ccout+onecut}')
-                            pipe.hset(hkey, k[6], str(k))
-                            if cc % 64 == 0:
-                                wx.Yield()
-                    else:
-                        self.text_label2.SetLabel("请选择查重菜单再进行导入数据库")
-                    if onecut > 0:
-                        redis_s = self.r.hgetall(onekey)  # 获取所有的key 与 member成员
-                        for k, m in redis_s.items():
-                            if isinstance(m, bytes):  # 判断是否二进制
-                                m = m.decode('utf-8')
-                            v = eval(m)
-                            cc += 1
-                            self.progress_bar.SetValue(cc)
-                            self.text_label.SetLabel(f'正在导入数据> {cc}/{ccout+onecut}')
-                            data = ['','',v[0],v[1],'',v[2],k]
-                            pipe.hset(hkey, k, str(data))
-                            if cc % 64 == 0:
-                                wx.Yield()
-                        #添加数据库FS信息写入
-                        if self.r.exists('FS'):
-                            getFS = self.r.smembers('FS')
-                        else:
-                            getFS = []
-                        if hkey not in getFS:
-                            pipe.sadd('FS', hkey)
-                    pipe.execute()
-                    self.r.close()
-                    self.get_Data_list()
+        path = self.path_combox.GetValue().strip()
+        if not path or not os.path.exists(path):
+            self.text_label2.SetLabel('请选择正确的当前目录！')
+            return
+        # 同步配置与菜单标题，保持与"当前目录"一致
+        old = conf.get('set_DS', 'chachong_to_redis') if conf.has_option('set_DS', 'chachong_to_redis') else ''
+        if path != old:
+            conf.set('set_DS', 'chachong_to_redis', path)
+            conf.write(open(setPath, 'w+', encoding="utf-8"))
+            self.item_CC.SetItemLabel(f'将查重结果导入数据库  保留独一文件 : {path}')
+        hkey = f'{username}_{path}'
+        alldata = getattr(self, 'ChaChong_All', None) or []
+        if not alldata:
+            self.text_label2.SetLabel('当前目录没有可导入的查重结果，请先执行查重！')
+            return
+        # 校验查重结果与当前目录一致
+        fp = alldata[0][3].replace('\\', '/')
+        pp = path.replace('\\', '/').rstrip('/')
+        if fp != pp and not fp.startswith(pp + '/'):
+            self.text_label2.SetLabel('当前查重结果与当前目录不匹配，请先对当前目录执行查重！')
+            return
+        ccout = len(alldata)
+        R = str(self.r.connection_pool.connection_kwargs.get('db'))
+        if self.setr.hexists('PAS_N', str(R)):
+            pnam = self.setr.hget('PAS_N', str(R))
+            if isinstance(pnam, bytes):  # 判断是否二进制
+                pnam = pnam.decode('utf-8')
+        else:
+            pnam = '管理员'
+        second_frame = MySecondaryDialog(self, '选择数据库', f'{hkey}\n确定要将当前目录的查重结果导入数据库吗，注意：原有数据库将会被替换！\n请输入 ({pnam}) 密码：', True, 'passwer')
+        second_frame.Show()  # 显示副窗口
+        if second_frame.ShowModal() == wx.ID_OK:  # 锁定主窗口
+            value = second_frame.get_input()
+            pas = 'jklasfgdjkls'
+            if self.setr.hexists('PAS', str(R)):
+                gp = self.setr.hget('PAS', str(R))
+                if isinstance(gp, bytes):  # 判断是否二进制
+                    pas = gp.decode('utf-8')
+            if value == 'zyhp' or value == pas:
+                pipe = self.r.pipeline()
+                pipe.delete(hkey)
+                cc = 0
+                self.progress_bar.SetRange(ccout)
+                for k in alldata:
+                    cc += 1
+                    self.progress_bar.SetValue(cc)
+                    self.text_label.SetLabel(f'正在导入数据> {cc}/{ccout}')
+                    pipe.hset(hkey, k[3], str(k))  # field=文件路径（唯一），每文件一条，重复文件全部存入
+                    if cc % 64 == 0:
+                        wx.Yield()
+                #添加数据库FS信息写入
+                if self.r.exists('FS'):
+                    getFS = self.r.smembers('FS')
                 else:
-                    self.text_label.SetLabel('<密码错误>')
+                    getFS = []
+                if hkey not in getFS:
+                    pipe.sadd('FS', hkey)
+                pipe.execute()
+                self.get_Data_list()
+            else:
+                self.text_label.SetLabel('<密码错误>')
 
 
 #打开菜单刷新实时菜单勾选状态
@@ -2234,13 +2298,17 @@ class MyFrame(wx.Frame):
                                     else:
                                         if self.path_combox.GetValue() != dup_path[1]:
                                             self.text_label2.SetLabel('正在排除重复文件')
+                                            path = self.path_combox.GetValue()
+                                            if path[-1] != '\\': path += '\\'
+                                            dup_dir = dup_path[1]
+                                            if dup_dir[-1] != '\\': dup_dir += '\\'
                                             if self.grid_out.IsShown():
                                                 for f in selected_items:
                                                     fname = str(f).split(' → ')[0]
-                                                    filepath = self.path_combox.GetValue() + fname
+                                                    filepath = path + fname
                                                     crc = self.calculate_md5(filepath)
                                                     if crc not in All_keys:
-                                                        dup_file = dup_path[1] + fname
+                                                        dup_file = dup_dir + fname
                                                         if os.path.exists(dup_file):
                                                             exis = 'edit'
                                                         else:
@@ -2271,10 +2339,10 @@ class MyFrame(wx.Frame):
                                             else:
                                                 for f in selected_items:
                                                     fname = str(f).split(' → ')[0]
-                                                    filepath = self.path_combox.GetValue() + fname
+                                                    filepath = path + fname
                                                     crc = self.calculate_md5(filepath)
                                                     if crc not in All_keys:
-                                                        dup_file = dup_path[1] + fname
+                                                        dup_file = dup_dir + fname
                                                         if os.path.exists(dup_file):
                                                             exis = 'edit'
                                                         else:
@@ -2318,6 +2386,8 @@ class MyFrame(wx.Frame):
             dlg.ShowModal()
 
 #导入文件并更新数据库
+#把用户在表格中选中的待拷贝文件，逐个复制到数据库目录（必要时替换旧文件并同步删库），以 MD5 为键写入 Redis，最后刷新界面并保留未处理项供分批导入。
+#导入的文件会同时拷贝到数据库目录和用户指定的目录。
     def click_cpybtn(self,event):   #开始复制
         if len(self.PerCopyFiles)>0:
             if self.grid_out.IsShown():
@@ -2349,9 +2419,7 @@ class MyFrame(wx.Frame):
                         shutil.copy(filepath, dup_file)
                         self.r.hset(dataname, crc, str(a))
                         del self.PerCopyFiles[L]    #删除已拷贝成员
-                        self.list.Append(filepath)
                         # self.PerCopyFiles.pop(L)    #删除已拷贝成员
-                    self.list.SetToolTip(f'共 {self.list.GetCount()} 个文件已上传数据库') #刷新
                     self.get_Data_list()
                     self.del_MemData(self)
                     self.text_label.SetLabel("(文件导入完成)")
@@ -2878,14 +2946,9 @@ class MyFrame(wx.Frame):
             self.root_filter.SetValue(conf.get('set_DS', f'ROOTFILTERALL_{pp}'))
 
     def clearRoot_allext(self,event):
-        pp = self.getNoSlashPath(self.path_combox.GetValue())
-        self.rext_read_btn.Show()
-        conf.set('set_DS', f'ROOTFILTER_{pp}', '')
-        self.root_filter.SetValue('')
-        conf.write(open(setPath, 'w+', encoding="utf-8"))
-        self.rext_read_btn.Hide()
+        self.root_filter.SetValue('')   # 只清空过滤内容，不删除历史配置
         self.panel.Layout()
-        self.FindTxt()
+        self.FindTxt()   # 刷新self.list列表
     def clear_allext(self,event):
         pp = self.getNoSlashPath(self.path_combox.GetValue())
         conf.set('set_DS', f'EXTFILTER_{pp}_{username}', '')
@@ -2991,13 +3054,13 @@ class MyFrame(wx.Frame):
         pp = self.getNoSlashPath(self.path_combox.GetValue())
         if self.search_fol_chk.GetValue():
             checkbox = 'True'
+            # self.sub_chk.SetValue(False)  # 互斥：数据预处理模式不处理子文件夹
             self.list.Hide()
             self.root_filter.Hide()
             self.ext_filter.Show()
             self.fol_filter.Show()
             self.ext_getall_btn.Show()
             self.ext_clear_btn.Show()
-            self.ext_saveext_btn.Show()
             self.ext_read_btn.Show()
             self.rext_getall_btn.Hide()
             self.rext_clear_btn.Hide()
@@ -3014,6 +3077,7 @@ class MyFrame(wx.Frame):
             self.inputData_btn.Enable(True)
         else:
             checkbox = 'False'
+            # self.sub_chk.SetValue(True)  # 互斥：退出数据预处理模式恢复子文件夹处理
             self.deloldfile_btn.Hide()
             self.inputData_btn.Enable(False)
             self.list.Show()
@@ -3031,7 +3095,6 @@ class MyFrame(wx.Frame):
                 self.rext_readall_btn.Show()
             if conf.has_option('set_DS', f'ROOTFILTER_{pp}'):
                 self.rext_read_btn.Show()
-            self.ext_saveext_btn.Hide()
             self.ext_read_btn.Hide()
             self.ext_readall_btn.Hide()
         # self.v_sizer.Layout()
@@ -3043,6 +3106,12 @@ class MyFrame(wx.Frame):
         conf.write(open(setPath, 'w+', encoding="utf-8"))
 
     def save_sub_chk(self, event):    #保存Sub子文件夹选项
+        if self.sub_chk.GetValue():
+            self.search_fol_chk.SetValue(False)  # 互斥：勾选子文件夹时退出数据预处理模式
+            self.check_extfilter(self)   # 切换UI并刷新self.list（含子目录）
+        else:
+            self.FindTxt()   # 取消勾选时刷新self.list只显示根目录文件
+            self.panel.Layout()   # 取消勾选时也刷新UI布局
         conf.set('set_DS', 'subFol_chk', str(self.sub_chk.GetValue()))
         conf.write(open(setPath, 'w+', encoding="utf-8"))
 
@@ -3096,16 +3165,22 @@ class MyFrame(wx.Frame):
             if path[-1] != '\\': path += '\\'
             self.list.Clear()  # 清空列表，从索引0到末尾的所有项
             CC=0
-            with os.scandir(path.strip()) as files:
+            for root, dirs, files in os.walk(path):
+                if not self.sub_chk.GetValue():
+                    dirs[:] = []  # 不勾选Sub时只处理根目录文件
                 for f in files:
-                    if not f.is_dir():
-                        if '~$' not in f.name:
-                            fl, ex = os.path.splitext(f)
-                            if self.ignoreFile(self.root_filter.GetValue(), ex): continue  # 类型排除
-                            # if f.path.endswith('txt') or f.path.endswith('TXT'):
-                            siz = self.Sizeofsize(os.path.getsize(f.path))
-                            self.list.Append(f'{f.name} → {siz}')
-                            CC+=1
+                    if '~$' not in f:
+                        fpath = os.path.join(root, f)
+                        fl, ex = os.path.splitext(f)
+                        if self.ignoreFile(self.root_filter.GetValue(), ex): continue  # 类型排除
+                        f_subPath = fpath[len(path):]
+                        if self.ignoreFolder(f_subPath): continue  # 目录排除
+                        siz = self.Sizeofsize(os.path.getsize(fpath))
+                        if root == path:
+                            self.list.Append(f'{f} → {siz}')
+                        else:
+                            self.list.Append(f'{f_subPath} → {siz}')
+                        CC+=1
             if CC>0:
                 self.list.SetToolTip(f'共 {CC} 个文件')
             else:
@@ -3352,7 +3427,6 @@ class MyFrame(wx.Frame):
                             # self.ext_filter.Hide() #排除文件后缀
                             self.fol_filter.Hide()  #排除文件夹
                             # self.ext_getall_btn.Hide()
-                            # self.ext_saveext_btn.Hide()
                             # self.ext_read_btn.Hide()
                             # self.ext_readall_btn.Hide()
                             self.rext_readall_btn.Hide()
@@ -3576,7 +3650,8 @@ class MyFrame(wx.Frame):
         self.check_redis(s_host,'',sdb=DBSET)
         self.get_Data_list()
         self.get_dif(self)
-        self.FindTxt()
+        if not self.search_fol_chk.GetValue():
+            self.FindTxt()   # 非数据预处理模式时按sub_chk状态刷新self.list
 
 
     def get_Data_list(self):    #刷新数据库内容到列表list_2
