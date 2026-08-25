@@ -13,6 +13,10 @@
 #   6. copy_adddata修复路径拼接：规范化path_combox与数据库路径尾斜杠，sub_chk勾选时可正确处理子目录文件
 #   7. ChaChongToRedis查重数据导入数据库包含重复文件。
 
+# DC v31.0 更新：
+#   1. 全新查重后自动刷新对应路径查重存档。
+#   2. 详情项显示文件后缀名。
+
 # 将图标转成二进制代码
 import sys
 import stat
@@ -91,8 +95,8 @@ NET = False
 DBSET = dblod
 search_count = False
 conf.write(open(setPath, 'w+', encoding="utf-8"))
-vvv = 30
-v2='.2'
+vvv = 31
+v2='.0'
 FirstUp = False
 Chachong = '点击左边行数字选择整行，Ctrl+F 可打开文件目录 并复制文件名，可以在文件搜索直接 Ctrl+V 粘贴定位该文件  (Ctrl+O 打开文件) (Alt+D 删除选中数据及文件) (Ctrl+Alt+A 选择重复, Alt+S 排除独件, Ctrl+Alt+Shift+A 选择大于指定M的, Ctrl+Alt+Shift+G 选择大于1G, Ctrl+I 反选)'
 NormalTex = '点击左边行数字选择整行，Ctrl+F 可打开文件目录 并复制文件名，可以在文件搜索直接 Ctrl+V 粘贴定位该文件 (Ctrl+O 打开文件) (Alt+D 删除选中数据及文件) (Ctrl+Alt+Shift+A 选择大于指定M的, Ctrl+Alt+Shift+G 选择大于1G, Ctrl+I 反选)'
@@ -955,6 +959,7 @@ class MyFrame(wx.Frame):
                                             self.grid_out.AppendRows()
                                             self.grid_out.SetCellValue(row, 2, '已修复')
                                             self.grid_out.SetCellValue(row, 3, ppp[1])
+                                            self.grid_out.SetCellValue(row, 4, os.path.splitext(ppp[1])[1])
                                             self.grid_out.SetCellValue(row, 6, md5)
                                             row+=1
                                             if FistDo:
@@ -1259,6 +1264,7 @@ class MyFrame(wx.Frame):
                                         self.grid_out.AppendRows()
                                         self.grid_out.SetCellValue(row, 2, mtime)
                                         self.grid_out.SetCellValue(row, 3, i[0])
+                                        self.grid_out.SetCellValue(row, 4, os.path.splitext(i[0])[1])
                                         self.grid_out.SetCellValue(row, 5, size)
                                         self.grid_out.SetCellValue(row, 6, d[0])
                                         if 'G' in size:
@@ -1279,7 +1285,7 @@ class MyFrame(wx.Frame):
                                         else:
                                             self.grid_out.SetCellBackgroundColour(row, 6, wx.Colour(255, 210, 230))
                                         newd.append(i)  #收集重复文件
-                                        self.ChaChong_All.append([i[1],'',mtime,i[0],'',size,d[0]])  # 收集本次查重显示列表（仅重复文件）
+                                        self.ChaChong_All.append([i[1],'',mtime,i[0],os.path.splitext(i[0])[1],size,d[0]])  # 收集本次查重显示列表（仅重复文件）
                                         d_data = [mtime,newd,size]  #[时间，[[重复文件，'D']], ...[重复文件，'']], 大小]
                                         # self.r.hset(keyN, d[0], str(d_data))
                                         pipe.hset(keyN, d[0], str(d_data))
@@ -1315,8 +1321,8 @@ class MyFrame(wx.Frame):
                                         d_data = [mtime, newd, size]  # [时间，[[重复文件，'D']], ...[重复文件，'']], 大小]
                                         # self.r.hset(keyN, d[0], str(d_data))
                                         pipe.hset(keyN, d[0], str(d_data))
-                                        v_data.append([i[1],'',mtime,i[0],'',size,d[0]])
-                                        self.ChaChong_All.append([i[1],'',mtime,i[0],'',size,d[0]])  # 收集本次查重显示列表（仅重复文件）
+                                        v_data.append([i[1],'',mtime,i[0],os.path.splitext(i[0])[1],size,d[0]])
+                                        self.ChaChong_All.append([i[1],'',mtime,i[0],os.path.splitext(i[0])[1],size,d[0]])  # 收集本次查重显示列表（仅重复文件）
                                         row += 1
                                     if cc % 64 == 0:
                                         if cc > ac:
@@ -1336,6 +1342,16 @@ class MyFrame(wx.Frame):
                                 R_Data.pop(keyN)  # 删除对应缓存
                             except:
                                 pass
+                            # 查重后自动刷新对应路径查重存档
+                            if '\\' in keyN:
+                                npp = keyN.replace('\\', '!')
+                            else:
+                                npp = keyN
+                            if ':' in npp:
+                                npp = npp.replace(':', '=')
+                            with open(rf"{npp}.json", "w") as json_file:
+                                json.dump([str(d) for d in self.ChaChong_All], json_file)
+                            self.text_label2.SetLabel(f'已刷新查重存档：{path}')
                             self.get_Data_list()
                             self.get_dif(self)
                             self.ResetWinSize(row)  #刷新窗口大小
@@ -1441,6 +1457,8 @@ class MyFrame(wx.Frame):
                         self.grid_out.AppendRows()
                         self.grid_out.SetCellValue(row, 2, t[2])
                         self.grid_out.SetCellValue(row, 3, t[3])
+                        if not t[4]:
+                            t[4] = os.path.splitext(t[3])[1]
                         self.grid_out.SetCellValue(row, 4, t[4])
                         self.grid_out.SetCellValue(row, 5, t[5])
                         self.grid_out.SetCellValue(row, 0, t[0])
@@ -1456,6 +1474,7 @@ class MyFrame(wx.Frame):
                             self.grid_out.SetCellBackgroundColour(row, 1, wx.Colour(225, 225, 225))
                             self.grid_out.SetCellBackgroundColour(row, 2, wx.Colour(225, 225, 225))
                             self.grid_out.SetCellBackgroundColour(row, 3, wx.Colour(232, 230, 237))
+                            self.grid_out.SetCellBackgroundColour(row, 4, wx.Colour(232, 230, 237))
                             self.grid_out.SetCellBackgroundColour(row, 5, wx.Colour(232, 230, 237))
                             self.grid_out.SetCellBackgroundColour(row, 6, wx.Colour(215, 200, 250))
                         else:
@@ -1491,6 +1510,8 @@ class MyFrame(wx.Frame):
                         if isinstance(t, bytes):  # 判断是否二进制
                             t = t.decode('utf-8')
                         t = eval(t)  # 需要将字符转为数组
+                        if not t[4]:
+                            t[4] = os.path.splitext(t[3])[1]
                         self.data.append(t)  # 加入缓存
                         if t[0] != 'D':
                             self.ChaChong_to_Redis.append(t)
@@ -1547,10 +1568,11 @@ class MyFrame(wx.Frame):
                                         self.grid_out.SetCellTextColour(row, 3, wx.Colour(192, 160, 167))
                                         self.grid_out.SetCellTextColour(row, 5, wx.Colour(192, 160, 167))
                                         self.grid_out.SetCellTextColour(row, 6, wx.Colour(192, 160, 167))
-                                    dd = [i[1], isdel, v[0], i[0], '', v[2], k]
+                                    dd = [i[1], isdel, v[0], i[0], os.path.splitext(i[0])[1], v[2], k]
                                     self.data.append(dd)  # 加入缓存
                                     self.grid_out.SetCellValue(row, 2, v[0])
                                     self.grid_out.SetCellValue(row, 3, i[0])
+                                    self.grid_out.SetCellValue(row, 4, os.path.splitext(i[0])[1])
                                     self.grid_out.SetCellValue(row, 5, v[2])
                                     self.grid_out.SetCellValue(row, 6, k)
                                     if 'G' in v[2]:
@@ -1563,6 +1585,7 @@ class MyFrame(wx.Frame):
                                         self.grid_out.SetCellBackgroundColour(row, 1, wx.Colour(225, 225, 225))
                                         self.grid_out.SetCellBackgroundColour(row, 2, wx.Colour(225, 225, 225))
                                         self.grid_out.SetCellBackgroundColour(row, 3, wx.Colour(232, 230, 237))
+                                        self.grid_out.SetCellBackgroundColour(row, 4, wx.Colour(232, 230, 237))
                                         self.grid_out.SetCellBackgroundColour(row, 5, wx.Colour(232, 230, 237))
                                         self.grid_out.SetCellBackgroundColour(row, 6, wx.Colour(215, 200, 250))
                                     else:
@@ -1577,7 +1600,7 @@ class MyFrame(wx.Frame):
                                     isdel = ''
                                     # if not os.path.exists(i[0]):  #虚拟表格取消文件存在检查
                                     #     isdel = 'del'
-                                    dd = [i[1], isdel, v[0], i[0], '', v[2], k]
+                                    dd = [i[1], isdel, v[0], i[0], os.path.splitext(i[0])[1], v[2], k]
                                     self.data.append(dd)  # 加入缓存
                         else:  # 逐文件导入库格式：[标签, 状态, 时间, 路径, 详情, 大小, md5]
                             if self.grid_out.IsShown():
@@ -1591,10 +1614,12 @@ class MyFrame(wx.Frame):
                                     self.grid_out.SetCellTextColour(row, 3, wx.Colour(192, 160, 167))
                                     self.grid_out.SetCellTextColour(row, 5, wx.Colour(192, 160, 167))
                                     self.grid_out.SetCellTextColour(row, 6, wx.Colour(192, 160, 167))
-                                dd = [v[0], isdel, v[2], v[3], v[4], v[5], v[6]]
+                                ext = v[4] or os.path.splitext(v[3])[1]
+                                dd = [v[0], isdel, v[2], v[3], ext, v[5], v[6]]
                                 self.data.append(dd)  # 加入缓存
                                 self.grid_out.SetCellValue(row, 2, v[2])
                                 self.grid_out.SetCellValue(row, 3, v[3])
+                                self.grid_out.SetCellValue(row, 4, ext)
                                 self.grid_out.SetCellValue(row, 5, v[5])
                                 self.grid_out.SetCellValue(row, 6, v[6])
                                 if 'G' in v[5]:
@@ -1607,6 +1632,7 @@ class MyFrame(wx.Frame):
                                     self.grid_out.SetCellBackgroundColour(row, 1, wx.Colour(225, 225, 225))
                                     self.grid_out.SetCellBackgroundColour(row, 2, wx.Colour(225, 225, 225))
                                     self.grid_out.SetCellBackgroundColour(row, 3, wx.Colour(232, 230, 237))
+                                    self.grid_out.SetCellBackgroundColour(row, 4, wx.Colour(232, 230, 237))
                                     self.grid_out.SetCellBackgroundColour(row, 5, wx.Colour(232, 230, 237))
                                     self.grid_out.SetCellBackgroundColour(row, 6, wx.Colour(215, 200, 250))
                                 else:
@@ -1618,7 +1644,8 @@ class MyFrame(wx.Frame):
                                     FistDo = False
                             else:
                                 isdel = ''
-                                dd = [v[0], isdel, v[2], v[3], v[4], v[5], v[6]]
+                                ext = v[4] or os.path.splitext(v[3])[1]
+                                dd = [v[0], isdel, v[2], v[3], ext, v[5], v[6]]
                                 self.data.append(dd)  # 加入缓存
                     if cc % 10 == 0:
                         self.text_label.SetLabel(f'读取重复> {cc}/{difs}')
@@ -1677,6 +1704,7 @@ class MyFrame(wx.Frame):
                         if self.grid_out.IsShown():
                             self.grid_out.AppendRows()
                             self.grid_out.SetCellValue(row, 3, bs[0])
+                            self.grid_out.SetCellValue(row, 4, os.path.splitext(bs[0])[1])
                             self.grid_out.SetCellValue(row, 5, bs[1])
                             self.grid_out.SetCellValue(row, 6, k)
                             if 'G' in bs[1]:
@@ -2315,7 +2343,7 @@ class MyFrame(wx.Frame):
                                                             exis = ''
                                                         mtime = self.convet_time(os.path.getmtime(filepath))
                                                         size = self.Sizeofsize(os.path.getsize(filepath))
-                                                        a = ['', exis, mtime, filepath, '', size, f'{crc}']
+                                                        a = ['', exis, mtime, filepath, os.path.splitext(filepath)[1], size, f'{crc}']
                                                         self.data.append(a)
                                                         # pipe.hset(dataname, crc, str(a))
                                                         # print(f'复制：{dup_file}')
@@ -2349,7 +2377,7 @@ class MyFrame(wx.Frame):
                                                             exis = ''
                                                         mtime = self.convet_time(os.path.getmtime(filepath))
                                                         size = self.Sizeofsize(os.path.getsize(filepath))
-                                                        a = ['', exis, mtime, filepath, '', size, f'{crc}']
+                                                        a = ['', exis, mtime, filepath, os.path.splitext(filepath)[1], size, f'{crc}']
                                                         self.data.append(a)
                                                         self.PerCopyFiles[row] = [a,filepath,dup_file,dataname]
                                                         row += 1
@@ -3999,12 +4027,12 @@ class MyFrame(wx.Frame):
                             if k[0] == 'D':
                                 self.grid_out.SetCellValue(row, 0, 'D')
                                 self.grid_out.SetCellTextColour(row, 0, wx.Colour(182, 180, 187))
+                                # self.grid_out.SetCellBackgroundColour(row, 0, wx.Colour(232, 230, 237))
                                 self.grid_out.SetCellBackgroundColour(row, 1, wx.Colour(225, 225, 225))
                                 self.grid_out.SetCellBackgroundColour(row, 2, wx.Colour(225, 225, 225))
                                 self.grid_out.SetCellBackgroundColour(row, 3, wx.Colour(232, 230, 237))
                                 self.grid_out.SetCellBackgroundColour(row, 4, wx.Colour(232, 230, 237))
                                 self.grid_out.SetCellBackgroundColour(row, 5, wx.Colour(232, 230, 237))
-                                self.grid_out.SetCellBackgroundColour(row, 0, wx.Colour(232, 230, 237))
                                 self.grid_out.SetCellBackgroundColour(row, 6, wx.Colour(215, 200, 250))
                             else:
                                 self.grid_out.SetCellBackgroundColour(row, 6, wx.Colour(255, 210, 230))
@@ -4106,6 +4134,8 @@ class MyFrame(wx.Frame):
                             if self.fuzzy_search(st, k[3]):
                                 s_c+=1
                                 self.text_label2.SetLabel(f'找到 {s_c} 个')
+                                if not k[4]:
+                                    k[4] = os.path.splitext(k[3])[1]
                                 data_v.append(k)
                                 fname = k[3].split('\\')
                                 dup_file = dup_path[1] + fname[len(fname)-1]
@@ -4123,12 +4153,12 @@ class MyFrame(wx.Frame):
                                     if k[0] == 'D':
                                         self.grid_out.SetCellValue(row, 0, 'D')
                                         self.grid_out.SetCellTextColour(row, 0, wx.Colour(182, 180, 187))
+                                        # self.grid_out.SetCellBackgroundColour(row, 0, wx.Colour(232, 230, 237))
                                         self.grid_out.SetCellBackgroundColour(row, 1, wx.Colour(225, 225, 225))
                                         self.grid_out.SetCellBackgroundColour(row, 2, wx.Colour(225, 225, 225))
                                         self.grid_out.SetCellBackgroundColour(row, 3, wx.Colour(232, 230, 237))
                                         self.grid_out.SetCellBackgroundColour(row, 4, wx.Colour(232, 230, 237))
                                         self.grid_out.SetCellBackgroundColour(row, 5, wx.Colour(232, 230, 237))
-                                        self.grid_out.SetCellBackgroundColour(row, 0, wx.Colour(232, 230, 237))
                                         self.grid_out.SetCellBackgroundColour(row, 6, wx.Colour(215, 200, 250))
                                     else:
                                         self.grid_out.SetCellBackgroundColour(row, 6, wx.Colour(255, 210, 230))
@@ -4243,6 +4273,7 @@ class MyFrame(wx.Frame):
                                                 self.grid_out.AppendRows()
                                                 self.grid_out.SetCellValue(row, 2, mm[0])
                                                 self.grid_out.SetCellValue(row, 3, i[0])
+                                                self.grid_out.SetCellValue(row, 4, os.path.splitext(i[0])[1])
                                                 self.grid_out.SetCellValue(row, 5, mm[2])
                                                 self.grid_out.SetCellValue(row, 6, k)
                                                 if 'G' in mm[2]:
@@ -4252,12 +4283,12 @@ class MyFrame(wx.Frame):
                                                 if i[1] == 'D':
                                                     self.grid_out.SetCellValue(row, 0, 'D')
                                                     self.grid_out.SetCellTextColour(row, 0, wx.Colour(182, 180, 187))
+                                                    # self.grid_out.SetCellBackgroundColour(row, 0, wx.Colour(232, 230, 237))
                                                     self.grid_out.SetCellBackgroundColour(row, 1, wx.Colour(225, 225, 225))
                                                     self.grid_out.SetCellBackgroundColour(row, 2, wx.Colour(225, 225, 225))
                                                     self.grid_out.SetCellBackgroundColour(row, 3, wx.Colour(232, 230, 237))
                                                     self.grid_out.SetCellBackgroundColour(row, 4, wx.Colour(232, 230, 237))
                                                     self.grid_out.SetCellBackgroundColour(row, 5, wx.Colour(232, 230, 237))
-                                                    self.grid_out.SetCellBackgroundColour(row, 0, wx.Colour(232, 230, 237))
                                                     self.grid_out.SetCellBackgroundColour(row, 6, wx.Colour(215, 200, 250))
                                                 else:
                                                     self.grid_out.SetCellBackgroundColour(row, 6, wx.Colour(255, 210, 230))
@@ -4273,7 +4304,7 @@ class MyFrame(wx.Frame):
                                                     self.grid_out.SetCellTextColour(row, 5, wx.Colour(192, 160, 167))
                                                     self.grid_out.SetCellTextColour(row, 6, wx.Colour(192, 160, 167))
                                             row += 1
-                                            dd = [i[1], isdel, mm[0], i[0], '', mm[2], k]
+                                            dd = [i[1], isdel, mm[0], i[0], os.path.splitext(i[0])[1], mm[2], k]
                                             self.data.append(dd)
 
                                             if FistDo:
@@ -4284,6 +4315,8 @@ class MyFrame(wx.Frame):
                                         s_c += 1
                                         self.text_label2.SetLabel(f'找到 {s_c} 个')
                                         self.SelDif=False
+                                        if not mm[4]:
+                                            mm[4] = os.path.splitext(mm[3])[1]
                                         # if mm[4] not in user and mm[4] != '':
                                         #     user.append(mm[4])
                                         if self.grid_out.IsShown():
@@ -4303,12 +4336,12 @@ class MyFrame(wx.Frame):
                                             if mm[0] == 'D':
                                                 self.grid_out.SetCellValue(row, 0, 'D')
                                                 self.grid_out.SetCellTextColour(row, 0, wx.Colour(182, 180, 187))
+                                                # self.grid_out.SetCellBackgroundColour(row, 0, wx.Colour(232, 230, 237))
                                                 self.grid_out.SetCellBackgroundColour(row, 1, wx.Colour(225, 225, 225))
                                                 self.grid_out.SetCellBackgroundColour(row, 2, wx.Colour(225, 225, 225))
                                                 self.grid_out.SetCellBackgroundColour(row, 3, wx.Colour(232, 230, 237))
                                                 self.grid_out.SetCellBackgroundColour(row, 4, wx.Colour(232, 230, 237))
                                                 self.grid_out.SetCellBackgroundColour(row, 5, wx.Colour(232, 230, 237))
-                                                self.grid_out.SetCellBackgroundColour(row, 0, wx.Colour(232, 230, 237))
                                                 self.grid_out.SetCellBackgroundColour(row, 6, wx.Colour(215, 200, 250))
                                             else:
                                                 self.grid_out.SetCellBackgroundColour(row, 6, wx.Colour(255, 210, 230))
